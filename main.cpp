@@ -117,6 +117,34 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
+ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
+	
+#pragma region VertexResourceを生成する
+	//頂点リソース用のヒープの設定
+	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
+	//頂点リソースの設定
+	D3D12_RESOURCE_DESC vertexResorceDesc{};
+	//バッファリソース。テクスチャの場合はまた別の設定をする
+	vertexResorceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vertexResorceDesc.Width = sizeInBytes;
+	//バッファの場合はこれらは１にする決まり
+	vertexResorceDesc.Height = 1;
+	vertexResorceDesc.DepthOrArraySize = 1;
+	vertexResorceDesc.MipLevels = 1;
+	vertexResorceDesc.SampleDesc.Count = 1;
+	//バッファの場合はこれにする決まり
+	vertexResorceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+#pragma endregion
+	ID3D12Resource* vertexResource = nullptr;
+	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
+		&vertexResorceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+		IID_PPV_ARGS(&vertexResource));
+	assert(SUCCEEDED(hr));
+	return vertexResource;
+}
+
+
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region ウィンドウ生成 
@@ -240,6 +268,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #endif
 #pragma endregion
 #pragma endregion
+
 #pragma region コマンドキューの生成
 	//コマンドキューを生成
 	ID3D12CommandQueue* commandQueue = nullptr;
@@ -306,6 +335,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
 #pragma endregion
+
+
 #pragma region FenceとEventの生成と処理
 	ID3D12Fence* fence = nullptr; 
 	uint32_t fenceValue = 0;
@@ -317,6 +348,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	assert(fenceEvent!=nullptr);
 #pragma endregion
 
+
+#pragma region 02_00
 #pragma region DXCの初期化
 	//dxcCompilerを初期化
 	IDxcUtils* dxcUtils = nullptr;
@@ -336,6 +369,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+#pragma region RootParameter 02_01
+	//RootParameter作成。複数設定できるので配列。今回は結果一つだけなので長さ１の配列
+	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;		//PixelShaderで使う
+	rootParameters[0].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
+	descriptionRootSignature.pParameters = rootParameters;					//ルートパラメータ配列へのポインタ
+	descriptionRootSignature.NumParameters = _countof(rootParameters);		//配列の長さ
+#pragma endregion
 	//シリアライズしてバイナリにする
 	ID3DBlob* signatureBlob = nullptr;
 	ID3DBlob* errorBlob = nullptr;
@@ -383,10 +425,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 #pragma region PSOを生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature;
-	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;
-	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),vertexShaderBlob->GetBufferSize() };
-	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),pixelShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.pRootSignature = rootSignature;	//RootSignature
+	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	//InputLayout
+	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
+		vertexShaderBlob->GetBufferSize() };
+	graphicsPipelineStateDesc.PS = { pixelShaderBlob->GetBufferPointer(),
+		pixelShaderBlob->GetBufferSize() };
 	graphicsPipelineStateDesc.BlendState = blendDesc;
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;
 	//書き込むRTVの情報
@@ -399,48 +443,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	//実際に生成
 	ID3D12PipelineState* graphicsPipelineState = nullptr;
-	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&graphicsPipelineState));
+	hr = device->CreateGraphicsPipelineState(&graphicsPipelineStateDesc,
+		IID_PPV_ARGS(&graphicsPipelineState));
 	assert(SUCCEEDED(hr));
+#pragma endregion
+	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(Vector4)*3);
+#pragma region Material用のResourceを作る
+	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
+	ID3D12Resource* materialResource = CreateBufferResource(device, sizeof(Vector4));
+	//マテリアルにデータを書き込む
+	Vector4* materialData = nullptr;
+	//書き込むためのアドレスを取得
+	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
+	*materialData = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 #pragma endregion
 
-#pragma region VertexResourceを生成する
-	//頂点リソース用のヒープの設定
-	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-	//頂点リソースの設定
-	D3D12_RESOURCE_DESC vertexResorceDesc{};
-	//バッファリソース。テクスチャの場合はまた別の設定をする
-	vertexResorceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResorceDesc.Width = sizeof(Vector4) * 3;
-	//バッファの場合はこれらは１にする決まり
-	vertexResorceDesc.Height = 1;
-	vertexResorceDesc.DepthOrArraySize = 1;
-	vertexResorceDesc.MipLevels = 1;
-	vertexResorceDesc.SampleDesc.Count = 1;
-	//バッファの場合はこれにする決まり
-	vertexResorceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//実際に頂点リソースを作る
-	ID3D12Resource* vertexResource = nullptr;
-	hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &vertexResorceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexResource));
-	assert(SUCCEEDED(hr));
-#pragma endregion
+	
+	
+
 #pragma region VertexBufferViewを作成
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 	//リソースの戦闘のアドレスから使う
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点3つ分のサイズ
 	vertexBufferView.SizeInBytes = sizeof(Vector4) * 3;
 	//1頂点当たりのサイズ
 	vertexBufferView.StrideInBytes = sizeof(Vector4);
 #pragma endregion
 #pragma region Resourceにデータを書き込む
-	Vector4 *vertexData = nullptr;
+	Vector4* vertexData = nullptr;
 	//書き込むためのアドレスを取得
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	//左下
-	vertexData[0] = { -0.5f,-0.5f ,0.0f,0.0f };
+	vertexData[0] = { -0.5f,-0.5f,0.0f,1.0f };
 	//上
 	vertexData[1] = { 0.0f,0.5f,0.0f,1.0f };
 	//右下
-	vertexData[2] = { 0.5f,-0.5f ,0.0f,1.0f };
+	vertexData[2] = { 0.5f,-0.5f,0.0f,1.0f };
 #pragma endregion
 #pragma region ViewportとScissor(シザー)
 	//ビューポート
@@ -452,7 +492,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	
+
 	//シザー短形
 	D3D12_RECT scissorRect{};
 	//基本的にビューポートと同じ短形が構成されるようにする
@@ -461,10 +501,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scissorRect.top = 0;
 	scissorRect.bottom = kClientHeight;
 #pragma endregion
-
-
+#pragma endregion
 #pragma region 更新
-
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -498,7 +536,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//指定した色で画面全体をクリアする
 			float clearColor[] = { 0.1f,0.25f,0.5f,1.0f };//青っぽい色
 			commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
-#pragma region コマンドを組む
+#pragma region コマンドを組む02_00
 			commandList->RSSetViewports(1, &viewport);
 			commandList->RSSetScissorRects(1, &scissorRect);
 			//RootSignatureを設定。PSOに設定しているけど別途設定が必要
@@ -507,6 +545,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 			//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//マテリアルCBufferの場所を設定
+			commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 			//描画！
 			commandList->DrawInstanced(3, 1, 0, 0);
 #pragma endregion
@@ -534,11 +574,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			fenceValue++;
 			//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
 			commandQueue->Signal(fence, fenceValue);
-
 			//Fenceの値が指定したSignal値にたどり着いているか確認する
 			//GetCompleteValueの初期値はFence作成時に渡した初期値
 			if (fence->GetCompletedValue() < fenceValue) {
-
 				//指定したSignalにたどり着いていないので、だどりつくまでイベントを指定する
 				fence->SetEventOnCompletion(fenceValue, fenceEvent);
 				//イベント待つ
@@ -551,12 +589,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			hr = commandList->Reset(commandAllocator, nullptr);
 			assert(SUCCEEDED(hr));
 #pragma endregion
-
 		}
 	}
 #pragma endregion
 #pragma region 開放処理
 	//生成と逆順に飲む
+	
+#pragma region 02_00
+	//02_01
+	materialResource->Release();
+
 	vertexResource->Release();
 	graphicsPipelineState->Release();
 	signatureBlob->Release();
@@ -566,6 +608,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rootSignature->Release();
 	pixelShaderBlob->Release();
 	vertexShaderBlob->Release();
+#pragma endregion
 
 	CloseHandle(fenceEvent);
 	fence->Release();
