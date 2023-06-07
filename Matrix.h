@@ -11,6 +11,14 @@ struct Vector3 {
 struct Matrix4x4 {
 	float m[4][4];
 };
+//透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
+
+//正射投影行列
+Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip);
+
+//ビューポート変換
+Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
 // 加算
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);

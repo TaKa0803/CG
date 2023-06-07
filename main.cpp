@@ -11,7 +11,7 @@
 #pragma comment(lib,"dxguid.lib")
 #include<dxcapi.h>
 #pragma comment(lib,"dxcompiler.lib")
-
+#include"Matrix.h"
 struct Vector4 {
 	float x;
 	float y;
@@ -19,6 +19,11 @@ struct Vector4 {
 	float w;
 };
 
+struct Transform {
+	Vector3 scale;
+	Vector3 rotate;
+	Vector3 translate;
+};
 std::string ConvertString(const std::wstring& str) {
 	if (str.empty()) {
 		return std::string();
@@ -347,8 +352,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fenceEvent!=nullptr);
 #pragma endregion
-
-
 #pragma region 02_00
 #pragma region DXCの初期化
 	//dxcCompilerを初期化
@@ -370,11 +373,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	descriptionRootSignature.Flags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 #pragma region RootParameter 02_01
-	//RootParameter作成。複数設定できるので配列。今回は結果一つだけなので長さ１の配列
-	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	//RootParameter作成。PixelShaderのMAterialとVertexShaderのTransform
+	D3D12_ROOT_PARAMETER rootParameters[2] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;		//PixelShaderで使う
 	rootParameters[0].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//PixelShaderで使う
+	rootParameters[1].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
+
 	descriptionRootSignature.pParameters = rootParameters;					//ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters);		//配列の長さ
 #pragma endregion
@@ -457,10 +464,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	*materialData = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 #pragma endregion
-
-	
-	
-
+#pragma region TransformationMatrix用のResourceを作る
+	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
+	ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
+	//データを書き込む
+	Matrix4x4* wvpData = nullptr;
+	//書き込むためのアドレスを取得
+	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpData));
+	//単位行列を書き込んでおく
+	*wvpData = MakeIdentity4x4();
+#pragma endregion
 #pragma region VertexBufferViewを作成
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
@@ -502,7 +515,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scissorRect.bottom = kClientHeight;
 #pragma endregion
 #pragma endregion
+
+
+	
 #pragma region 更新
+	//Transform変数を作る
+	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+	//カメラ情報
+	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -512,6 +532,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		else {
 			//ゲーム内処理
+#pragma region 回転処理
+			transform.rotate.y += 0.03f;
+			//CBufferの中身の変更
+			//ワールド
+			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+			//カメラ処理
+			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+			//透視投影行列
+			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+
+			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+			//*transformationMatrixData = worldViewProjectionMatrix;
+
+			*wvpData = worldViewProjectionMatrix;
+#pragma endregion
+
 #pragma region コマンドを積み込んで確定させる
 			//これから書き込むバックバッファのインデックスを取得
 			UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
@@ -547,6 +584,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			//マテリアルCBufferの場所を設定
 			commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+			//wvp用のCBufferの場所の設定
+			commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 			//描画！
 			commandList->DrawInstanced(3, 1, 0, 0);
 #pragma endregion
@@ -594,7 +633,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 #pragma region 開放処理
 	//生成と逆順に飲む
-	
+	wvpResource->Release();
 #pragma region 02_00
 	//02_01
 	materialResource->Release();
@@ -635,9 +674,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
 		debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
 		debug->Release();
-
 		//警告時に止まる
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+		//infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 	}
 #pragma endregion
 
