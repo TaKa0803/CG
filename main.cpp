@@ -972,6 +972,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("Camera rotate", &cameraTransform.rotate.x, 0.01f);
 			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
 			ImGui::End();
+
+			ImGui::Begin("Sphere");
+			ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
+			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
+			ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
+			ImGui::End();
+
+			ImGui::Begin("Sprite");
+
+			ImGui::End();
 #pragma endregion
 #pragma region //CBufferの中身の変更
 			//ワールド
