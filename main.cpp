@@ -50,6 +50,7 @@ struct VertexData {
 struct Material {
 	Vector4 color;
 	int32_t enableLighting;
+	int32_t enableHalfLambert;
 };
 
 struct WorldTransformation {
@@ -882,7 +883,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialData->enableLighting = true;
-
+	materialData->enableHalfLambert = false;
 	//Sprite用のマテリアルリソース
 	ID3D12Resource* materialSpriteResource = CreateBufferResource(device, sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -890,7 +891,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialSpriteResource->Map(0, nullptr, reinterpret_cast<void**>(&materialSpriteData));
 	materialSpriteData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialSpriteData->enableLighting = false;
-
+	materialSpriteData->enableHalfLambert = false;
 	//ディレクションライトのマテリアルリソース
 	ID3D12Resource* directionalLightResource = CreateBufferResource(device, sizeof(DirectionalLight));
 	DirectionalLight* directionalLightData = nullptr;
@@ -1022,6 +1023,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	bool useMonsterBall = true;
 
+	bool useHalfLambart = false;
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -1054,11 +1056,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
 			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
 			ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
+			ImGui::Checkbox("HalfLambert",&useHalfLambart);
 			ImGui::End();
 
 			ImGui::Begin("Sprite");
 
 			ImGui::End();
+			if (useHalfLambart) {
+				materialData->enableHalfLambert = true;
+			}
+			else {
+				materialData->enableHalfLambert = false;
+			}
+			
 #pragma endregion
 #pragma region //CBufferの中身の変更
 			//ワールド
