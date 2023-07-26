@@ -21,6 +21,284 @@
 
 #define _USE_MATH_DEFINES
 #include<math.h>
+
+
+#include"x3daudio.h"
+#include<xaudio2.h>
+#pragma comment(lib, "xaudio2.lib")
+#include<fstream>
+#include<winnt.h>
+#include<Windows.h>
+#include<xaudio2fx.h>
+
+
+
+//#include<wrl/client.h>
+//using namespace Microsoft::WRL;
+
+struct ChunkHeader {
+	char id[4];		//チャンク用のID
+	int32_t size;	//チャンクサイズ
+};
+struct RiffHeader {
+	ChunkHeader chunk;//RIFF
+	char type[4];//WAVE
+};
+struct FormatChunk {
+	ChunkHeader chunk;//ｆｍｔ
+	WAVEFORMATEX fmt;//波形フォーマット
+};
+
+//音声データ
+struct SoundData {
+	//波形フォーマット
+	WAVEFORMATEX wfex;
+	//バッファの先頭アドレス
+	BYTE* pBuffer;
+	//バッファのサイズ
+	unsigned int bufferSize;
+};
+
+
+SoundData SoundLoadWave(const char* filename) {
+	//HRESULT result;
+
+	//ファイル入力ストリームのインスタンス
+	std::ifstream file;
+	//.wavファイルをバイナリモードで開く
+	file.open(filename, std::ios_base::binary);
+	//ファイルオープン失敗を検出する
+	assert(file.is_open());
+
+	//RIFFヘッダーの読み込み
+	RiffHeader riff;
+	file.read((char*)&riff, sizeof(riff));
+	//ファイルがRIFFかチェック
+	if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
+		assert(0);
+	}
+	//タイプがWAVEかチェック
+	if (strncmp(riff.type, "WAVE", 4) != 0) {
+		assert(0);
+	}
+
+	//Formatチャンクの読み込み
+	FormatChunk format = {};
+	//チャンクのヘッダーの確認
+	file.read((char*)&format, sizeof(ChunkHeader));
+	if (strncmp(format.chunk.id, "fmt ", 4) != 0) {
+
+		assert(0);
+	}
+
+	//チャンク本体の読み込み
+	assert(format.chunk.size <= sizeof(format.fmt));
+	file.read((char*)&format.fmt, format.chunk.size);
+
+	//Dataチャンクの読み込み
+	ChunkHeader data;
+	file.read((char*)&data, sizeof(data));
+	//Junkチャンクを検出した場合
+	if (strncmp(data.id, "JUNK", 4) == 0) {
+		//読み取り位置をJUNKチャンクの終わりまで進める
+		file.seekg(data.size, std::ios_base::cur);
+		//再読み込み
+		file.read((char*)&data, sizeof(data));
+	}
+
+	if (strncmp(data.id, "data", 4) != 0) {
+		assert(0);
+	}
+
+	//Dataチャンクのデータ列（波形データ）の読み込み
+	char* pBuffer = new char[data.size];
+	file.read(pBuffer, data.size);
+
+	//Waveファイルを閉じる
+	file.close();
+
+	//returnするための音声データ
+	SoundData soundData = {};
+
+	soundData.wfex = format.fmt;
+	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
+	soundData.bufferSize = data.size;
+
+	return soundData;
+}
+
+void SoundUnload(SoundData* soundData) {
+	//バッファのメモリを解放
+	delete[] soundData->pBuffer;
+
+	soundData->pBuffer = 0;
+	soundData->bufferSize = 0;
+	soundData->wfex = {};
+}
+
+void Clamp(float& num, float MAX, float MIN) {
+	if (num > MAX) {
+		num = MAX;
+	}
+	if (num < MIN) {
+		num = MIN;
+	}
+
+}
+
+void SoundPlayWave(
+	IXAudio2* xAudio2, IXAudio2MasteringVoice* masterVoice, const SoundData& soundData,
+	float volume, float pan, bool isActive) {
+	HRESULT result;
+
+#pragma region SubmixVoice
+	IXAudio2SubmixVoice* pSFXSubmixVoice;
+	xAudio2->CreateSubmixVoice(&pSFXSubmixVoice, 1, 44100, 0, 0, 0, 0);
+
+	XAUDIO2_SEND_DESCRIPTOR SFXSend = { 0, pSFXSubmixVoice };
+	XAUDIO2_VOICE_SENDS SFXSendList = { 1, &SFXSend };
+
+	IXAudio2SourceVoice* pSFXSourceVoice;
+	result = xAudio2->CreateSourceVoice(&pSFXSourceVoice, &soundData.wfex, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
+
+
+#pragma endregion
+
+	//音量
+	float Volume = volume;
+	Clamp(Volume, 1, 0);
+	//pSFXSubmixVoice->SetVolume(Volume);
+	//波形フォーマットをもとにSourceVoiceの生成
+	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	//基本的なオーディオ処理グラフ
+	result = xAudio2->CreateSourceVoice(&pSourceVoice, &soundData.wfex, 0, XAUDIO2_MAX_FREQ_RATIO, NULL, NULL, NULL);
+	assert(SUCCEEDED(result));
+	pSourceVoice->SetVolume(Volume);
+
+#pragma region pan
+	DWORD dwChannelMask;
+	masterVoice->GetChannelMask(&dwChannelMask);
+
+	float outputMatrix[4];
+	for (int i = 0; i < 4; i++) {
+		outputMatrix[i] = 0;
+	}
+	// pan of -1.0 indicates all left speaker,
+	// 1.0 is all right speaker, 0.0 is split between left and right
+	float left = 0.5f - pan / 2;
+	float right = 0.5f + pan / 2;
+
+	switch (dwChannelMask) {
+	case SPEAKER_MONO:
+		outputMatrix[0] = 1.0;
+		break;
+	case SPEAKER_STEREO:
+	case SPEAKER_2POINT1:
+	case SPEAKER_SURROUND:
+		outputMatrix[0] = left;
+		outputMatrix[1] = left;
+
+		outputMatrix[2] = right;
+		outputMatrix[3] = right;
+
+		break;
+
+	}
+
+	// Assuming pVoice sends to pMasteringVoice
+
+	XAUDIO2_VOICE_DETAILS VoiceDetails;
+	pSourceVoice->GetVoiceDetails(&VoiceDetails);
+
+	XAUDIO2_VOICE_DETAILS MasterVoiceDetails;
+	masterVoice->GetVoiceDetails(&MasterVoiceDetails);
+	//音声の出力量を設定
+	pSourceVoice->SetOutputMatrix(
+		NULL, VoiceDetails.InputChannels, MasterVoiceDetails.InputChannels, outputMatrix);
+
+#pragma endregion
+
+
+
+#pragma region エフェクトチェーン
+	IUnknown* pXAPO;
+	result = XAudio2CreateReverb(&pXAPO);
+	assert(SUCCEEDED(result));
+
+	XAUDIO2_EFFECT_DESCRIPTOR descriptor;
+	descriptor.InitialState = true;
+	descriptor.OutputChannels = 1;
+	descriptor.pEffect = pXAPO;
+
+	// エフェクトチェーン構造体
+	XAUDIO2_EFFECT_CHAIN chain;
+	chain.EffectCount = 1; // 複数持てる
+	chain.pEffectDescriptors = &descriptor;
+
+	// エフェクトチェーンをセットしたいボイスにセット
+	pSourceVoice->SetEffectChain(&chain);
+
+	// 開放
+	pXAPO->Release();
+
+#pragma region 例のリバーブエフェクト（残響）
+	/*
+	XAUDIO2FX_REVERB_PARAMETERS reverbParameters;
+	reverbParameters.ReflectionsDelay = XAUDIO2FX_REVERB_DEFAULT_REFLECTIONS_DELAY;
+	reverbParameters.ReverbDelay = XAUDIO2FX_REVERB_DEFAULT_REVERB_DELAY;
+	reverbParameters.RearDelay = XAUDIO2FX_REVERB_DEFAULT_REAR_DELAY;
+	reverbParameters.PositionLeft = XAUDIO2FX_REVERB_DEFAULT_POSITION;
+	reverbParameters.PositionRight = XAUDIO2FX_REVERB_DEFAULT_POSITION;
+	reverbParameters.PositionMatrixLeft = XAUDIO2FX_REVERB_DEFAULT_POSITION_MATRIX;
+	reverbParameters.PositionMatrixRight = XAUDIO2FX_REVERB_DEFAULT_POSITION_MATRIX;
+	reverbParameters.EarlyDiffusion = XAUDIO2FX_REVERB_DEFAULT_EARLY_DIFFUSION;
+	reverbParameters.LateDiffusion = XAUDIO2FX_REVERB_DEFAULT_LATE_DIFFUSION;
+	reverbParameters.LowEQGain = XAUDIO2FX_REVERB_DEFAULT_LOW_EQ_GAIN;
+	reverbParameters.LowEQCutoff = XAUDIO2FX_REVERB_DEFAULT_LOW_EQ_CUTOFF;
+	reverbParameters.HighEQGain = XAUDIO2FX_REVERB_DEFAULT_HIGH_EQ_GAIN;
+	reverbParameters.HighEQCutoff = XAUDIO2FX_REVERB_DEFAULT_HIGH_EQ_CUTOFF;
+	reverbParameters.RoomFilterFreq = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_FREQ;
+	reverbParameters.RoomFilterMain = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_MAIN;
+	reverbParameters.RoomFilterHF = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_HF;
+	reverbParameters.ReflectionsGain = XAUDIO2FX_REVERB_DEFAULT_REFLECTIONS_GAIN;
+	reverbParameters.ReverbGain = XAUDIO2FX_REVERB_DEFAULT_REVERB_GAIN;
+	reverbParameters.DecayTime = XAUDIO2FX_REVERB_DEFAULT_DECAY_TIME;
+	reverbParameters.Density = XAUDIO2FX_REVERB_DEFAULT_DENSITY;
+	reverbParameters.RoomSize = XAUDIO2FX_REVERB_DEFAULT_ROOM_SIZE;
+	reverbParameters.WetDryMix = XAUDIO2FX_REVERB_DEFAULT_WET_DRY_MIX;
+	//エフェクトのパラメーター構造を渡す
+	//If the effect does not support the generic parameter control interface, it fails with E_NOTIMPL.
+	result = pSourceVoice->SetEffectParameters(0, &reverbParameters, sizeof(reverbParameters));
+	assert(SUCCEEDED(result));
+	*/
+
+#pragma endregion
+
+	if (isActive) {
+
+		// 効果を有効にする
+		pSourceVoice->EnableEffect(0);
+	}
+	else {
+		pSourceVoice->DisableEffect(0);
+	}
+#pragma endregion
+
+	//再生する波形データの設定
+	XAUDIO2_BUFFER buf{};
+	buf.pAudioData = soundData.pBuffer;
+	buf.AudioBytes = soundData.bufferSize;
+	buf.Flags = XAUDIO2_END_OF_STREAM;
+	//ループ
+	//buf.LoopCount = XAUDIO2_LOOP_INFINITE;
+	//波形データの再生
+	result = pSourceVoice->SubmitSourceBuffer(&buf);
+	assert(SUCCEEDED(result));
+	result = pSourceVoice->Start();
+	assert(SUCCEEDED(result));
+}
+
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 struct Vector4 {
@@ -376,7 +654,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		nullptr,
 		wc.hInstance,
 		nullptr);
-	
+
 #pragma region DebugLayer
 #ifdef _DEBUG
 	ID3D12Debug1* debugController = nullptr;
@@ -388,7 +666,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 #endif
 #pragma endregion
-	
+
 
 	ShowWindow(hwnd, SW_SHOW);
 #pragma endregion
@@ -421,7 +699,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region D3D12Deviceの生成
 	ID3D12Device* device = nullptr;
 	//機能レベルとログと出力用の文字列
-	D3D_FEATURE_LEVEL featureLevels[] = {D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0 };
+	D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_12_2,D3D_FEATURE_LEVEL_12_1,D3D_FEATURE_LEVEL_12_0 };
 	const char* featurelevelString[] = { "12.2","12.1","12.0" };
 	//高い順に生成できるか試していく
 	for (size_t i = 0; i < _countof(featureLevels); ++i) {
@@ -434,7 +712,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	//デバイスの生成がうまく行かなかったので起動できない
 	assert(device != nullptr);
-	Log("Complete create D3D12Device!!\n");	
+	Log("Complete create D3D12Device!!\n");
 #pragma region エラー・警告で停止
 #ifdef _DEBUG
 	ID3D12InfoQueue* infoQueue = nullptr;
@@ -507,7 +785,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
 	ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 	//DSV用のヒープでディスクリプタの数は１。DSVはShader内で触るものではないので、ShaderVisibleはfalse
-	ID3D12DescriptorHeap* dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1,false);
+	ID3D12DescriptorHeap* dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 #pragma endregion
 #pragma region DescriptorSize
 	const uint32_t descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -533,7 +811,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 	//
 	rtvHandles[0] = rtvStartHandle;
-	device->CreateRenderTargetView(swapChainResources[0],&rtvDesc ,rtvHandles[0]);
+	device->CreateRenderTargetView(swapChainResources[0], &rtvDesc, rtvHandles[0]);
 	//
 	rtvHandles[1].ptr = rtvHandles[0].ptr + device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device->CreateRenderTargetView(swapChainResources[1], &rtvDesc, rtvHandles[1]);
@@ -549,14 +827,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #pragma endregion
 #pragma region FenceとEventの生成と処理
-	ID3D12Fence* fence = nullptr; 
+	ID3D12Fence* fence = nullptr;
 	uint32_t fenceValue = 0;
 	hr = device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 	assert(SUCCEEDED(hr));
 
 	//FenceのSignalを持つためのイベントを作成する
 	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-	assert(fenceEvent!=nullptr);
+	assert(fenceEvent != nullptr);
 #pragma endregion
 #pragma region PSO群
 #pragma region DXCの初期化
@@ -587,7 +865,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//PixelShaderで使う
 	rootParameters[1].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
-	
+
 	descriptionRootSignature.pParameters = rootParameters;					//ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters);		//配列の長さ
 
@@ -596,14 +874,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	descriptorRange[0].NumDescriptors = 1;//数は一つ
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//SRVを使う
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;//offsetを自動計算
-	
+
 	//DescriptorTable
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;;		//DescriptorHeapを使う
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;					//PixelShaderで使う 
-	rootParameters[2].DescriptorTable.pDescriptorRanges=descriptorRange;				//tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges=_countof(descriptorRange);	//tableで利用する
-	
-	
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;				//tableの中身の配列を指定
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);	//tableで利用する
+
+
 #pragma region Samplerの設定
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;//バイニアリング
@@ -750,7 +1028,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 #pragma region 描画用いろいろ
 #pragma region 円
-	const float kSubdivision=128;	
+	const float kSubdivision = 128;
 	//頂点数
 	int point = (int)kSubdivision * (int)kSubdivision * 6;
 	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * point);
@@ -771,7 +1049,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//書き込むためのアドレスを取得
 	vertexResource->Map(0, nullptr,
 		reinterpret_cast<void**>(&vertexData));
-	
+
 	//経度一つ分の角度δ
 	const float kLonEvery = (float)M_PI * 2.0f / float(kSubdivision);
 	//緯度一つ分の角度Θ
@@ -786,19 +1064,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//一枚目
 			//1(a)
 			vertexData[start].position = { cos(lat) * cos(lon),sin(lat),  cos(lat) * sin(lon),1.0f };
-			vertexData[start].texcoord ={ (lonIndex) / (float)kSubdivision,1.0f - (latIndex) / (float)kSubdivision };
+			vertexData[start].texcoord = { (lonIndex) / (float)kSubdivision,1.0f - (latIndex) / (float)kSubdivision };
 			//2(b)
-			vertexData[start+1].position = { cos(lat + kLatEvery) * cos(lon),sin(lat+kLatEvery), cos(lat + kLatEvery) * sin(lon),1.0f };
-			vertexData[start+1].texcoord = { (lonIndex) / (float)kSubdivision,1.0f - (latIndex+1) / (float)kSubdivision };
+			vertexData[start + 1].position = { cos(lat + kLatEvery) * cos(lon),sin(lat + kLatEvery), cos(lat + kLatEvery) * sin(lon),1.0f };
+			vertexData[start + 1].texcoord = { (lonIndex) / (float)kSubdivision,1.0f - (latIndex + 1) / (float)kSubdivision };
 			//3(c)
-			vertexData[start+2].position = { cos(lat) * cos(lon + kLonEvery),sin(lat),  cos(lat) * sin(lon + kLonEvery),1.0f };
-			vertexData[start+2].texcoord = { (lonIndex+1) / (float)kSubdivision,1.0f - (latIndex) / (float)kSubdivision };
+			vertexData[start + 2].position = { cos(lat) * cos(lon + kLonEvery),sin(lat),  cos(lat) * sin(lon + kLonEvery),1.0f };
+			vertexData[start + 2].texcoord = { (lonIndex + 1) / (float)kSubdivision,1.0f - (latIndex) / (float)kSubdivision };
 			//二枚目
 			//
 			vertexData[start + 3] = vertexData[start + 1];
 			//
-			vertexData[start + 4].position = { cos(lat + kLatEvery) * cos(lon+kLonEvery),sin(lat + kLatEvery), cos(lat + kLatEvery) * sin(lon + kLonEvery),1.0f };
-			vertexData[start + 4].texcoord = { (lonIndex+1) / (float)kSubdivision,1.0f - (latIndex+1) / (float)kSubdivision };
+			vertexData[start + 4].position = { cos(lat + kLatEvery) * cos(lon + kLonEvery),sin(lat + kLatEvery), cos(lat + kLatEvery) * sin(lon + kLonEvery),1.0f };
+			vertexData[start + 4].texcoord = { (lonIndex + 1) / (float)kSubdivision,1.0f - (latIndex + 1) / (float)kSubdivision };
 			//
 			vertexData[start + 5] = vertexData[start + 2];
 		}
@@ -859,7 +1137,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//SRVを作成するDescriptorHeapの場所を決める
 	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2= GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2 = GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, 2);
 	//srvの生成
 	device->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU2);
 
@@ -894,11 +1172,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ImGui_ImplWin32_Init(hwnd);
 	ImGui_ImplDX12_Init(device,
 		swapChainDesc.BufferCount,
-		rtvDesc.Format, 
+		rtvDesc.Format,
 		srvDescriptorHeap,
 		srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
 		srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	
+
 #pragma endregion
 #pragma region コマンドをキックする
 	//コマンドリストの内容を確定させる。すべてのコマンドを積んでからCloseすること
@@ -935,6 +1213,54 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	intermediateResource->Release();
 	intermediateResource2->Release();
 
+
+
+
+	// Open the file
+	HANDLE hFile = CreateFile(
+		(LPCWSTR)"/resources/Alarm01.wav",
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		0,
+		NULL);
+
+	if (INVALID_HANDLE_VALUE == hFile) {
+		return HRESULT_FROM_WIN32(GetLastError());
+	}
+	if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN)){
+		return HRESULT_FROM_WIN32(GetLastError());
+	}
+
+	DWORD dwChunkSize;
+	DWORD dwChunkPosition;
+	//check the file type, should be fourccWAVE or 'XWMA'
+	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
+	DWORD filetype;
+	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
+	if (filetype != fourccWAVE) {
+		return S_FALSE;
+	}
+
+	hr	= FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
+	hr	= ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
+
+	assert(SUCCEEDED(hr));
+
+	//fill out the audio data buffer with the contents of the fourccDATA chunk
+	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
+	BYTE* pDataBuffer = new BYTE[dwChunkSize];
+	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
+
+	buffer.AudioBytes = dwChunkSize;  //size of the audio buffer in bytes
+	buffer.pAudioData = pDataBuffer;  //buffer containing audio data
+	buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
+#pragma endregion
+
+#pragma endregion
+
+
 #pragma region 更新
 	//Transform変数を作る
 	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -964,6 +1290,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 更新処理
 			//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
 			ImGui::ShowDemoWindow();
+
+#pragma region サウンド
+			IXAudio2SourceVoice* pSourceVoice;
+			hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx);
+			assert(SUCCEEDED(hr));
+
+			hr = pSourceVoice->SubmitSourceBuffer(&buffer);
+			hr = pSourceVoice->Start();
+
+#pragma endregion
+
+
 #pragma region 回転処理
 			transform.rotate.y += 0.03f;
 
@@ -1046,7 +1384,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
 			commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall? textureSrvHandleGPU2: textureSrvHandleGPU);
 			//描画！
-			commandList->DrawInstanced(point, 1, 0, 0);
+			//commandList->DrawInstanced(point, 1, 0, 0);
 #pragma region 2D描画コマンド
 			//Spriteの描画
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定
@@ -1055,7 +1393,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//
 			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 			//描画！！（DrawCall
-			commandList->DrawInstanced(6, 1, 0, 0);
+			//commandList->DrawInstanced(6, 1, 0, 0);
 #pragma endregion
 
 			//実際のcommandListのImGuiの描画コマンドを積む
