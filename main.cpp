@@ -1073,15 +1073,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::Checkbox("HalfLambert",&useHalfLambart);
 			ImGui::End();
 
-			ImGui::Begin("Sprite");
-
-			ImGui::End();
 			if (useHalfLambart) {
 				materialData->enableHalfLambert = true;
 			}
 			else {
 				materialData->enableHalfLambert = false;
 			}
+
+			ImGui::Begin("directional Light");
+			ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
+			ImGui::DragFloat4("color", &directionalLightData->color.x, 0.01f);
+			ImGui::DragFloat("power",&directionalLightData->intensity,0.01f);
+			ImGui::End();
+			directionalLightData->direction = Normalize(directionalLightData->direction);
+
+			ImGui::Begin("Sprite");
+
+			ImGui::End();
+			
 			
 #pragma endregion
 #pragma region //CBufferの中身の変更
@@ -1242,6 +1251,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	depthStencilResource->Release();
 #pragma region 02_00
 	//02_01
+	indexResourceSprite->Release();
 	directionalLightResource->Release();
 	materialSpriteResource->Release();
 	materialResource->Release();
