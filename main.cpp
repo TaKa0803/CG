@@ -47,10 +47,15 @@ struct VertexData {
 	Vector3 normal;
 };
 
+struct Matrix3x3 {
+	float m[3][3];
+};
+
 struct Material {
 	Vector4 color;
 	int32_t enableLighting;
-	int32_t enableHalfLambert;
+	float padding[3];
+	Matrix4x4 uvTransform;
 };
 
 struct WorldTransformation {
@@ -897,7 +902,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
 	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialData->enableLighting = true;
-	materialData->enableHalfLambert = false;
+	materialData->uvTransform = MakeIdentity4x4();
+	//materialData->enableHalfLambert = false;
 	//Sprite用のマテリアルリソース
 	ID3D12Resource* materialSpriteResource = CreateBufferResource(device, sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -905,7 +911,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialSpriteResource->Map(0, nullptr, reinterpret_cast<void**>(&materialSpriteData));
 	materialSpriteData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialSpriteData->enableLighting = false;
-	materialSpriteData->enableHalfLambert = false;
+	materialSpriteData->uvTransform = MakeIdentity4x4();
+	//materialSpriteData->enableHalfLambert = false;
 	//ディレクションライトのマテリアルリソース
 	ID3D12Resource* directionalLightResource = CreateBufferResource(device, sizeof(DirectionalLight));
 	DirectionalLight* directionalLightData = nullptr;
@@ -1035,9 +1042,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//リソースのtransform
 	Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
+	Transform UVT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
 	bool useMonsterBall = true;
 
-	bool useHalfLambart = false;
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -1070,15 +1078,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
 			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
 			ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
-			ImGui::Checkbox("HalfLambert",&useHalfLambart);
 			ImGui::End();
 
-			if (useHalfLambart) {
-				materialData->enableHalfLambert = true;
-			}
-			else {
-				materialData->enableHalfLambert = false;
-			}
+			
 
 			ImGui::Begin("directional Light");
 			ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
@@ -1088,9 +1090,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			directionalLightData->direction = Normalize(directionalLightData->direction);
 
 			ImGui::Begin("Sprite");
-
+			ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f,-10.0f,10.0f);
+			ImGui::DragFloat2("scale", &UVT.scale.x, 0.01f, -10.0f, 10.0f);
+			ImGui::SliderAngle("rotate", &UVT.rotate.z);
 			ImGui::End();
-			
+			Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
+			materialSpriteData->uvTransform=worldUV;
 			
 #pragma endregion
 #pragma region //CBufferの中身の変更
