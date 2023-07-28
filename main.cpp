@@ -1,87 +1,21 @@
-#include<Windows.h>
-#include<cstdint>
-#include <string>
-#include<format>
-#include<d3d12.h>
-#include<dxgi1_6.h>
-#include<cassert>
-#pragma comment(lib,"d3d12.lib")
-#pragma comment(lib,"dxgi.lib")
-#include<dxgidebug.h>
-#pragma comment(lib,"dxguid.lib")
-#include<dxcapi.h>
-#pragma comment(lib,"dxcompiler.lib")
-#include"Matrix.h"
-#include"externals/imgui/imgui.h"
-#include"externals/Imgui/imgui_impl_dx12.h"
-#include"externals/Imgui/imgui_impl_win32.h"
-#include"externals/DirectXTex/DirectXTex.h"
-#include"externals/DirectXTex/d3dx12.h"
-#include<vector>
-#include<fstream>
-#include<sstream>
 
-#define _USE_MATH_DEFINES
-#include<math.h>
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+#include"SystemEngine.h"
 
-struct Vector4 {
-	float x;
-	float y;
-	float z;
-	float w;
+
+
+
+struct D3DResourceLeakChecker {
+	~D3DResourceLeakChecker() {
+		//リソースリークチェック
+		Microsoft::WRL::ComPtr<IDXGIDebug1>debug;
+		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
+			debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
+			debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
+			debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
+			//警告時に止まる
+		}
+	}
 };
-
-struct Vector2 {
-	float x;
-	float y;
-};
-
-struct Transform {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
-};
-
-struct VertexData {
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
-};
-
-struct Matrix3x3 {
-	float m[3][3];
-};
-
-struct Material {
-	Vector4 color;
-	int32_t enableLighting;
-	float padding[3];
-	Matrix4x4 uvTransform;
-};
-
-struct WorldTransformation {
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-};
-
-struct DirectionalLight {
-	Vector4 color;
-	Vector3 direction;
-	float intensity;
-};
-
-struct MaterialData {
-	std::string textureFilePath;
-};
-
-struct ModelData {
-	std::vector<VertexData> vertices;
-	MaterialData material;
-};
-
-
-
 
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//1中で必要になる変数の宣言
@@ -139,18 +73,19 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			Vector2 texcoord;
 			s >> texcoord.x >> texcoord.y;
 			texcoord.y = 1.0f - texcoord.y;
-			texcoord.x = 1.0f - texcoord.x;
+			//texcoord.x = 1.0f - texcoord.x;
 			texcoords.push_back(texcoord);
 		}
 		else if (identifier == "vn") {
 			Vector3 normal;
 			s >> normal.x >> normal.y >> normal.z;
 			normal.x *= -1.0f;
+			
 			normals.push_back(normal);
 		}
 		else if (identifier == "f") {
 			//面は三角形限定その他は未対応
-			//VertexData triangle[3];
+			VertexData triangle[3];
 			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
 				std::string vertexDefinition;
 				s >> vertexDefinition;
@@ -169,12 +104,14 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				Vector4 position = positions[elementIndices[0] - 1];
 				Vector2 texcoord = texcoords[elementIndices[1] - 1];
 				Vector3 normal = normals[elementIndices[2] - 1];
-				VertexData vertex = { position,texcoord,normal };
-				modeldata.vertices.push_back(vertex);
+				//VertexData vertex = { position,texcoord,normal };
+				//modeldata.vertices.push_back(vertex);
 
-
-
+				triangle[faceVertex] = { position,texcoord,normal };
 			}
+			modeldata.vertices.push_back(triangle[2]);
+			modeldata.vertices.push_back(triangle[1]);
+			modeldata.vertices.push_back(triangle[0]);
 		}
 		else if (identifier == "mtllib") {
 			//materialTemplateLibraryファイルの名前を変更する
@@ -184,6 +121,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
 		}
 
+		
 	}
 #pragma endregion
 #pragma region 4.ModelDataを返す
@@ -492,6 +430,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descrip
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
+	D3DResourceLeakChecker lackCheck;
 #pragma region ウィンドウ生成 
 	WNDCLASS wc{};
 	wc.lpfnWndProc = WindowProc;
@@ -1005,7 +944,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	*/
 
 #pragma region obj
-	ModelData modeldata = LoadObjFile("resources","plane.obj");
+	ModelData modeldata = LoadObjFile("resources","multiMesh.obj");
 	//頂点リソースを作る
 	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * modeldata.vertices.size());
 	//頂点バッファビューを作成する
@@ -1241,7 +1180,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::End();
 			Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
 			materialSpriteData->uvTransform=worldUV;
-			
+			materialData->uvTransform = worldUV;
 #pragma endregion
 #pragma region //CBufferの中身の変更
 			//ワールド
@@ -1436,16 +1375,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CloseWindow(hwnd);
 #pragma endregion
 #pragma region ReportLiveObjects
-	//リソースリリースチェック
-	IDXGIDebug1* debug;
-	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
-		debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
-		debug->ReportLiveObjects(DXGI_DEBUG_APP, DXGI_DEBUG_RLO_ALL);
-		debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_ALL);
-		debug->Release();
-		//警告時に止まる
-		//infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-	}
+	lackCheck.~D3DResourceLeakChecker();
 #pragma endregion
 
 	CoUninitialize();
