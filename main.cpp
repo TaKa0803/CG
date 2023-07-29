@@ -1,8 +1,4 @@
-
 #include"SystemEngine.h"
-
-
-
 
 struct D3DResourceLeakChecker {
 	~D3DResourceLeakChecker() {
@@ -16,6 +12,8 @@ struct D3DResourceLeakChecker {
 		}
 	}
 };
+
+
 
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//1中で必要になる変数の宣言
@@ -42,7 +40,6 @@ MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const st
 	return materialdata;
 
 }
-
 
 ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 #pragma region 中で必要となる変数の宣言
