@@ -949,7 +949,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpDataS->World = MakeIdentity4x4();
 #pragma endregion	
 #pragma region obj
-	ModelData modeldata = LoadObjFile("resources","multiMesh.obj");
+	ModelData modeldata = LoadObjFile("resources","bunny.obj");
 	//頂点リソースを作る
 	ID3D12Resource* vertexResource = CreateBufferResource(device, sizeof(VertexData) * modeldata.vertices.size());
 	//頂点バッファビューを作成する
@@ -963,16 +963,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	std::memcpy(vertexData, modeldata.vertices.data(), sizeof(VertexData)* modeldata.vertices.size());
 #pragma endregion
 
+#pragma region Utah Teapot
+	ModelData modeltea = LoadObjFile("resources", "teapot.obj");
+	ID3D12Resource* vertexRtea = CreateBufferResource(device, sizeof(VertexData) * modeltea.vertices.size());
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
+	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();
+	vertexBufferViewtea.SizeInBytes = UINT(sizeof(VertexData) * modeltea.vertices.size());
+	vertexBufferViewtea.StrideInBytes = sizeof(VertexData);
+
+	VertexData* vertexDatatea = nullptr;
+	vertexRtea->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
+	std::memcpy(vertexDatatea, modeltea.vertices.data(), sizeof(VertexData) * modeltea.vertices.size());
+
+
+	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
+	ID3D12Resource* wvpResourceTea = CreateBufferResource(device, sizeof(WorldTransformation));
+	//データを書き込む
+	WorldTransformation* wvpDataTea = nullptr;
+	//書き込むためのアドレスを取得
+	wvpResourceTea->Map(0, nullptr, reinterpret_cast<void**>(&wvpDataTea));
+	//単位行列を書き込んでおくtextureResource
+	wvpDataTea->WVP = MakeIdentity4x4();
+	wvpDataTea->World = MakeIdentity4x4();
+#pragma endregion
+
+
 
 #pragma region 三角形
 #pragma region vertex
-	ID3D12Resource* vertexResourceTri = CreateBufferResource(device, sizeof(VertexData) * 3);
+	int pointT = 6;
+	ID3D12Resource* vertexResourceTri = CreateBufferResource(device, sizeof(VertexData) * pointT);
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewTri{};
 	//リソースの戦闘のアドレスから使う
 	vertexBufferViewTri.BufferLocation = vertexResourceTri->GetGPUVirtualAddress();
 	//使用するリソースのサイズ
-	vertexBufferViewTri.SizeInBytes = sizeof(VertexData) * 3;
+	vertexBufferViewTri.SizeInBytes = sizeof(VertexData) * pointT;
 	//1頂点当たりのサイズ
 	vertexBufferViewTri.StrideInBytes = sizeof(VertexData);
 #pragma endregion
@@ -989,11 +1015,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	vertexDataT[0].texcoord = { 0.0f,1.0f };
 	vertexDataT[1].texcoord = { 0.5f,0.0f };
-	vertexDataT[1].texcoord = { 1.0f,1.0f };
+	vertexDataT[2].texcoord = { 1.0f,1.0f };
 
 	vertexDataT[0].normal = { 0.0f,0.0f,1.0f };
-	vertexDataT[1].normal = vertexDataT[2].normal = vertexDataT[0].normal;
+	vertexDataT[1].normal = vertexDataT[2].normal= vertexDataT[3].normal= vertexDataT[4].normal= vertexDataT[5].normal = vertexDataT[0].normal;
 
+	vertexDataT[3].position = { -0.5f,-0.5f,0.5f,1.0f };
+	vertexDataT[4].position = { 0.0f,0.0f,0.0f,1.0f };
+	vertexDataT[5].position = { 0.5f,-0.5f,-0.5f,1.0f };
+
+	vertexDataT[3].texcoord = { 0.0f,1.0f };
+	vertexDataT[4].texcoord = { 0.5f,0.0f };
+	vertexDataT[5].texcoord = { 1.0f,1.0f };
 #pragma endregion
 #pragma region wvp
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
@@ -1006,8 +1039,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpDataTri->WVP = MakeIdentity4x4();
 	wvpDataTri->World = MakeIdentity4x4();
 #pragma endregion
-
-
 #pragma endregion
 
 
@@ -1036,7 +1067,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialT->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);;
 	materialT->enableHalfLambert = false;
 	materialT->enableLighting = false;
-	materialT->enableTexture = false;
+	materialT->enableTexture = true;
 	materialT->uvTransform = MakeIdentity4x4();
 
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
@@ -1191,6 +1222,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//Transform変数を作る
 	Transform OBJT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
+	Transform teapot{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
 
 	//リソースのtransform
 	Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -1206,13 +1239,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool useHalfLambert = true;
 	enum Mode {
 		Triangle,
-		Triangle2,
 		Sphere,
 		Sprite,
 		Model,
 	};
 
-	Mode mode = Triangle;
+	Mode mode = Model;
+
+	int num = Triangle;
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
@@ -1236,18 +1270,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region 回転処理
 			
 
+
+
 			ImGui::Begin("Camera");
 			ImGui::DragFloat3("Camera translate", &cameraTransform.translate.x, 0.01f);
 			ImGui::DragFloat3("Camera rotate", &cameraTransform.rotate.x, 0.01f);
 			ImGui::Checkbox("useTexture", &useTexture);
 			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
+			ImGui::DragInt("scene", &num, 1, 0, 4);
+
 			ImGui::End();
 			if (useTexture) {
 				materialData->enableTexture = true;
+				materialT->enableTexture = true;
+				materialSpriteData->enableTexture = true;
 			}
 			else {
 				materialData->enableTexture = false;
+				materialT->enableTexture = false;
+				materialSpriteData->enableTexture = false;
 			}
+
 			//カメラ処理
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -1255,22 +1298,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
 			Matrix4x4 VP =Multiply(viewMatrix, projectionMatrix);
 
-			switch (mode)
+			switch (num)
 			{
 			case Triangle:
-				triangle.rotate.y += 0.03f;
+#pragma region Triangle
+				triangle.rotate.y += 0.01f;
 				ImGui::Begin("Triangle");
 				ImGui::DragFloat3("trans", &triangle.translate.x, 0.01f);
 				ImGui::DragFloat3("rotate", &triangle.rotate.x, 0.01f);
 				ImGui::DragFloat3("scale", &triangle.scale.x, 0.01f);
+				ImGui::ColorEdit4("color", &materialT->color.x);
 				ImGui::End();
 				Matrix4x4 WM = MakeAffineMatrix(triangle.scale, triangle.rotate, triangle.translate);
 				Matrix4x4 WVPTri = Multiply(WM, VP);
 				wvpDataTri->WVP = WVPTri;
 				wvpDataTri->World = WM;
+#pragma endregion		
 				break;
-			case Triangle2:
-				break;
+			
 			case Sphere:				
 #pragma region 円
 				transform.rotate.y += 0.03f;
@@ -1341,7 +1386,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				break;
 			case Model:
 #pragma region オブジェクト更新
-				ImGui::Begin("OBJ");
+				ImGui::Begin("bunny");
 				ImGui::DragFloat3("trans", &OBJT.translate.x, 0.01f);
 				ImGui::DragFloat3("rotate", &OBJT.rotate.x, 0.01f);
 				ImGui::DragFloat3("scale", &OBJT.scale.x, 0.01f);
@@ -1353,6 +1398,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//データを転送
 				wvpData->WVP = WVPOBJ;
 				wvpData->World = WOBJ;
+
+				ImGui::Begin("teapot");
+				ImGui::DragFloat3("trans", &teapot.translate.x, 0.01f);
+				ImGui::DragFloat3("rotate", &teapot.rotate.x, 0.01f);
+				ImGui::DragFloat3("scale", &teapot.scale.x, 0.01f);
+				ImGui::ColorEdit4("color", &materialData->color.x);
+				ImGui::End();
+				Matrix4x4 Wtea = MakeAffineMatrix(teapot.scale, teapot.rotate, teapot.translate);
+				Matrix4x4 WVPtea = Multiply(Wtea, VP);
+				wvpDataTea->World = Wtea;
+				wvpDataTea->WVP = WVPtea;
 #pragma endregion
 #pragma region 影
 				ImGui::Begin("directional Light");
@@ -1424,7 +1480,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetDescriptorHeaps(1, descriptorHeaps);
 #pragma endregion
 #pragma region 描画コマンド
-			switch (mode)
+			switch (num)
 			{
 			case Triangle:
 				commandList->RSSetViewports(1, &viewport);
@@ -1444,10 +1500,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
 				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
-				commandList->DrawInstanced(3, 1, 0, 0);
+				commandList->DrawInstanced(pointT, 1, 0, 0);
 				break;
-			case Triangle2:
-				break;
+
 			case Sphere:
 				commandList->RSSetViewports(1, &viewport);
 				commandList->RSSetScissorRects(1, &scissorRect);
@@ -1509,6 +1564,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
 				commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+
+
+				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewtea);
+				//wvp用のCBufferの場所の設定
+				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceTea->GetGPUVirtualAddress());
+
+				commandList->DrawInstanced(UINT(modeltea.vertices.size()), 1, 0, 0);
+
 				break;
 			default:
 				break;
@@ -1577,9 +1640,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpResourceS->Release();
 	depthStencilResource->Release();
 #pragma region 02_00
-
+	materialTriangle->Release();
+	vertexRtea->Release();
 	vertexResourceTri->Release();
-	
+	wvpResourceTri->Release();
+	wvpResourceTea->Release();
 	//02_01
 	indexResourceSprite->Release();
 	directionalLightResource->Release();

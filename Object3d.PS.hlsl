@@ -45,17 +45,14 @@ PixelShaderOutput main(VertexShaderOutput input){
     if (gMaterial.enableLighting != 0)
     {
         float cos;
-        if (gMaterial.enableHalfLambert != 0)
-        {    
+         
              //Half Lambert
             float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
             cos = pow(NdotL * 0.5f + 0.5f, 1.0f);
-        }
-        else
-        {
+        
             //Lambertian Reflectance
-            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        }
+            //cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        
         
          
             
