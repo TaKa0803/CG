@@ -1001,6 +1001,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialSpriteData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	materialSpriteData->enableLighting = false;
 	materialSpriteData->uvTransform = MakeIdentity4x4();
+	materialSpriteData->enableTexture = true;
 	//materialSpriteData->enableHalfLambert = false;
 	//ディレクションライトのマテリアルリソース
 	ID3D12Resource* directionalLightResource = CreateBufferResource(device, sizeof(DirectionalLight));
@@ -1125,10 +1126,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	intermediateResource2->Release();
 
 #pragma region 更新
-	//Transform変数を作る
-	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 	//カメラ情報
 	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-10.0f} };
+	//Transform変数を作る
+	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+	
+	//Transform変数を作る
+	Transform OBJT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
+
 	//リソースのtransform
 	Transform transformSprite{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
@@ -1137,6 +1143,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool useMonsterBall = true;
 	bool useShader3D = true;
 	bool useTexture = true;
+
+	enum Mode {
+		Triangle,
+		Triangle2,
+		Sphere,
+		Sprite,
+		Model,
+	};
+
+	Mode mode = Model;
+
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -1171,63 +1188,117 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			else {
 				materialData->enableTexture = false;
 			}
-			ImGui::Begin("Sphere");
-			ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
-			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
-			ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
-			ImGui::End();
-
-			
-
-			ImGui::Begin("directional Light");
-			ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
-			ImGui::DragFloat4("color", &directionalLightData->color.x, 0.01f);
-			ImGui::DragFloat("power",&directionalLightData->intensity,0.01f);
-			ImGui::Checkbox("shader", &useShader3D);
-			ImGui::End();
-			directionalLightData->direction = Normalize(directionalLightData->direction);
-			if (useShader3D) {
-				materialData->enableLighting = true;
-			}
-			else {
-				materialData->enableLighting = false;
-			}
-
-			ImGui::Begin("Sprite");
-			ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f,-10.0f,10.0f);
-			ImGui::DragFloat2("scale", &UVT.scale.x, 0.01f, -10.0f, 10.0f);
-			ImGui::SliderAngle("rotate", &UVT.rotate.z);
-			ImGui::End();
-			Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
-			materialSpriteData->uvTransform=worldUV;
-			materialData->uvTransform = worldUV;
-#pragma endregion
-#pragma region //CBufferの中身の変更
-			//ワールド
-			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			//カメラ処理
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
 			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 			//透視投影行列
 			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
-			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-			//データを転送
-			wvpData->WVP = worldViewProjectionMatrix;
-			wvpData->World = worldMatrix;
-			wvpDataS->WVP = worldViewProjectionMatrix;
-			wvpDataS->World = worldMatrix;
+			Matrix4x4 VP =Multiply(viewMatrix, projectionMatrix);
+
+			switch (mode)
+			{
+			case Triangle:
+				break;
+			case Triangle2:
+				break;
+			case Sphere:				
+#pragma region 円
+				ImGui::Begin("Sphere");
+				ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
+				ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
+				ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
+				ImGui::ColorEdit4("color", &materialData->color.x);
+				ImGui::End();
+				//ワールド
+				Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+				Matrix4x4 WVP = Multiply(worldMatrix, VP);
+				wvpDataS->WVP = WVP;
+				wvpDataS->World = worldMatrix;
+#pragma endregion
+#pragma region 影
+				ImGui::Begin("directional Light");
+				ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
+				ImGui::DragFloat("power", &directionalLightData->intensity, 0.01f);
+				ImGui::ColorEdit4("color", &directionalLightData->color.x);
+				ImGui::Checkbox("shader", &useShader3D);
+				ImGui::End();
+				directionalLightData->direction = Normalize(directionalLightData->direction);
+				if (useShader3D) {
+					materialData->enableLighting = true;
+				}
+				else {
+					materialData->enableLighting = false;
+				}
+#pragma endregion				
+				break;
+			case Sprite:			
+#pragma region UV
+				ImGui::Begin("UV");
+				ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f, -10.0f, 10.0f);
+				ImGui::DragFloat2("scale", &UVT.scale.x, 0.01f, -10.0f, 10.0f);
+				ImGui::SliderAngle("rotate", &UVT.rotate.z);
+				ImGui::End();
+				Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
+				materialSpriteData->uvTransform = worldUV;
+				materialData->uvTransform = worldUV;
+#pragma endregion
+#pragma region スプライト
+				ImGui::Begin("Sprite");
+				ImGui::DragFloat3("trans", &transformSprite.translate.x, 1.0f);
+				ImGui::DragFloat3("scale", &transformSprite.scale.x, 0.01f);
+				ImGui::DragFloat3("rotate", &transformSprite.rotate.x, 0.01f);
+				ImGui::ColorEdit4("color", &materialSpriteData->color.x);
+				ImGui::End();
+				Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
+				//スプライト用データ
+				Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
+				Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
+				Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
+				//データ転送
+				transformationMatrixDataSprite->WVP = worldViewProjectionMatrixSprite;
+				transformationMatrixDataSprite->World = worldMatrixSprite;
+
+#pragma endregion		
+				break;
+			case Model:
+#pragma region オブジェクト更新
+				ImGui::Begin("OBJ");
+				ImGui::DragFloat3("trans", &OBJT.translate.x, 0.01f);
+				ImGui::DragFloat3("rotate", &OBJT.rotate.x, 0.01f);
+				ImGui::DragFloat3("scale", &OBJT.scale.x, 0.01f);
+				ImGui::ColorEdit4("color", &materialData->color.x);
+				ImGui::End();
+				Matrix4x4 WOBJ = MakeAffineMatrix(OBJT.scale, OBJT.rotate, OBJT.translate);
+				Matrix4x4 WVPOBJ = Multiply(WOBJ, VP);
+
+				//データを転送
+				wvpData->WVP = WVPOBJ;
+				wvpData->World = WOBJ;
+#pragma endregion
+#pragma region 影
+				ImGui::Begin("directional Light");
+				ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
+				ImGui::DragFloat("power", &directionalLightData->intensity, 0.01f);
+				ImGui::ColorEdit4("color", &directionalLightData->color.x);
+				ImGui::Checkbox("shader", &useShader3D);
+				ImGui::End();
+				directionalLightData->direction = Normalize(directionalLightData->direction);
+				if (useShader3D) {
+					materialData->enableLighting = true;
+				}
+				else {
+					materialData->enableLighting = false;
+				}
+#pragma endregion				
+				break;
+			default:
+				break;
+			}
+
 
 #pragma endregion
-#pragma region Spriteデータの処理
-			Matrix4x4 worldMatrixSprite = MakeAffineMatrix(transformSprite.scale, transformSprite.rotate, transformSprite.translate);
-			//スプライト用データ
-			Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
-			Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(kClientWidth), float(kClientHeight), 0.0f, 100.0f);
-			Matrix4x4 worldViewProjectionMatrixSprite = Multiply(worldMatrixSprite, Multiply(viewMatrixSprite, projectionMatrixSprite));
-			//データ転送
-			transformationMatrixDataSprite->WVP = worldViewProjectionMatrixSprite;
-			transformationMatrixDataSprite->World = worldMatrixSprite;
-#pragma endregion
+
+
 #pragma endregion
 #pragma region 描画
 			//ImGuiの内部コマンドを生成する
@@ -1267,45 +1338,77 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetDescriptorHeaps(1, descriptorHeaps);
 #pragma endregion
 #pragma region 描画コマンド
-			commandList->RSSetViewports(1, &viewport);
-			commandList->RSSetScissorRects(1, &scissorRect);
-			//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-			commandList->SetGraphicsRootSignature(rootSignature);
-			commandList->SetPipelineState(graphicsPipelineState);
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-			//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);		
-			//wvp用のCBufferの場所の設定
-			commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
-			//マテリアルCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
-			//
-			commandList->SetGraphicsRootConstantBufferView(3,directionalLightResource->GetGPUVirtualAddress() );
-			//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-			commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall? textureSrvHandleGPU2: textureSrvHandleGPU);
-			//描画！		
-			//commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
-
-			//円
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);
-			//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-			commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
-			//wvp用のCBufferの場所の設定
-			commandList->SetGraphicsRootConstantBufferView(1, wvpResourceS->GetGPUVirtualAddress());
-			commandList->DrawInstanced(point, 1, 0, 0);
+			switch (mode)
+			{
+			case Triangle:
+				break;
+			case Triangle2:
+				break;
+			case Sphere:
+				commandList->RSSetViewports(1, &viewport);
+				commandList->RSSetScissorRects(1, &scissorRect);
+				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+				commandList->SetGraphicsRootSignature(rootSignature);
+				commandList->SetPipelineState(graphicsPipelineState);
+				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);
+				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				//wvp用のCBufferの場所の設定
+				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceS->GetGPUVirtualAddress());
+				//マテリアルCBufferの場所を設定
+				commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+				//
+				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				//描画！		
+				commandList->DrawInstanced(point, 1, 0, 0);
+				break;
+			case Sprite:
 #pragma region 2D描画コマンド
-			//Spriteの描画
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定
-			commandList->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
-			//マテリアルCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(0, materialSpriteResource->GetGPUVirtualAddress());
-			//TransformationMatrixCBufferの場所を設定
-			commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
-			//
-			commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
-			//描画！！（DrawCall
-			//commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+				commandList->RSSetViewports(1, &viewport);
+				commandList->RSSetScissorRects(1, &scissorRect);
+				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+				commandList->SetGraphicsRootSignature(rootSignature);
+				commandList->SetPipelineState(graphicsPipelineState);
+				//Spriteの描画
+				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定			
+				commandList->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
+				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				//マテリアルCBufferの場所を設定
+				commandList->SetGraphicsRootConstantBufferView(0, materialSpriteResource->GetGPUVirtualAddress());
+				//TransformationMatrixCBufferの場所を設定
+				commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
+				//
+				commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+				//描画！！（DrawCall
+				commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 #pragma endregion
+				break;
+			case Model:
+				commandList->RSSetViewports(1, &viewport);
+				commandList->RSSetScissorRects(1, &scissorRect);
+				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+				commandList->SetGraphicsRootSignature(rootSignature);
+				commandList->SetPipelineState(graphicsPipelineState);
+				commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				//wvp用のCBufferの場所の設定
+				commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
+				//マテリアルCBufferの場所を設定
+				commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+				//
+				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				//描画！		
+				commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+				break;
+			default:
+				break;
+			}
 
 			//実際のcommandListのImGuiの描画コマンドを積む
 			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
