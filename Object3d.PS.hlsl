@@ -8,6 +8,7 @@ struct Material {
 	float32_t4 color;
     int32_t enableLighting;
     float32_t4x4 uvTransform;
+    int32_t enableTexture;
 };
 ConstantBuffer<Material> gMaterial : register(b1);
 
@@ -29,6 +30,15 @@ PixelShaderOutput main(VertexShaderOutput input){
     //float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
     float4 transformedUV = mul(float32_t4(input.texcoord,0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
+   
+    
+    if (gMaterial.enableTexture != 0)
+    {
+    }
+    else
+    {
+        textureColor = gMaterial.color;
+    }
     
 	PixelShaderOutput output;
     if (gMaterial.enableLighting != 0)
