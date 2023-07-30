@@ -1126,7 +1126,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Transform UVT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
 	bool useMonsterBall = true;
-
+	bool useShader3D = true;
 	MSG msg{};
 	while (msg.message != WM_QUIT)
 	{
@@ -1167,8 +1167,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("direction", &directionalLightData->direction.x, 0.01f);
 			ImGui::DragFloat4("color", &directionalLightData->color.x, 0.01f);
 			ImGui::DragFloat("power",&directionalLightData->intensity,0.01f);
+			ImGui::Checkbox("shader", &useShader3D);
 			ImGui::End();
 			directionalLightData->direction = Normalize(directionalLightData->direction);
+			if (useShader3D) {
+				materialData->enableLighting = true;
+			}
+			else {
+				materialData->enableLighting = false;
+			}
 
 			ImGui::Begin("Sprite");
 			ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f,-10.0f,10.0f);
