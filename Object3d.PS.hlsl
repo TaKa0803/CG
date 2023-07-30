@@ -9,6 +9,7 @@ struct Material {
     int32_t enableLighting;
     float32_t4x4 uvTransform;
     int32_t enableTexture;
+    float32_t enableHalfLambert;
 };
 ConstantBuffer<Material> gMaterial : register(b1);
 
@@ -44,15 +45,20 @@ PixelShaderOutput main(VertexShaderOutput input){
     if (gMaterial.enableLighting != 0)
     {
         float cos;
-       
+        if (gMaterial.enableHalfLambert != 0)
+        {    
              //Half Lambert
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
-        cos = pow(NdotL * 0.5f + 0.5f, 1.0f);
-       
+            float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
+            cos = pow(NdotL * 0.5f + 0.5f, 1.0f);
+        }
+        else
+        {
+            //Lambertian Reflectance
+            cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+        }
         
          
-            //Lambertian Reflectance
-            // cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
+            
         
         //計算
         output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;

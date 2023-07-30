@@ -964,6 +964,53 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 
+#pragma region 三角形
+#pragma region vertex
+	ID3D12Resource* vertexResourceTri = CreateBufferResource(device, sizeof(VertexData) * 3);
+	//頂点バッファビューを作成する
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewTri{};
+	//リソースの戦闘のアドレスから使う
+	vertexBufferViewTri.BufferLocation = vertexResourceTri->GetGPUVirtualAddress();
+	//使用するリソースのサイズ
+	vertexBufferViewTri.SizeInBytes = sizeof(VertexData) * 3;
+	//1頂点当たりのサイズ
+	vertexBufferViewTri.StrideInBytes = sizeof(VertexData);
+#pragma endregion
+#pragma region data
+	//時計周りに点を設定していく
+	VertexData* vertexDataT = nullptr;
+	//書き込むためのアドレスを取得
+	vertexResourceTri->Map(0, nullptr,
+		reinterpret_cast<void**>(&vertexDataT));
+
+	vertexDataT[0].position={-0.5f,-0.5f,0.0f,1.0f};
+	vertexDataT[1].position = { 0.0f,0.5f,0.0f,1.0f };
+	vertexDataT[2].position = { 0.5f,-0.5f,0.0f,1.0f };
+
+	vertexDataT[0].texcoord = { 0.0f,1.0f };
+	vertexDataT[1].texcoord = { 0.5f,0.0f };
+	vertexDataT[1].texcoord = { 1.0f,1.0f };
+
+	vertexDataT[0].normal = { 0.0f,0.0f,1.0f };
+	vertexDataT[1].normal = vertexDataT[2].normal = vertexDataT[0].normal;
+
+#pragma endregion
+#pragma region wvp
+	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
+	ID3D12Resource* wvpResourceTri = CreateBufferResource(device, sizeof(WorldTransformation));
+	//データを書き込む
+	WorldTransformation* wvpDataTri = nullptr;
+	//書き込むためのアドレスを取得
+	wvpResourceTri->Map(0, nullptr, reinterpret_cast<void**>(&wvpDataTri));
+	//単位行列を書き込んでおくtextureResource
+	wvpDataTri->WVP = MakeIdentity4x4();
+	wvpDataTri->World = MakeIdentity4x4();
+#pragma endregion
+
+
+#pragma endregion
+
+
 #pragma region TransformationMatrix用のResourceを作る
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
 	ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(WorldTransformation));
@@ -982,6 +1029,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 #pragma region Material用のResourceを作る
+
+	ID3D12Resource* materialTriangle = CreateBufferResource(device, sizeof(Material));
+	Material* materialT = nullptr;
+	materialTriangle->Map(0, nullptr, reinterpret_cast<void**>(&materialT));
+	materialT->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);;
+	materialT->enableHalfLambert = false;
+	materialT->enableLighting = false;
+	materialT->enableTexture = false;
+	materialT->uvTransform = MakeIdentity4x4();
+
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
 	ID3D12Resource* materialResource = CreateBufferResource(device, sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -992,7 +1049,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialData->enableLighting = true;
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableTexture = false;
-	//materialData->enableHalfLambert = false;
+	materialData->enableHalfLambert = true;
 	//Sprite用のマテリアルリソース
 	ID3D12Resource* materialSpriteResource = CreateBufferResource(device, sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -1002,7 +1059,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	materialSpriteData->enableLighting = false;
 	materialSpriteData->uvTransform = MakeIdentity4x4();
 	materialSpriteData->enableTexture = true;
-	//materialSpriteData->enableHalfLambert = false;
+	materialSpriteData->enableHalfLambert = false;
 	//ディレクションライトのマテリアルリソース
 	ID3D12Resource* directionalLightResource = CreateBufferResource(device, sizeof(DirectionalLight));
 	DirectionalLight* directionalLightData = nullptr;
@@ -1140,10 +1197,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Transform UVT{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
+	Transform triangle{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
+
+
 	bool useMonsterBall = true;
 	bool useShader3D = true;
 	bool useTexture = true;
-
+	bool useHalfLambert = true;
 	enum Mode {
 		Triangle,
 		Triangle2,
@@ -1152,7 +1212,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Model,
 	};
 
-	Mode mode = Model;
+	Mode mode = Triangle;
 
 	MSG msg{};
 	while (msg.message != WM_QUIT)
@@ -1174,7 +1234,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
 			ImGui::ShowDemoWindow();
 #pragma region 回転処理
-			transform.rotate.y += 0.03f;
+			
 
 			ImGui::Begin("Camera");
 			ImGui::DragFloat3("Camera translate", &cameraTransform.translate.x, 0.01f);
@@ -1198,11 +1258,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			switch (mode)
 			{
 			case Triangle:
+				triangle.rotate.y += 0.03f;
+				ImGui::Begin("Triangle");
+				ImGui::DragFloat3("trans", &triangle.translate.x, 0.01f);
+				ImGui::DragFloat3("rotate", &triangle.rotate.x, 0.01f);
+				ImGui::DragFloat3("scale", &triangle.scale.x, 0.01f);
+				ImGui::End();
+				Matrix4x4 WM = MakeAffineMatrix(triangle.scale, triangle.rotate, triangle.translate);
+				Matrix4x4 WVPTri = Multiply(WM, VP);
+				wvpDataTri->WVP = WVPTri;
+				wvpDataTri->World = WM;
 				break;
 			case Triangle2:
 				break;
 			case Sphere:				
 #pragma region 円
+				transform.rotate.y += 0.03f;
 				ImGui::Begin("Sphere");
 				ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
 				ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
@@ -1221,6 +1292,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				ImGui::DragFloat("power", &directionalLightData->intensity, 0.01f);
 				ImGui::ColorEdit4("color", &directionalLightData->color.x);
 				ImGui::Checkbox("shader", &useShader3D);
+				ImGui::Checkbox("Half Lambert", &useHalfLambert);
 				ImGui::End();
 				directionalLightData->direction = Normalize(directionalLightData->direction);
 				if (useShader3D) {
@@ -1228,6 +1300,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				else {
 					materialData->enableLighting = false;
+				}
+
+				if (useHalfLambert) {
+					materialData->enableHalfLambert = true;
+				}
+				else {
+					materialData->enableHalfLambert = false;
 				}
 #pragma endregion				
 				break;
@@ -1281,6 +1360,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				ImGui::DragFloat("power", &directionalLightData->intensity, 0.01f);
 				ImGui::ColorEdit4("color", &directionalLightData->color.x);
 				ImGui::Checkbox("shader", &useShader3D);
+				ImGui::Checkbox("Half Lambert", &useHalfLambert);
 				ImGui::End();
 				directionalLightData->direction = Normalize(directionalLightData->direction);
 				if (useShader3D) {
@@ -1288,6 +1368,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				}
 				else {
 					materialData->enableLighting = false;
+				}
+				if (useHalfLambert) {
+					materialData->enableHalfLambert = true;
+				}
+				else {
+					materialData->enableHalfLambert = false;
 				}
 #pragma endregion				
 				break;
@@ -1341,6 +1427,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			switch (mode)
 			{
 			case Triangle:
+				commandList->RSSetViewports(1, &viewport);
+				commandList->RSSetScissorRects(1, &scissorRect);
+				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+				commandList->SetGraphicsRootSignature(rootSignature);
+				commandList->SetPipelineState(graphicsPipelineState);
+				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewTri);
+				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				//wvp用のCBufferの場所の設定
+				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceTri->GetGPUVirtualAddress());
+				//マテリアルCBufferの場所を設定
+				commandList->SetGraphicsRootConstantBufferView(0, materialTriangle->GetGPUVirtualAddress());
+				//
+				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				//描画！		
+				commandList->DrawInstanced(3, 1, 0, 0);
 				break;
 			case Triangle2:
 				break;
@@ -1473,6 +1577,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpResourceS->Release();
 	depthStencilResource->Release();
 #pragma region 02_00
+
+	vertexResourceTri->Release();
+	
 	//02_01
 	indexResourceSprite->Release();
 	directionalLightResource->Release();
