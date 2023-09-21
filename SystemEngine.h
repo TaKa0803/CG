@@ -60,7 +60,6 @@ struct Material {
 	int32_t enableTexture;
 	float padding2[3];
 	int32_t enableHalfLambert;
-	float padding3[3];
 };
 
 struct WorldTransformation {

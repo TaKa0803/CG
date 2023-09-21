@@ -1277,7 +1277,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("Camera rotate", &cameraTransform.rotate.x, 0.01f);
 			ImGui::Checkbox("useTexture", &useTexture);
 			ImGui::Checkbox("useMonsterBall", &useMonsterBall);
-			ImGui::DragInt("scene", &num, 1, 0, 4);
+			ImGui::DragInt("scene", &num, 1, 0, 3);
 
 			ImGui::End();
 			if (useTexture) {
@@ -1337,7 +1337,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				ImGui::DragFloat("power", &directionalLightData->intensity, 0.01f);
 				ImGui::ColorEdit4("color", &directionalLightData->color.x);
 				ImGui::Checkbox("shader", &useShader3D);
-				ImGui::Checkbox("Half Lambert", &useHalfLambert);
 				ImGui::End();
 				directionalLightData->direction = Normalize(directionalLightData->direction);
 				if (useShader3D) {
