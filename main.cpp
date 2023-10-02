@@ -1,4 +1,5 @@
 #include"SystemEngine.h"
+#include"Input.h"
 
 struct D3DResourceLeakChecker {
 	~D3DResourceLeakChecker() {
@@ -12,8 +13,6 @@ struct D3DResourceLeakChecker {
 		}
 	}
 };
-
-
 
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//1中で必要になる変数の宣言
@@ -40,8 +39,6 @@ MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const st
 	return materialdata;
 
 }
-
-
 
 ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 #pragma region 中で必要となる変数の宣言
@@ -162,7 +159,6 @@ void Log(const std::string& message) {
 }
 
 #pragma endregion
-
 
 IDxcBlob* CompileShader(
 	//CompilerするShaderファイルへのパス
@@ -418,6 +414,9 @@ D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descrip
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	CoInitializeEx(0, COINIT_MULTITHREADED);
 	D3DResourceLeakChecker lackCheck;
+
+	Input* input = nullptr;
+
 #pragma region ウィンドウ生成 
 	WNDCLASS wc{};
 	wc.lpfnWndProc = WindowProc;
@@ -1105,6 +1104,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	intermediateResource->Release();
 	intermediateResource2->Release();
 
+
+	input = new Input();
+	input->Initialize(wc.hInstance, hwnd);
+
 #pragma region 更新
 	//Transform変数を作る
 	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
@@ -1133,6 +1136,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::NewFrame();
 			
 #pragma endregion
+
+			input->Update();
+
 #pragma region 更新処理
 			//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
 			ImGui::ShowDemoWindow();
@@ -1170,6 +1176,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			materialData->uvTransform = worldUV;
 #pragma endregion
 #pragma region //CBufferの中身の変更
+
+			if (input->PushKey(DIK_W)) {
+				transform.translate.y -= 0.1f;
+			}
+
 			//ワールド
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			//カメラ処理
@@ -1314,6 +1325,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 #pragma endregion
 #pragma region 開放処理
+	delete input;
+
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
