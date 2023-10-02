@@ -1,11 +1,8 @@
 #include"Input.h"
-
-
 #pragma comment(lib,"dinput8.lib")
 #pragma comment(lib,"dxguid.lib")
-
 using namespace Microsoft::WRL;
-#include<string.h>
+#include<string>
 #include<cassert>
 
 void Input::Initialize(HINSTANCE hInstance, HWND hwnd)
@@ -28,7 +25,7 @@ void Input::Update()
 	HRESULT hr;
 
 	//前回のキー入力を保存
-	memcpy(keyPre, key, sizeof(key));
+	keyPre[0] = key[0];
 
 	hr=keyboard->Acquire();
 	assert(SUCCEEDED(hr));
