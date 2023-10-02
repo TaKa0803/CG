@@ -41,6 +41,8 @@ MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const st
 
 }
 
+
+
 ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
 #pragma region 中で必要となる変数の宣言
 	ModelData modeldata;//構築するModelData
