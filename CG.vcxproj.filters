@@ -25,6 +25,9 @@
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{a5f5193a-f6a9-499c-aab0-12011f8a32dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\WinApp">
+      <UniqueIdentifier>{1732d2d4-ef46-433e-b59d-0050de7656e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>Engine\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="WinApp.cpp">
+      <Filter>Engine\WinApp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="WinApp.h">
+      <Filter>Engine\WinApp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,10 @@
 #pragma once
-#include<Windows.h>
+
 #include<wrl.h>
 #define DIRECTINPUT_VERSION 0x0800 //DirectInputのバージョン指定
 #include<dinput.h>
+#include"WinApp.h"
+
 
 //入力関数
 class Input {
@@ -13,10 +15,11 @@ public:
 
 public:
 	//初期化
-	void Initialize(HINSTANCE hInstance,HWND hwnd);
+	void Initialize(WinApp*winApp);
 	//更新
 	void Update();
 
+	
 /// <summary>
 ///		キー入力チェック
 /// </summary>
@@ -41,4 +44,6 @@ private:
 	BYTE key[256] = {};
 	BYTE keyPre[256] = {};
 
+	//WindowsAPI
+	WinApp* winApp_ = nullptr;
 };
