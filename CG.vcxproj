@@ -92,6 +92,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DX.cpp" />
     <ClCompile Include="externals\Imgui\imgui.cpp" />
     <ClCompile Include="externals\Imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\Imgui\imgui_draw.cpp" />
@@ -100,6 +101,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\Imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\Imgui\imgui_widgets.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="SystemEngine.cpp" />
@@ -136,6 +138,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DX.h" />
     <ClInclude Include="externals\Imgui\imconfig.h" />
     <ClInclude Include="externals\Imgui\imgui.h" />
     <ClInclude Include="externals\Imgui\imgui_impl_dx12.h" />
@@ -145,6 +148,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\Imgui\imstb_textedit.h" />
     <ClInclude Include="externals\Imgui\imstb_truetype.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="SystemEngine.h" />
     <ClInclude Include="WinApp.h" />
   </ItemGroup>

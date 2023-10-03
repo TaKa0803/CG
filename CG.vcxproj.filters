@@ -28,6 +28,12 @@
     <Filter Include="Engine\WinApp">
       <UniqueIdentifier>{1732d2d4-ef46-433e-b59d-0050de7656e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\DX">
+      <UniqueIdentifier>{9ac55e4e-6d40-4ad4-93f7-d9c8be26cc0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Log">
+      <UniqueIdentifier>{41a54006-bf2a-4550-a154-c5bdbeb2b70e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -65,6 +71,12 @@
     </ClCompile>
     <ClCompile Include="WinApp.cpp">
       <Filter>Engine\WinApp</Filter>
+    </ClCompile>
+    <ClCompile Include="DX.cpp">
+      <Filter>Engine\DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Engine\Log</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,6 +122,12 @@
     </ClInclude>
     <ClInclude Include="WinApp.h">
       <Filter>Engine\WinApp</Filter>
+    </ClInclude>
+    <ClInclude Include="DX.h">
+      <Filter>Engine\DX</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Engine\Log</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
