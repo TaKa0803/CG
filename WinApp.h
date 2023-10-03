@@ -29,6 +29,12 @@ public:
 	void Finalize();
 
 
+	/// <summary>
+	/// ウィンドウメッセージ受け取りで更新終了
+	/// </summary>
+	/// <returns>true:実行 false:終了</returns>
+	bool ProcessMessage();
+
 	//ウィンドウハンドルのゲッター
 	HWND GetHwnd() const { return hwnd_; };
 	//ウィンドウクラスのゲッター

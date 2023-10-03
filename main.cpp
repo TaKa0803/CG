@@ -1157,14 +1157,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	bool useMonsterBall = true;
 
-	MSG msg{};
-	while (msg.message != WM_QUIT)
+	while (winApp->ProcessMessage())
 	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else {
+		
+		
 			//ゲーム内処理
 #pragma region フレームの先頭でImGuiにここからフレームが始まる旨を告げる
 			
@@ -1358,7 +1354,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//コマンドをキックする終わり
 #pragma endregion
 #pragma endregion
-		}
+		
 	}
 #pragma endregion
 #pragma region 開放処理
