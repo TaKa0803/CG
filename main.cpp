@@ -773,7 +773,57 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 */
 
+#pragma region 三角形
+#pragma region vertex
+	int pointT = 6;
+	ID3D12Resource* vertexResourceTri = CreateBufferResource(device, sizeof(VertexData) * pointT);
+	//頂点バッファビューを作成する
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewTri{};
+	//リソースの戦闘のアドレスから使う
+	vertexBufferViewTri.BufferLocation = vertexResourceTri->GetGPUVirtualAddress();
+	//使用するリソースのサイズ
+	vertexBufferViewTri.SizeInBytes = sizeof(VertexData) * pointT;
+	//1頂点当たりのサイズ
+	vertexBufferViewTri.StrideInBytes = sizeof(VertexData);
+#pragma endregion
+#pragma region data
+	//時計周りに点を設定していく
+	VertexData* vertexDataT = nullptr;
+	//書き込むためのアドレスを取得
+	vertexResourceTri->Map(0, nullptr,
+		reinterpret_cast<void**>(&vertexDataT));
 
+	vertexDataT[0].position = { -0.5f,-0.5f,0.0f,1.0f };
+	vertexDataT[1].position = { 0.0f,0.5f,0.0f,1.0f };
+	vertexDataT[2].position = { 0.5f,-0.5f,0.0f,1.0f };
+
+	vertexDataT[0].texcoord = { 0.0f,1.0f };
+	vertexDataT[1].texcoord = { 0.5f,0.0f };
+	vertexDataT[2].texcoord = { 1.0f,1.0f };
+
+	vertexDataT[0].normal = { 0.0f,0.0f,1.0f };
+	vertexDataT[1].normal = vertexDataT[2].normal = vertexDataT[3].normal = vertexDataT[4].normal = vertexDataT[5].normal = vertexDataT[0].normal;
+
+	vertexDataT[3].position = { -0.5f,-0.5f,0.5f,1.0f };
+	vertexDataT[4].position = { 0.0f,0.0f,0.0f,1.0f };
+	vertexDataT[5].position = { 0.5f,-0.5f,-0.5f,1.0f };
+
+	vertexDataT[3].texcoord = { 0.0f,1.0f };
+	vertexDataT[4].texcoord = { 0.5f,0.0f };
+	vertexDataT[5].texcoord = { 1.0f,1.0f };
+#pragma endregion
+#pragma region wvp
+	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
+	ID3D12Resource* wvpResourceTri = CreateBufferResource(device, sizeof(WorldTransformation));
+	//データを書き込む
+	WorldTransformation* wvpDataTri = nullptr;
+	//書き込むためのアドレスを取得
+	wvpResourceTri->Map(0, nullptr, reinterpret_cast<void**>(&wvpDataTri));
+	//単位行列を書き込んでおくtextureResource
+	wvpDataTri->WVP = MakeIdentity4x4();
+	wvpDataTri->World = MakeIdentity4x4();
+#pragma endregion
+#pragma endregion
 
 
 #pragma region Material用のResourceを作る
@@ -993,7 +1043,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			
 #pragma region 描画コマンド
 			dx->PreDraw();
-			
+			/*
 			//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 			dx->GetCommand()->SetGraphicsRootSignature(rootSignature);
 			dx->GetCommand()->SetPipelineState(graphicsPipelineState);
@@ -1012,6 +1062,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//描画！
 			dx->GetCommand()->DrawInstanced(point, 1, 0, 0);
 			//commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+			*/
 
 
 			dx->PostDraw();
