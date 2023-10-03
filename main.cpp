@@ -1031,7 +1031,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			wvpData->World = worldMatrix;
 			*/
 
+		Transform triangle = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
+		Matrix4x4 WM = MakeAffineMatrix(triangle.scale, triangle.rotate, triangle.translate);
+		Matrix4x4 WVPTri = Multiply(WM, VP);
+		wvpDataTri->WVP = WVPTri;
+		wvpDataTri->World = WM;
 #pragma endregion
 			/*
 #pragma region Spriteデータの処理
