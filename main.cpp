@@ -680,6 +680,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	*/
 
 #pragma region 円
+	/*
 #pragma region VertexBufferViewを作成
 
 	const float kSubdivision = 128;//分割数
@@ -754,6 +755,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpData->WVP = MakeIdentity4x4();
 	wvpData->World = MakeIdentity4x4();
 #pragma endregion
+	*/
 #pragma endregion	
 
 /*
@@ -773,10 +775,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 */
 
+
 #pragma region 三角形
 #pragma region vertex
 	int pointT = 6;
-	ID3D12Resource* vertexResourceTri = CreateBufferResource(device, sizeof(VertexData) * pointT);
+	ID3D12Resource* vertexResourceTri = CreateBufferResource(dx->GetDevice(), sizeof(VertexData) * pointT);
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewTri{};
 	//リソースの戦闘のアドレスから使う
@@ -814,7 +817,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 #pragma region wvp
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
-	ID3D12Resource* wvpResourceTri = CreateBufferResource(device, sizeof(WorldTransformation));
+	ID3D12Resource* wvpResourceTri = CreateBufferResource(dx->GetDevice(), sizeof(WorldTransformation));
 	//データを書き込む
 	WorldTransformation* wvpDataTri = nullptr;
 	//書き込むためのアドレスを取得
@@ -827,6 +830,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 #pragma region Material用のResourceを作る
+	
+	ID3D12Resource* materialTriangle = CreateBufferResource(dx->GetDevice(), sizeof(Material));
+	Material* materialT = nullptr;
+	materialTriangle->Map(0, nullptr, reinterpret_cast<void**>(&materialT));
+	materialT->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);;
+	materialT->enableLighting = false;
+	materialT->uvTransform = MakeIdentity4x4();
+
+	
+	
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
 	ID3D12Resource* materialResource = CreateBufferResource(dx->GetDevice(), sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -1004,6 +1017,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//	transform.translate.y -= 0.1f;
 			//}
 
+			/*
 			//ワールド
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
 			//カメラ処理
@@ -1015,6 +1029,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//データを転送
 			wvpData->WVP = worldViewProjectionMatrix;
 			wvpData->World = worldMatrix;
+			*/
+
+
 #pragma endregion
 			/*
 #pragma region Spriteデータの処理
