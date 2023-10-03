@@ -16,9 +16,14 @@
 #pragma comment(lib,"dxcompiler.lib")
 #include"Matrix.h"
 
+#pragma region ImGui
 #include"externals/imgui/imgui.h"
 #include"externals/Imgui/imgui_impl_dx12.h"
 #include"externals/Imgui/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+#pragma endregion
+
 
 
 #include"externals/DirectXTex/DirectXTex.h"
@@ -30,7 +35,6 @@
 
 #define _USE_MATH_DEFINES
 #include<math.h>
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 #pragma region struct
 
