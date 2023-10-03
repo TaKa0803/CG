@@ -1063,7 +1063,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			dx->GetCommand()->DrawInstanced(point, 1, 0, 0);
 			//commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
 			*/
-
+			
+			//RootSignatureを設定。PSOに設定しているけど別途設定が必要
+			dx->GetCommand()->SetGraphicsRootSignature(rootSignature);
+			dx->GetCommand()->SetPipelineState(graphicsPipelineState);
+			dx->GetCommand()->IASetVertexBuffers(0, 1, &vertexBufferViewTri);
+			//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+			dx->GetCommand()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			//wvp用のCBufferの場所の設定
+			dx->GetCommand()->SetGraphicsRootConstantBufferView(1, wvpResourceTri->GetGPUVirtualAddress());
+			//マテリアルCBufferの場所を設定
+			dx->GetCommand()->SetGraphicsRootConstantBufferView(0, materialTriangle->GetGPUVirtualAddress());
+			//
+			dx->GetCommand()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+			//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+			dx->GetCommand()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+			//描画！		
+			dx->GetCommand()->DrawInstanced(pointT, 1, 0, 0);
 
 			dx->PostDraw();
 			/*
