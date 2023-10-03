@@ -56,6 +56,8 @@ PixelShaderOutput main(VertexShaderOutput input){
         
         //計算
         output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+       
+        
     }
     else
     {
