@@ -3,6 +3,7 @@
 #include"WinApp.h"
 #include<Windows.h>
 #include"DX.h"
+#include"Matrix.h"
 
 
 
@@ -10,7 +11,6 @@
 #pragma comment(lib,"dxguid.lib")
 #include<dxcapi.h>
 #pragma comment(lib,"dxcompiler.lib")
-#include"Matrix.h"
 
 #pragma region ImGui
 #include"externals/imgui/imgui.h"
@@ -1030,6 +1030,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			wvpData->WVP = worldViewProjectionMatrix;
 			wvpData->World = worldMatrix;
 			*/
+
+			//カメラ情報
+		
+		//カメラ処理
+		Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+		//透視投影行列
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::window_width) / float(WinApp::window_heigth), 0.1f, 100.0f);
+		Matrix4x4 VP = Multiply(viewMatrix, projectionMatrix);
+
 
 		Transform triangle = { {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
 
