@@ -98,6 +98,8 @@ private:
 	ComPtr<ID3D12Resource> swapChainResources[2] = { nullptr };
 
 #pragma region 震度バッファ
+	//DSV用のヒープでディスクリプタの数は１。DSVはShader内で触るものではないので、ShaderVisibleはfalse
+#pragma endregion
 	ID3D12DescriptorHeap* dsvDescriptorHeap;
 #pragma endregion
 	//RTC
