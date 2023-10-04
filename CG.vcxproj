@@ -107,6 +107,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="SpCommon.cpp" />
+    <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="WinApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +137,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ClInclude>
     <ClInclude Include="Log.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="SpCommon.h" />
+    <ClInclude Include="Sprite.h" />
     <ClInclude Include="WinApp.h" />
   </ItemGroup>
   <ItemGroup>

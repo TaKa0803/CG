@@ -1,16 +1,8 @@
 #pragma once
-
+#include"struct.h"
 #include <math.h>
 
-struct Vector3 {
-	float x;
-	float y;
-	float z;
-};
 
-struct Matrix4x4 {
-	float m[4][4];
-};
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
 

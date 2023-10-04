@@ -37,6 +37,12 @@
     <Filter Include="Engine\DirectX">
       <UniqueIdentifier>{d2bce76d-b3f3-4653-bab5-97711908d43d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Sprite">
+      <UniqueIdentifier>{90dea0c8-2770-4427-afb1-0897f7131e9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Sprite\SpCommon">
+      <UniqueIdentifier>{ec9eecbc-ab74-4f9b-8d31-519ddc4366c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="DirectXFunc.cpp">
       <Filter>Engine\DirectX</Filter>
+    </ClCompile>
+    <ClCompile Include="Sprite.cpp">
+      <Filter>Engine\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="SpCommon.cpp">
+      <Filter>Engine\Sprite\SpCommon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +138,12 @@
     </ClInclude>
     <ClInclude Include="DirectXFunc.h">
       <Filter>Engine\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Engine\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="SpCommon.h">
+      <Filter>Engine\Sprite\SpCommon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
