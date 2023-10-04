@@ -609,8 +609,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 4;
 	//頂点当たりのサイズ
 	vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
-
-	
 #pragma endregion
 #pragma region 頂点データを設定する
 	VertexData* vertexDataSprite = nullptr;
@@ -825,6 +823,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpDataTri->WVP = MakeIdentity4x4();
 	wvpDataTri->World = MakeIdentity4x4();
 #pragma endregion
+#pragma region マテリアル
+	ID3D12Resource* materialTriangle = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
+	Material* materialT = nullptr;
+	materialTriangle->Map(0, nullptr, reinterpret_cast<void**>(&materialT));
+	materialT->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);;
+	materialT->enableHalfLambert = false;
+	materialT->enableLighting = false;
+	materialT->enableTexture = true;
+	materialT->uvTransform = MakeIdentity4x4();
+#pragma endregion
+
 #pragma endregion
 #pragma region TransformationMatrix用のResourceを作る
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
@@ -838,17 +847,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpData->World = MakeIdentity4x4();
 #pragma endregion
 
+
 #pragma region Material用のResourceを作る
-
-	ID3D12Resource* materialTriangle = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
-	Material* materialT = nullptr;
-	materialTriangle->Map(0, nullptr, reinterpret_cast<void**>(&materialT));
-	materialT->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);;
-	materialT->enableHalfLambert = false;
-	materialT->enableLighting = false;
-	materialT->enableTexture = true;
-	materialT->uvTransform = MakeIdentity4x4();
-
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
 	ID3D12Resource* materialResource = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -926,25 +926,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 
 
-#pragma region ViewportとScissor(シザー)
-	//ビューポート
-	D3D12_VIEWPORT viewport{};
-	//クライアント領域のサイズと一緒にして画面全体に表示
-	viewport.Width = WinApp::kClientWidth;
-	viewport.Height = WinApp::kClientHeight;
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-
-	//シザー短形
-	D3D12_RECT scissorRect{};
-	//基本的にビューポートと同じ短形が構成されるようにする
-	scissorRect.left = 0;
-	scissorRect.right = WinApp::kClientWidth;
-	scissorRect.top = 0;
-	scissorRect.bottom = WinApp::kClientHeight;
-#pragma endregion
 
 	DXF->KickCommand();
 
@@ -1178,99 +1159,95 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DXF->PreDraw();
 		imguiManager->PreDraw();
 			
-		/*
+		
 #pragma region 描画コマンド
 			switch (num)
 			{
 			case Triangle:
-				commandList->RSSetViewports(1, &viewport);
-				commandList->RSSetScissorRects(1, &scissorRect);
+			
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-				commandList->SetGraphicsRootSignature(rootSignature);
-				commandList->SetPipelineState(graphicsPipelineState);
-				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewTri);
+				DXF->GetCMDList()->SetGraphicsRootSignature(rootSignature);
+				DXF->GetCMDList()->SetPipelineState(graphicsPipelineState);
+				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewTri);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				//wvp用のCBufferの場所の設定
-				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceTri->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResourceTri->GetGPUVirtualAddress());
 				//マテリアルCBufferの場所を設定
-				commandList->SetGraphicsRootConstantBufferView(0, materialTriangle->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialTriangle->GetGPUVirtualAddress());
 				//
-				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				//DXF->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
-				commandList->DrawInstanced(pointT, 1, 0, 0);
+				DXF->GetCMDList()->DrawInstanced(pointT, 1, 0, 0);
 				break;
 
 			case Sphere:
-				commandList->RSSetViewports(1, &viewport);
-				commandList->RSSetScissorRects(1, &scissorRect);
+				
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-				commandList->SetGraphicsRootSignature(rootSignature);
-				commandList->SetPipelineState(graphicsPipelineState);
-				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);
+				DXF->GetCMDList()->SetGraphicsRootSignature(rootSignature);
+				DXF->GetCMDList()->SetPipelineState(graphicsPipelineState);
+				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				//wvp用のCBufferの場所の設定
-				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceS->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResourceS->GetGPUVirtualAddress());
 				//マテリアルCBufferの場所を設定
-				commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 				//
-				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
-				commandList->DrawInstanced(point, 1, 0, 0);
+				DXF->GetCMDList()->DrawInstanced(point, 1, 0, 0);
 				break;
 			case Sprite:
 #pragma region 2D描画コマンド
-				commandList->RSSetViewports(1, &viewport);
-				commandList->RSSetScissorRects(1, &scissorRect);
+			
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-				commandList->SetGraphicsRootSignature(rootSignature);
-				commandList->SetPipelineState(graphicsPipelineState);
+				DXF->GetCMDList()->SetGraphicsRootSignature(rootSignature);
+				DXF->GetCMDList()->SetPipelineState(graphicsPipelineState);
 				//Spriteの描画
-				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定			
-				commandList->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
+				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewSprite);	//VBVを設定			
+				DXF->GetCMDList()->IASetIndexBuffer(&indexBufferViewSprite);//IBVを設定
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				//マテリアルCBufferの場所を設定
-				commandList->SetGraphicsRootConstantBufferView(0, materialSpriteResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialSpriteResource->GetGPUVirtualAddress());
 				//TransformationMatrixCBufferの場所を設定
-				commandList->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
 				//
-				commandList->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
+				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, textureSrvHandleGPU);
 				//描画！！（DrawCall
-				commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+				DXF->GetCMDList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 #pragma endregion
 				break;
 			case Model:
-				commandList->RSSetViewports(1, &viewport);
-				commandList->RSSetScissorRects(1, &scissorRect);
+				
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-				commandList->SetGraphicsRootSignature(rootSignature);
-				commandList->SetPipelineState(graphicsPipelineState);
-				commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+				DXF->GetCMDList()->SetGraphicsRootSignature(rootSignature);
+				DXF->GetCMDList()->SetPipelineState(graphicsPipelineState);
+				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				//wvp用のCBufferの場所の設定
-				commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 				//マテリアルCBufferの場所を設定
-				commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
 				//
-				commandList->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource->GetGPUVirtualAddress());
 				//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-				commandList->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
+				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
-				commandList->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
+				DXF->GetCMDList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
 
 
-				commandList->IASetVertexBuffers(0, 1, &vertexBufferViewtea);
+				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewtea);
 				//wvp用のCBufferの場所の設定
-				commandList->SetGraphicsRootConstantBufferView(1, wvpResourceTea->GetGPUVirtualAddress());
+				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResourceTea->GetGPUVirtualAddress());
 
-				commandList->DrawInstanced(UINT(modeltea.vertices.size()), 1, 0, 0);
+				DXF->GetCMDList()->DrawInstanced(UINT(modeltea.vertices.size()), 1, 0, 0);
 
 				break;
 			default:
@@ -1280,7 +1257,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			
 			//コマンドを組むおわり
 #pragma endregion
-			*/
+			
 
 		imguiManager->PostDraw();
 		DXF->PostDraw();
