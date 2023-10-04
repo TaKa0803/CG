@@ -7,4 +7,7 @@ public:
 	/// 初期化
 	/// </summary>
 	void Initialize();
+
+
+	void DrawStart();
 };

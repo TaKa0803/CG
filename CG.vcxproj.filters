@@ -43,6 +43,9 @@
     <Filter Include="Engine\Sprite\SpCommon">
       <UniqueIdentifier>{ec9eecbc-ab74-4f9b-8d31-519ddc4366c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{d336c293-1c4f-4e1d-a02c-b34799695383}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -89,6 +92,9 @@
     </ClCompile>
     <ClCompile Include="SpCommon.cpp">
       <Filter>Engine\Sprite\SpCommon</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +150,9 @@
     </ClInclude>
     <ClInclude Include="SpCommon.h">
       <Filter>Engine\Sprite\SpCommon</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Engine\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
