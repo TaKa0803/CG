@@ -7,6 +7,14 @@
 #pragma comment(lib,"dxgi.lib")
 
 
+DirectXFunc* DirectXFunc::GetInstance()
+{	
+	static DirectXFunc Instance;
+	return &Instance;
+}
+
+
+
 ID3D12DescriptorHeap* DirectXFunc::CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
 	ID3D12DescriptorHeap* descriptorHeap = nullptr;
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
@@ -62,6 +70,12 @@ D3D12_CPU_DESCRIPTOR_HANDLE DirectXFunc::GetCPUDescriptorHandle(ID3D12Descriptor
 	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	handleCPU.ptr += (descriptorSize * index);
 	return handleCPU;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE DirectXFunc::GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
+	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	handleGPU.ptr += (descriptorSize * index);
+	return handleGPU;
 }
 
 #pragma region Initializeまとめ

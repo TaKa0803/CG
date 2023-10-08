@@ -1,6 +1,8 @@
 #include"Sprite.h"
 #include"Matrix.h"
 #include<cassert>
+#include"TextureManager.h"
+
 
 ID3D12Resource* Sprite::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 
@@ -113,8 +115,9 @@ void Sprite::Initialize(DirectXFunc* DXF_)
 #pragma endregion
 }
 
-void Sprite::Draw(Matrix4x4 WVP, Matrix4x4 World, D3D12_GPU_DESCRIPTOR_HANDLE texture)
+void Sprite::Draw(Matrix4x4 WVP, Matrix4x4 World, int texture)
 {
+	
 
 	transformationMatrixDataSprite->WVP = WVP;
 	transformationMatrixDataSprite->World = World;
@@ -129,7 +132,7 @@ void Sprite::Draw(Matrix4x4 WVP, Matrix4x4 World, D3D12_GPU_DESCRIPTOR_HANDLE te
 	//TransformationMatrixCBufferの場所を設定
 	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResourceSprite->GetGPUVirtualAddress());
 	//
-	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, texture);
+	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
 	//描画！！（DrawCall
 	DXF->GetCMDList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }

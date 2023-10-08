@@ -5,8 +5,21 @@
 
 #include<stdint.h>
 
+
+
 class DirectXFunc {
-public:
+public://シングルトンパターン
+	static DirectXFunc* GetInstance();
+
+private://シングルトンパターン
+
+	DirectXFunc() = default;
+	~DirectXFunc() = default;
+	DirectXFunc(const DirectXFunc& o) = delete;
+	const DirectXFunc& operator=(const DirectXFunc& o) = delete;
+
+
+public:	//静的メンバ変数
 
 	static ID3D12DescriptorHeap* CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
@@ -14,6 +27,10 @@ public:
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index);
 
+	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index);
+
+
+public:
 	/// <summary>
 	/// イニシャライズ
 	/// </summary>
@@ -50,7 +67,9 @@ public:
 
 	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap; }
 	uint32_t GetSRVsize()const { return descriptorSizeSRV; }
-private:
+
+
+
 #pragma region クラス内関数
 	void D3D12Devicenitialize();
 

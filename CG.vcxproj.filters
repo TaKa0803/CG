@@ -46,6 +46,9 @@
     <Filter Include="Engine\Graphics">
       <UniqueIdentifier>{d336c293-1c4f-4e1d-a02c-b34799695383}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\TextureManager">
+      <UniqueIdentifier>{e0656fe0-9e32-48c1-aeba-f6e1c6579e81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -95,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
       <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Engine\TextureManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +159,9 @@
     </ClInclude>
     <ClInclude Include="Graphics.h">
       <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Engine\TextureManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

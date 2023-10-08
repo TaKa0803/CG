@@ -15,7 +15,7 @@ public:
 	void Initialize(DirectXFunc* DXF_);
 
 
-	void Draw(Matrix4x4 WVP,Matrix4x4 World, D3D12_GPU_DESCRIPTOR_HANDLE texture);
+	void Draw(Matrix4x4 WVP,Matrix4x4 World, int texture);
 
 	void SetUV_T(Matrix4x4 uvT){ materialSpriteData->uvTransform = uvT; }
 	void IsEnableTexture(bool ans) { materialSpriteData->enableTexture = ans; }

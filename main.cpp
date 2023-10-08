@@ -7,7 +7,7 @@
 #include"ImGuiManager.h"
 #include"Sprite.h"
 #include"Graphics.h"
-
+#include"TextureManager.h"
 
 #include<dxgidebug.h>
 
@@ -218,7 +218,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 }
 
 
-
+/*
 ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 
 #pragma region VertexResourceを生成する
@@ -245,8 +245,8 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 	assert(SUCCEEDED(hr));
 	return vertexResource;
 }
-
-
+*/
+/*
 //Textureデータを読む
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 	//テクスチャファイルを読んでプログラムで扱えるようにする
@@ -318,7 +318,9 @@ void UploadTextureDataa(ID3D12Resource* texture, const DirectX::ScratchImage& mi
 		assert(SUCCEEDED(hr));
 	}
 }
+*/
 
+/*
 [[nodiscard]]
 ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages,
 	ID3D12Device* device, ID3D12GraphicsCommandList* commandList) {
@@ -340,14 +342,14 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 
 	return intermediateResource;
 }
-
-
+*/
+/*
 D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
 	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	handleGPU.ptr += (descriptorSize * index);
 	return handleGPU;
 }
-
+*/
 #pragma endregion
 
 
@@ -357,12 +359,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3DResourceLeakChecker lackCheck;
 
 #pragma region 基板初期化
-	WinApp* winApp = nullptr;
-	winApp = new WinApp;
+	WinApp* winApp = WinApp::GetInstance();
 	winApp->Initialize();
 
-	DirectXFunc* DXF = nullptr;
-	DXF = new DirectXFunc;
+	DirectXFunc* DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
 
 	GraphicsSystem *graphics = nullptr;
@@ -375,11 +375,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sprite->Initialize(DXF);
 #pragma endregion
 
-
 	
 
 
-
+/*
 #pragma region 円
 #pragma region VertexBufferViewを作成
 
@@ -564,9 +563,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	wvpData->WVP = MakeIdentity4x4();
 	wvpData->World = MakeIdentity4x4();
 #pragma endregion
-
+*/
 
 #pragma region Material用のResourceを作る
+/*
 	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
 	ID3D12Resource* materialResource = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
 	//マテリアルにデータを書き込む
@@ -587,52 +587,63 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	directionalLightData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLightData->direction = Vector3(0.0f,-1.0f,0.0f);
 	directionalLightData->intensity = 1.0f;
+
+	*/
 #pragma endregion
+int texture = TextureManager::LoadTex("resources/uvChecker.png");
+
+int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 
 #pragma region textureの読み込み
 	//DirectX::ScratchImage mipImages = LoadTexture("resources/uvChecker.png");
+	/*
+	
+	
 	DirectX::ScratchImage mipImages = LoadTexture(modeldata.material.textureFilePath);
-
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 	ID3D12Resource* textureResource = CreateTextureResource(DXF->GetDevice(), metadata);
 	ID3D12Resource* intermediateResource = UploadTextureData(textureResource, mipImages, DXF->GetDevice(), DXF->GetCMDList());
+	
+		//metadataにSRVの設定
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Format = metadata.format;
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
+		srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
+		//SRVを作成するDescriptorHeapの場所を決める
+		D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = DirectXFunc::GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 1);
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 1);
+		//srvの生成
+		DXF->GetDevice()->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
+	*/
+	
+	/*
 	DirectX::ScratchImage mipImages2 = LoadTexture("resources/monsterBall.png");
 	const DirectX::TexMetadata& metadata2 = mipImages2.GetMetadata();
 	ID3D12Resource* textureResource2 = CreateTextureResource(DXF->GetDevice(), metadata2);
 	ID3D12Resource* intermediateResource2 = UploadTextureData(textureResource2, mipImages2, DXF->GetDevice(), DXF->GetCMDList());
+	
+		//metadataにSRVの設定
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
+		srvDesc2.Format = metadata2.format;
+		srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
+		srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
 
+		//SRVを作成するDescriptorHeapの場所を決める
+		D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = DirectXFunc::GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 2);
+		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2= GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 2);
+		//srvの生成
+		DXF->GetDevice()->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU2);
+	*/
 #pragma endregion
 
 
 #pragma region ShaderResourceView(SRV)
-	//metadataにSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = metadata.format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
-
-	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = DirectXFunc::GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 1);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 1);
-	//srvの生成
-	DXF->GetDevice()->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
-
-
-	//metadataにSRVの設定
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc2{};
-	srvDesc2.Format = metadata2.format;
-	srvDesc2.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc2.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
-	srvDesc2.Texture2D.MipLevels = UINT(metadata2.mipLevels);
-
-	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU2 = DirectXFunc::GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 2);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU2= GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), 2);
-	//srvの生成
-	DXF->GetDevice()->CreateShaderResourceView(textureResource2, &srvDesc2, textureSrvHandleCPU2);
-
+	
+	
+	
 #pragma endregion
 
 
@@ -640,8 +651,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	DXF->KickCommand();
 
 	//GPUに送ったので殺す
-	intermediateResource->Release();
-	intermediateResource2->Release();
+	//intermediateResource->Release();
+	//intermediateResource2->Release();
 
 
 	ImGuiManager* imguiManager = nullptr;
@@ -703,15 +714,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			ImGui::End();
 			if (useTexture) {
-				materialData->enableTexture = true;
-				materialT->enableTexture = true;
+				//materialData->enableTexture = true;
+				//materialT->enableTexture = true;
 
 				sprite->IsEnableTexture(true);
 				
 			}
 			else {
-				materialData->enableTexture = false;
-				materialT->enableTexture = false;
+				//materialData->enableTexture = false;
+				//materialT->enableTexture = false;
 				
 				sprite->IsEnableTexture(false);
 
@@ -724,9 +735,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
 			Matrix4x4 VP =Multiply(viewMatrix, projectionMatrix);
 
+
+#pragma region UV
+			ImGui::Begin("UV");
+			ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f, -10.0f, 10.0f);
+			ImGui::DragFloat2("scale", &UVT.scale.x, 0.01f, -10.0f, 10.0f);
+			ImGui::SliderAngle("rotate", &UVT.rotate.z);
+			ImGui::End();
+			Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
+
+			//materialData->uvTransform = worldUV;
+
+			sprite->SetUV_T(worldUV);
+
+#pragma endregion
+			/*
 			switch (num)
 			{
 			case Triangle:
+			
 #pragma region Triangle
 				triangle.rotate.y += 0.01f;
 				ImGui::Begin("Triangle");
@@ -781,19 +808,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion				
 				break;
 			case Sprite:			
-#pragma region UV
-				ImGui::Begin("UV");
-				ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f, -10.0f, 10.0f);
-				ImGui::DragFloat2("scale", &UVT.scale.x, 0.01f, -10.0f, 10.0f);
-				ImGui::SliderAngle("rotate", &UVT.rotate.z);
-				ImGui::End();
-				Matrix4x4 worldUV = MakeAffineMatrix(UVT.scale, UVT.rotate, UVT.translate);
-				
-				materialData->uvTransform = worldUV;
 
-				sprite->SetUV_T(worldUV);
-
-#pragma endregion
 #pragma region スプライト
 
 				Vector4 color = sprite->GetMaterialData().color;
@@ -861,7 +876,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			default:
 				break;
 			}
-
+			*/
 
 #pragma endregion
 #pragma endregion
@@ -880,7 +895,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			{
 			case Triangle:
 			
-				
+#pragma region 三角
+				/*
 				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewTri);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -894,12 +910,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
 				DXF->GetCMDList()->DrawInstanced(pointT, 1, 0, 0);
+				*/
+#pragma endregion
+
+				
 				break;
 
 			case Sphere:
 				
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-
+#pragma region 円
+				/*
 				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewSphere);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -913,6 +934,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, useMonsterBall ? textureSrvHandleGPU2 : textureSrvHandleGPU);
 				//描画！		
 				DXF->GetCMDList()->DrawInstanced(point, 1, 0, 0);
+				*/
+#pragma endregion			
 				break;
 			case Sprite:
 #pragma region 2D描画コマンド		
@@ -930,7 +953,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 				
 
-				sprite->Draw(worldViewProjectionMatrixSprite,worldMatrixSprite, textureSrvHandleGPU);
+				sprite->Draw(worldViewProjectionMatrixSprite,worldMatrixSprite, monstarBall);
 				
 
 #pragma endregion
@@ -938,7 +961,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			case Model:
 				
 				//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-				
+				/*
 				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView);
 				//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 				DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -954,12 +977,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				DXF->GetCMDList()->DrawInstanced(UINT(modeldata.vertices.size()), 1, 0, 0);
 
 
+
 				DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferViewtea);
 				//wvp用のCBufferの場所の設定
 				DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResourceTea->GetGPUVirtualAddress());
 
 				DXF->GetCMDList()->DrawInstanced(UINT(modeltea.vertices.size()), 1, 0, 0);
-
+				*/
 				break;
 			default:
 				break;
@@ -979,27 +1003,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma endregion
 #pragma region 開放処理
 	
-	vertexResourceSphere->Release();
+	//vertexResourceSphere->Release();
 	//vertexResourceSprite->Release();
 	//transformationMatrixResourceSprite->Release();
 	//生成と逆順に飲む
-	wvpResource->Release();
-	textureResource->Release();
-	textureResource2->Release();
-	wvpResourceS->Release();
+	//wvpResource->Release();
+	//textureResource->Release();
+	//textureResource2->Release();
+	//wvpResourceS->Release();
 	
 #pragma region 02_00
-	materialTriangle->Release();
-	vertexRtea->Release();
-	vertexResourceTri->Release();
-	wvpResourceTri->Release();
-	wvpResourceTea->Release();
+	//materialTriangle->Release();
+	//vertexRtea->Release();
+	//vertexResourceTri->Release();
+	//wvpResourceTri->Release();
+	//wvpResourceTea->Release();
 	//02_01
 	//indexResourceSprite->Release();
-	directionalLightResource->Release();
+	//directionalLightResource->Release();
 	//materialSpriteResource->Release();
-	materialResource->Release();
-	vertexResource->Release();
+	//materialResource->Release();
+	//vertexResource->Release();
 	
 	//graphicsPipelineState->Release();
 	//signatureBlob->Release();
@@ -1022,8 +1046,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	delete imguiManager;
-	delete DXF;
-	delete winApp;
+	
 
 	CoUninitialize();
 
