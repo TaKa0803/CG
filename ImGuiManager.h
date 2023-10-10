@@ -2,6 +2,7 @@
 
 #include"WinApp.h"
 #include"DirectXFunc.h"
+#include"externals/imgui/imgui.h"
 
 class ImGuiManager
 {

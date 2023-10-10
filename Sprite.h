@@ -7,15 +7,14 @@
 class Sprite {
 public:
 
-	static ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes);
-
+	
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	void Initialize(DirectXFunc* DXF_);
 
 
-	void Draw(Matrix4x4 WVP,Matrix4x4 World, int texture);
+	void Draw(Matrix4x4 World, int texture);
 
 	void SetUV_T(Matrix4x4 uvT){ materialSpriteData->uvTransform = uvT; }
 	void IsEnableTexture(bool ans) { materialSpriteData->enableTexture = ans; }

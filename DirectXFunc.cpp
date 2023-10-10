@@ -1,6 +1,6 @@
 #include"DirectXFunc.h"
 #include"Log.h"
-
+#include"function.h"
 #include<cassert>
 
 #pragma comment(lib,"d3d12.lib")
@@ -15,68 +15,7 @@ DirectXFunc* DirectXFunc::GetInstance()
 
 
 
-ID3D12DescriptorHeap* DirectXFunc::CreateDescriptorHeap(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
-	ID3D12DescriptorHeap* descriptorHeap = nullptr;
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.Type = heapType;
-	descriptorHeapDesc.NumDescriptors = numDescriptors;
-	descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-	HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
-	assert(SUCCEEDED(hr));
-
-	return descriptorHeap;
-}
-
-ID3D12Resource* DirectXFunc::CreateDepthStencilTextureResource(ID3D12Device* device, int32_t width, int32_t height) {
-#pragma region 生成するReosurceの設定
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = width;											//Textureの幅
-	resourceDesc.Height = height;										//Textureの高さ
-	resourceDesc.MipLevels = 1;											//mipmapの数
-	resourceDesc.DepthOrArraySize = 1;									//奥行き　or 配列Textureの配列数
-	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;				//DepthStencilとして利用可能なフォーマット
-	resourceDesc.SampleDesc.Count = 1;									//サンプリングカウント、１固定
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;		//２次元
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;		//DepthStencilとして使う通知
-
-	//りようするHeapの設定
-	D3D12_HEAP_PROPERTIES heapProperities{};
-	heapProperities.Type = D3D12_HEAP_TYPE_DEFAULT;						//VRAM上に作る
-#pragma region 深度地クリア最適化設定
-	D3D12_CLEAR_VALUE depthClearValue{};
-	depthClearValue.DepthStencil.Depth = 1.0f;//1.0（最大値）でクリア
-	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;//フォーマット、Resourceと合わせる
-#pragma endregion
-#pragma region Resourceの生成
-	ID3D12Resource* resource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(
-		&heapProperities,												//Heapの設定
-		D3D12_HEAP_FLAG_NONE,											//Heapの特殊な設定、特になし
-		&resourceDesc,													//Resourceの設定
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,								//深度値を書き込む状態にしておく
-		&depthClearValue,												//Clear最適地
-		IID_PPV_ARGS(&resource));										//作成するResourceポインタへのポインタ
-	assert(SUCCEEDED(hr));
-
-	return resource;
-#pragma endregion
-
-#pragma endregion
-
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXFunc::GetCPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
-	D3D12_CPU_DESCRIPTOR_HANDLE handleCPU = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	handleCPU.ptr += (descriptorSize * index);
-	return handleCPU;
-}
-
-D3D12_GPU_DESCRIPTOR_HANDLE DirectXFunc::GetGPUDescriptorHandle(ID3D12DescriptorHeap* descriptorHeap, uint32_t descriptorSize, uint32_t index) {
-	D3D12_GPU_DESCRIPTOR_HANDLE handleGPU = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	handleGPU.ptr += (descriptorSize * index);
-	return handleGPU;
-}
 
 #pragma region Initializeまとめ
 void DirectXFunc::D3D12Devicenitialize()
@@ -254,7 +193,7 @@ void DirectXFunc::FenceInitialize()
 void DirectXFunc::SRVInitialize()
 {
 	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = DirectXFunc::CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 	descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 #pragma endregion

@@ -1,5 +1,6 @@
 #include "TextureManager.h"
 #include"DirectXFunc.h"
+#include"function.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 
@@ -10,32 +11,6 @@
 
 
 
-ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
-
-#pragma region VertexResourceを生成する
-	//頂点リソース用のヒープの設定
-	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
-	//頂点リソースの設定
-	D3D12_RESOURCE_DESC vertexResorceDesc{};
-	//バッファリソース。テクスチャの場合はまた別の設定をする
-	vertexResorceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResorceDesc.Width = sizeInBytes;
-	//バッファの場合はこれらは１にする決まり
-	vertexResorceDesc.Height = 1;
-	vertexResorceDesc.DepthOrArraySize = 1;
-	vertexResorceDesc.MipLevels = 1;
-	vertexResorceDesc.SampleDesc.Count = 1;
-	//バッファの場合はこれにする決まり
-	vertexResorceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-#pragma endregion
-	ID3D12Resource* vertexResource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
-		&vertexResorceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-		IID_PPV_ARGS(&vertexResource));
-	assert(SUCCEEDED(hr));
-	return vertexResource;
-}
 
 //Textureデータを読む
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
@@ -112,6 +87,8 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 }
 
 
+
+
 TextureManager* TextureManager::GetInstance()
 {
 	static TextureManager instance;
@@ -136,8 +113,8 @@ int TextureManager::LoadTex(const std::string& filePath)
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
 	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = DirectXFunc::GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize()+1);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = DirectXFunc::GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize() + 1);
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize()+1);
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize() + 1);
 	//srvの生成
 	DXF->GetDevice()->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
 

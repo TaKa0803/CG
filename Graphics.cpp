@@ -190,6 +190,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 	//BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	
 #pragma endregion
 #pragma region RasterizeStateの設定を行う
 	//RasterizerState

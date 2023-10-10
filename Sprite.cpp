@@ -2,34 +2,8 @@
 #include"Matrix.h"
 #include<cassert>
 #include"TextureManager.h"
+#include"function.h"
 
-
-ID3D12Resource* Sprite::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
-
-#pragma region VertexResourceを生成する
-	//頂点リソース用のヒープの設定
-	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
-	//頂点リソースの設定
-	D3D12_RESOURCE_DESC vertexResorceDesc{};
-	//バッファリソース。テクスチャの場合はまた別の設定をする
-	vertexResorceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResorceDesc.Width = sizeInBytes;
-	//バッファの場合はこれらは１にする決まり
-	vertexResorceDesc.Height = 1;
-	vertexResorceDesc.DepthOrArraySize = 1;
-	vertexResorceDesc.MipLevels = 1;
-	vertexResorceDesc.SampleDesc.Count = 1;
-	//バッファの場合はこれにする決まり
-	vertexResorceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-#pragma endregion
-	ID3D12Resource* vertexResource = nullptr;
-	HRESULT hr = device->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE,
-		&vertexResorceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-		IID_PPV_ARGS(&vertexResource));
-	assert(SUCCEEDED(hr));
-	return vertexResource;
-}
 
 
 void Sprite::Initialize(DirectXFunc* DXF_)
@@ -115,9 +89,15 @@ void Sprite::Initialize(DirectXFunc* DXF_)
 #pragma endregion
 }
 
-void Sprite::Draw(Matrix4x4 WVP, Matrix4x4 World, int texture)
+void Sprite::Draw(Matrix4x4 World, int texture)
 {
-	
+	//スプライト用データ
+	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
+	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
+	Matrix4x4 VPSprite = Multiply(viewMatrixSprite, projectionMatrixSprite);
+
+	Matrix4x4 WVP = Multiply(World, VPSprite);
+
 
 	transformationMatrixDataSprite->WVP = WVP;
 	transformationMatrixDataSprite->World = World;
