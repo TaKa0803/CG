@@ -49,9 +49,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	graphics->Initialize(DXF->GetDevice());
 
 
-	ImGuiManager* imguiManager = nullptr;
-	imguiManager = new ImGuiManager;
-	imguiManager->Initialize(winApp, DXF);
+	
+	TextureManager::GetInstance()->Initialize(DXF);
 #pragma endregion
 
 
@@ -78,7 +77,9 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 	
 
 
-	
+ImGuiManager* imguiManager = ImGuiManager::GetInstance();
+imguiManager->Initialize(winApp, DXF);
+
 
 #pragma region 更新
 
@@ -104,6 +105,7 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 	bool useMonsterBall = true;
 	bool useTexture = true;
 
+	bool useShader = true;
 	enum Mode {
 		Triangle,
 		Sphere,
@@ -133,18 +135,13 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 			ImGui::DragInt("scene", &num, 1, 0, 3);
 
 			ImGui::End();
-			if (useTexture) {
-				Mteapot->IsEnableTexture(true);
-				Mbunny->IsEnableTexture(true);
-				sprite->IsEnableTexture(true);
+			
+			model->IsEnableTexture(useTexture);
+			Mteapot->IsEnableTexture(useTexture);
+			Mbunny->IsEnableTexture(useTexture);
+			sprite->IsEnableTexture(useTexture);
 				
-			}
-			else {
-				Mteapot->IsEnableTexture(false);
-				Mbunny->IsEnableTexture(false);
-				sprite->IsEnableTexture(false);
-
-			}
+			
 
 			//カメラ処理
 			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
@@ -153,7 +150,31 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
 			Matrix4x4 VP =Multiply(viewMatrix, projectionMatrix);
 
-			
+
+			ImGui::Begin("Sphere");
+			ImGui::DragFloat3("pos", &transform.translate.x, 0.01);
+			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01);
+			ImGui::DragFloat3("scale", &transform.scale.x, 0.01);
+			ImGui::End();
+
+#pragma region 影
+			Vector4 color= model->GetColor();
+			ImGui::Begin("Shader");
+			ImGui::Checkbox("enable Shader", &useShader);
+			ImGui::ColorEdit4("color", &color.x);
+			ImGui::End();
+
+			model->IsEnableShader(useShader);
+			model->SetColor(color);
+
+			Mbunny->IsEnableShader(useShader);
+			Mbunny->SetColor(color);
+
+			Mteapot->IsEnableShader(useShader);
+			Mteapot->SetColor(color);
+#pragma endregion
+
+
 #pragma region UV
 			ImGui::Begin("UV");
 			ImGui::DragFloat2("trans", &UVT.translate.x, 0.01f, -10.0f, 10.0f);
@@ -240,7 +261,6 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 	winApp->Finalize();
 
 
-	delete imguiManager;
 	
 
 	CoUninitialize();

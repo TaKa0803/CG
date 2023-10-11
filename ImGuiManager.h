@@ -2,10 +2,26 @@
 
 #include"WinApp.h"
 #include"DirectXFunc.h"
+#include"TextureManager.h"
+
 #include"externals/imgui/imgui.h"
 
 class ImGuiManager
 {
+public:
+	static ImGuiManager* GetInstance();
+
+	static const size_t kNumDescriptors = 256;
+
+
+private://シングルトンパターン
+
+	ImGuiManager() = default;
+	~ImGuiManager() = default;
+	ImGuiManager(const ImGuiManager& o) = delete;
+	const ImGuiManager& operator=(const ImGuiManager& o) = delete;
+
+
 public:
 	/// <summary>
 	/// 初期化
@@ -42,6 +58,6 @@ private:
 	//ポインタ
 	WinApp* winApp_ = nullptr;
 	DirectXFunc* DXF_ = nullptr;
-
+	TextureManager* textureManager_ = nullptr;
 };
 

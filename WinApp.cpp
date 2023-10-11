@@ -1,4 +1,5 @@
 #include"WinApp.h"
+#include"Log.h"
 
 #include<d3d12.h>
 #pragma region ImGui
@@ -72,6 +73,7 @@ void WinApp::Initialize()
 
 	ShowWindow(hwnd_, SW_SHOW);
 #pragma endregion
+	Log("Complete WinAppInitialize\n");
 }
 
 void WinApp::Finalize()

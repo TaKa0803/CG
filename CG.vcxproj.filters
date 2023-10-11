@@ -55,6 +55,9 @@
     <Filter Include="Engine\Function">
       <UniqueIdentifier>{efa9a544-0dca-4df2-86b7-847870886dbd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\WorldTransform">
+      <UniqueIdentifier>{2984dcd9-83d9-4ed8-963c-2d45c876a8cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -113,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="function.cpp">
       <Filter>Engine\Function</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldTransform.cpp">
+      <Filter>Engine\WorldTransform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +186,9 @@
     </ClInclude>
     <ClInclude Include="function.h">
       <Filter>Engine\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldTransform.h">
+      <Filter>Engine\WorldTransform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

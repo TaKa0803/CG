@@ -27,14 +27,15 @@ public:
 	void Draw(Matrix4x4 WVP, Matrix4x4 worldMatrix, int texture);
 
 
+	void IsEnableShader(bool ans) { materialData_->enableLighting = ans; }
 
 	void IsEnableTexture(bool ans) { materialData_->enableTexture = ans; }
 #pragma region セッター
 	void SetUV(Matrix4x4 uv) { materialData_->uvTransform = uv; }
+	void SetColor(Vector4 color) { materialData_->color = color; }
 #pragma endregion
 
-	
-
+	Vector4 GetColor() { return materialData_->color; }
 
 	void DebugParameter();
 private:

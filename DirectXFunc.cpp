@@ -13,11 +13,23 @@ DirectXFunc* DirectXFunc::GetInstance()
 	return &Instance;
 }
 
-
-
-
-
 #pragma region Initializeまとめ
+
+void DirectXFunc::Initialize(WinApp* winApp)
+{
+	assert(winApp);
+	winApp_ = winApp;
+
+	D3D12Devicenitialize();
+	CommandInitialize();
+	SwapChainInitialize();
+	RTVInitialize();
+	DSVInitialize();
+	FenceInitialize();
+
+	Log("Complete DirectXFunc Initialize\n");
+}
+
 void DirectXFunc::D3D12Devicenitialize()
 {
 #pragma region DXGIFactoryの生成
@@ -190,28 +202,8 @@ void DirectXFunc::FenceInitialize()
 #pragma endregion
 }
 
-void DirectXFunc::SRVInitialize()
-{
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-	descriptorSizeSRV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-}
+
 #pragma endregion
-
-void DirectXFunc::Initialize(WinApp* winApp)
-{
-	assert(winApp);
-	winApp_ = winApp;
-
-	D3D12Devicenitialize();
-	CommandInitialize();
-	SwapChainInitialize();
-	RTVInitialize();
-	DSVInitialize();
-	FenceInitialize();
-
-	SRVInitialize();
-}
 
 void DirectXFunc::PreDraw()
 {

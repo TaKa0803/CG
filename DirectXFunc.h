@@ -58,9 +58,7 @@ public:
 	D3D12_RENDER_TARGET_VIEW_DESC GetrtvDesc()const { return rtvDesc; }
 #pragma endregion
 
-	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap; }
-	uint32_t GetSRVsize()const { return descriptorSizeSRV; }
-
+	
 
 
 #pragma region クラス内関数
@@ -78,14 +76,7 @@ public:
 	void FenceInitialize();
 #pragma endregion
 
-#pragma region 仮移動
-	void SRVInitialize();
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	ID3D12DescriptorHeap* srvDescriptorHeap;
-	uint32_t descriptorSizeSRV;
 
-	
-#pragma endregion
 
 
 	//ポインタ

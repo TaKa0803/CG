@@ -3,6 +3,7 @@
 #include<vector>
 #include"externals/DirectXTex/d3dx12.h"
 
+#include"DirectXFunc.h"
 class TextureManager {
 public:
 	static TextureManager *GetInstance();
@@ -20,6 +21,9 @@ public:
 
 	static int LoadTex(const std::string& filePath);
 
+	void Initialize(DirectXFunc* DXF_);
+	
+
 	int AddtextureNum(D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
 
 
@@ -27,10 +31,24 @@ public:
 
 	int GetDataSize() { return (int)textureData_.size(); }
 
-private://メンバ関数
-	//Textureデータを読む
-	//DirectX::ScratchImage LoadTexture(const std::string& filePath);
+	ID3D12DescriptorHeap* GetSRV() { return srvDescriptorHeap; }
 
+private://メンバ関数
+	
+
+
+	void SRVInitialize();
+	
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPU_DES_HANDLE();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPU_DES_HANDLE();
+
+
+	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
+	ID3D12DescriptorHeap* srvDescriptorHeap;
+	uint32_t descriptorSizeSRV;
+
+	//
+	DirectXFunc* DXF;
 
 private://メンバ変数
 	struct Texture{

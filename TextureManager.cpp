@@ -1,17 +1,10 @@
 #include "TextureManager.h"
-#include"DirectXFunc.h"
 #include"function.h"
+#include"Log.h"
 
 #include"externals/DirectXTex/DirectXTex.h"
 
-//#include<d3d12.h>
-
-
-#include"Log.h"
-
-
-
-
+#pragma region 関数
 //Textureデータを読む
 DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 	//テクスチャファイルを読んでプログラムで扱えるようにする
@@ -55,7 +48,7 @@ ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMe
 		&heapProperties,							//Heapの設定
 		D3D12_HEAP_FLAG_NONE,						//Heapの特殊な設定。特になし。
 		&resourceDesc,								//Reosurceの設定
-		D3D12_RESOURCE_STATE_COPY_DEST,			//初回のResourceState。Textureは基本読むだけ
+		D3D12_RESOURCE_STATE_COPY_DEST,				//データ転送される予定
 		nullptr,									//Clear最適地。使わないのでnullptr
 		IID_PPV_ARGS(&resource));					//作成するResourceポインタへのポインタ
 	assert(SUCCEEDED(hr));
@@ -87,13 +80,37 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 }
 
 
+#pragma endregion
 
-
+#pragma region インスタンスと初期化
 TextureManager* TextureManager::GetInstance()
 {
 	static TextureManager instance;
 	return &instance;
 }
+void TextureManager::Initialize(DirectXFunc* DXF_)
+{
+	DXF = DXF_;
+
+	SRVInitialize();
+
+	Log("Complete TextureManager Initialize\n");
+
+}
+void TextureManager::SRVInitialize()
+{
+	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
+	srvDescriptorHeap = CreateDescriptorHeap(DXF->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
+	descriptorSizeSRV = DXF->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+#pragma endregion
+
+
+
+
+
+
 
 int TextureManager::LoadTex(const std::string& filePath)
 {
@@ -113,8 +130,9 @@ int TextureManager::LoadTex(const std::string& filePath)
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
 	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize()+1);
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVsize(), TextureManager::GetInstance()->GetDataSize() + 1);
+	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = TextureManager::GetInstance()->GetCPU_DES_HANDLE();
+	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = TextureManager::GetInstance()->GetGPU_DES_HANDLE();
+
 	//srvの生成
 	DXF->GetDevice()->CreateShaderResourceView(textureResource, &srvDesc, textureSrvHandleCPU);
 
@@ -130,6 +148,16 @@ int TextureManager::LoadTex(const std::string& filePath)
 
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPU_DES_HANDLE()
+{
+	return GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, GetDataSize() + 1);	
+}
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetGPU_DES_HANDLE()
+{
+	return  GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, GetDataSize() + 1);
+}
+
+
 int TextureManager::AddtextureNum(D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU)
 {
 	textureData_.push_back(textureSrvHandleGPU);
@@ -140,5 +168,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetTextureDescriptorHandle(int num)
 {
 	return textureData_[num];
 }
+
+
 
 
