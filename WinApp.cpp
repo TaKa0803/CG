@@ -32,7 +32,7 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 void WinApp::Initialize()
 {
 #pragma region ウィンドウ生成 
-	WNDCLASS wc{};
+	
 	wc.lpfnWndProc = WindowProc;
 	wc.lpszClassName = L"A";
 	wc.hInstance = GetModuleHandle(nullptr);
@@ -69,7 +69,7 @@ void WinApp::Initialize()
 	}
 #endif
 #pragma endregion
-
+	
 
 	ShowWindow(hwnd_, SW_SHOW);
 #pragma endregion

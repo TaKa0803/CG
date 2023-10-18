@@ -39,8 +39,10 @@ public:
 	bool ProcessMessage();
 
 	HWND GetHwnd()const { return hwnd_; }
-private:
 
+	WNDCLASS GetWc()const { return wc; }
+private:
+	WNDCLASS wc{};
 	//ウィンドウハンドル
 	HWND hwnd_ = nullptr;
 };

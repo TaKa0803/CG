@@ -58,6 +58,9 @@
     <Filter Include="Engine\WorldTransform">
       <UniqueIdentifier>{2984dcd9-83d9-4ed8-963c-2d45c876a8cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Input">
+      <UniqueIdentifier>{f90486c6-417b-42b5-99ee-c542e7a4d130}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -119,6 +122,9 @@
     </ClCompile>
     <ClCompile Include="WorldTransform.cpp">
       <Filter>Engine\WorldTransform</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Engine\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +201,9 @@
     </ClInclude>
     <ClInclude Include="WorldTransform.h">
       <Filter>Engine\WorldTransform</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Engine\Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

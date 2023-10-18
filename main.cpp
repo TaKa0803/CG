@@ -80,7 +80,6 @@ int monstarBall = TextureManager::LoadTex("resources/monsterBall.png");
 ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 imguiManager->Initialize(winApp, DXF);
 
-
 #pragma region 更新
 
 #pragma region メイン
