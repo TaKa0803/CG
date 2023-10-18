@@ -4,6 +4,10 @@
 #include"externals/DirectXTex/d3dx12.h"
 
 #include"DirectXFunc.h"
+
+#include<wrl.h>
+using namespace Microsoft::WRL;
+
 class TextureManager {
 public:
 	static TextureManager *GetInstance();
@@ -31,7 +35,7 @@ public:
 
 	int GetDataSize() { return (int)textureData_.size(); }
 
-	ID3D12DescriptorHeap* GetSRV() { return srvDescriptorHeap; }
+	ID3D12DescriptorHeap* GetSRV() { return srvDescriptorHeap.Get(); }
 
 private://メンバ関数
 	
@@ -44,7 +48,7 @@ private://メンバ関数
 
 
 	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	ID3D12DescriptorHeap* srvDescriptorHeap;
+	ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
 	uint32_t descriptorSizeSRV;
 
 	//

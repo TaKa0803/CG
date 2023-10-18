@@ -150,11 +150,11 @@ int TextureManager::LoadTex(const std::string& filePath)
 
 D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPU_DES_HANDLE()
 {
-	return GetCPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, GetDataSize() + 1);	
+	return GetCPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorSizeSRV, GetDataSize() + 1);
 }
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetGPU_DES_HANDLE()
 {
-	return  GetGPUDescriptorHandle(srvDescriptorHeap, descriptorSizeSRV, GetDataSize() + 1);
+	return  GetGPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorSizeSRV, GetDataSize() + 1);
 }
 
 

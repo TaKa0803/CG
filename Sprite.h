@@ -4,6 +4,9 @@
 #include"DirectXFunc.h"
 #include"struct.h"
 
+#include<wrl.h>
+using namespace Microsoft::WRL;
+
 class Sprite {
 public:
 
@@ -31,11 +34,11 @@ private:
 
 	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
 
-	ID3D12Resource* transformationMatrixResourceSprite;
+	ComPtr<ID3D12Resource> transformationMatrixResourceSprite;
 
 	WorldTransformation* transformationMatrixDataSprite = nullptr;
 
 	Material* materialSpriteData = nullptr;
 
-	ID3D12Resource* materialSpriteResource;
+	ComPtr<ID3D12Resource> materialSpriteResource;
 };

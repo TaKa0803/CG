@@ -269,6 +269,8 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 
 #pragma region モデル
 	ModelData modeltea = LoadObjFile("resources", filePath);
+
+	
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modeltea.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
 	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();

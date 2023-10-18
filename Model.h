@@ -4,6 +4,10 @@
 #include<string>
 #include"DirectXFunc.h"
 
+
+#include<wrl.h>
+using namespace Microsoft::WRL;
+
 class Model {
 
 
@@ -39,6 +43,8 @@ public:
 
 	void DebugParameter();
 private:
+
+	
 	//初期化
 	void Initialize(std::string name,int point,D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		ID3D12Resource* wvpResource,
@@ -62,11 +68,11 @@ private:
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	ID3D12Resource* wvpResource_;
+	ComPtr<ID3D12Resource> wvpResource_;
 	WorldTransformation* wvpData_ = nullptr;
 
-	ID3D12Resource* materialResource_;
+	ComPtr<ID3D12Resource> materialResource_;
 	Material* materialData_ = nullptr;
 
-	ID3D12Resource* directionalLightResource_;
+	ComPtr<ID3D12Resource> directionalLightResource_;
 };

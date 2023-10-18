@@ -5,6 +5,8 @@
 
 #include<stdint.h>
 
+#include<wrl.h>
+using namespace Microsoft::WRL;
 
 
 class DirectXFunc {
@@ -49,9 +51,9 @@ public:
 	void Finalize();
 
 #pragma region ゲッター
-	ID3D12Device* GetDevice()const { return device; }
+	ID3D12Device* GetDevice()const { return device.Get(); }
 
-	ID3D12GraphicsCommandList* GetCMDList()const { return commandList;}
+	ID3D12GraphicsCommandList* GetCMDList()const { return commandList.Get();}
 
 	DXGI_SWAP_CHAIN_DESC1 GetswapChainDesc()const { return swapChainDesc; }
 
@@ -85,22 +87,22 @@ public:
 
 
 	//dxgiファクトリー
-	IDXGIFactory7* dxgiFactory = nullptr;
+	ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
 	//デバイス
-	ID3D12Device* device = nullptr;
+	ComPtr<ID3D12Device> device = nullptr;
 	//コマンドキュー
-	ID3D12CommandQueue* commandQueue = nullptr;
+	ComPtr<ID3D12CommandQueue> commandQueue = nullptr;
 	//コマンドアロケータ
-	ID3D12CommandAllocator* commandAllocator = nullptr;
+	ComPtr<ID3D12CommandAllocator> commandAllocator = nullptr;
 	//コマンドリスト
-	ID3D12GraphicsCommandList* commandList = nullptr;
+	ComPtr<ID3D12GraphicsCommandList> commandList = nullptr;
 	//スワップチェーン
-	IDXGISwapChain4* swapChain = nullptr;
+	ComPtr<IDXGISwapChain4> swapChain = nullptr;
 
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 
 	//スワップチェーンリソース
-	ID3D12Resource* swapChainResources[2] = { nullptr };
+	ComPtr<ID3D12Resource> swapChainResources[2] = { nullptr };
 
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};

@@ -56,7 +56,7 @@ public:
 
 private:
 	//ポインタ
-	WinApp* winApp_ = nullptr;
+	 WinApp* winApp_ = nullptr;
 	DirectXFunc* DXF_ = nullptr;
 	TextureManager* textureManager_ = nullptr;
 };

@@ -67,7 +67,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Model* Mbunny = nullptr;
 	Mbunny = Model::CreateFromOBJ("bunny.obj");
 
-
+	
 
 int texture = TextureManager::LoadTex("resources/uvChecker.png");
 
@@ -152,9 +152,9 @@ imguiManager->Initialize(winApp, DXF);
 
 
 			ImGui::Begin("Sphere");
-			ImGui::DragFloat3("pos", &transform.translate.x, 0.01);
-			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01);
-			ImGui::DragFloat3("scale", &transform.scale.x, 0.01);
+			ImGui::DragFloat3("pos", &transform.translate.x, 0.01f);
+			ImGui::DragFloat3("rotate", &transform.rotate.x, 0.01f);
+			ImGui::DragFloat3("scale", &transform.scale.x, 0.01f);
 			ImGui::End();
 
 #pragma region 影
@@ -230,7 +230,7 @@ imguiManager->Initialize(winApp, DXF);
 				Mteapot->Draw(Wtea,VP,texture);
 				
 				Mteapot->Draw(Wobj, VP, texture);
-				//Mbunny->Draw(Wobj, VP, texture);
+				Mbunny->Draw(Wobj, VP, texture);
 
 				break;
 			default:
@@ -251,19 +251,22 @@ imguiManager->Initialize(winApp, DXF);
 #pragma endregion
 
 
+	delete sprite;
+	delete model;
+	delete Mteapot;
+	delete Mbunny;
 
-#pragma region ReportLiveObjects
-	lackCheck.~D3DResourceLeakChecker();
-#pragma endregion
+
 
 	imguiManager->Finalize();	
 	DXF->Finalize();	
 	winApp->Finalize();
 
-
 	
 
-	CoUninitialize();
 
+	
+	CoUninitialize();
+	lackCheck.~D3DResourceLeakChecker();
 	return 0;
 }
