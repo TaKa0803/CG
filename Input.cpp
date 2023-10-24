@@ -6,6 +6,11 @@
 
 #include<cassert>
 
+Input* Input::GetInstance() {
+	static Input instance;
+	return &instance;
+}
+
 void Input::Initialize(WinApp*winApp)
 {
 
@@ -31,10 +36,29 @@ void Input::Initialize(WinApp*winApp)
 
 void Input::Update()
 {
+
+	memcpy(preKey, key, sizeof(key));
+
 	//キーボード情報取得開始
 	keyboad->Acquire();
 
-	BYTE key[256] = {};
+	
 	keyboad->GetDeviceState(sizeof(key), key);
 
+}
+
+bool Input::PushKey(BYTE keyNum) {
+	if (key[keyNum]) {
+		return true;
+	}
+	return false;
+}
+
+bool Input::TriggerKey(BYTE keyNum) {
+
+	if (key[keyNum] && !preKey[keyNum]) {
+		return true;
+	}
+
+	return false;
 }

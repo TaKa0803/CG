@@ -15,14 +15,22 @@ public:
 
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-	static Input GetInstance();
+	static Input* GetInstance();
 
 	void Initialize(WinApp*winApp);
 
 	void Update();
+
+	bool PushKey(BYTE keyNum);
+
+	bool TriggerKey(BYTE keyNum);
 private:
 
 	//キーボードデバイス
 	ComPtr<IDirectInputDevice8>keyboad;
+
+	BYTE key[256] = {};
+
+	BYTE preKey[256] = {};
 
 };
