@@ -3,6 +3,7 @@
 #include"Matrix.h"
 #include<string>
 #include"DirectXFunc.h"
+#include"Vector2.h"
 
 
 #include<wrl.h>

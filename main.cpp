@@ -78,6 +78,7 @@ imguiManager->Initialize(winApp, DXF);
 		//ゲーム内処理
 		input->Update();
 
+
 		ingame->Update();
 
 

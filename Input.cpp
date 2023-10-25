@@ -3,6 +3,8 @@
 
 #pragma comment(lib,"dinput8.lib")
 #pragma comment(lib,"dxguid.lib")
+#pragma comment(lib,"Xinput9_1_0.lib")
+
 
 #include<cassert>
 
@@ -45,6 +47,8 @@ void Input::Update()
 	
 	keyboad->GetDeviceState(sizeof(key), key);
 
+
+	XInputGetState(0, &joyState);
 }
 
 bool Input::PushKey(BYTE keyNum) {
@@ -61,4 +65,55 @@ bool Input::TriggerKey(BYTE keyNum) {
 	}
 
 	return false;
+}
+
+bool Input::IsControllerActive() {
+
+	if (XInputGetState(0, &joyState)==ERROR_SUCCESS) {
+		return true;
+	}
+	
+	return false;
+}
+
+Vector2 Input::GetjoyStickR() {
+	Vector2 r= {
+		(float)joyState.Gamepad.sThumbRX / SHRT_MAX,
+		(float)joyState.Gamepad.sThumbRY / SHRT_MAX,
+	};
+	if (r.x > 0 && r.x < deadLine_) {
+		r.x = 0;
+	}
+	if (r.x < 0 && r.x > -deadLine_) {
+		r.x = 0;
+	}
+
+	if (r.y > 0 && r.y < deadLine_) {
+		r.y = 0;
+	}
+	if (r.y < 0 && r.y > -deadLine_) {
+		r.y = 0;
+	}
+
+	return r;
+}
+
+Vector2 Input::GetjoyStickL() {
+	Vector2 r = {
+		(float)joyState.Gamepad.sThumbLX / SHRT_MAX,
+		(float)joyState.Gamepad.sThumbLY / SHRT_MAX,
+	};
+	if (r.x > 0 && r.x < deadLine_) {
+		r.x = 0;
+	}else if (r.x < 0 && r.x > -deadLine_) {
+		r.x = 0;
+	}
+
+	if (r.y > 0 && r.y < deadLine_) {
+		r.y = 0;
+	}else if (r.y < 0 && r.y > -deadLine_) {
+		r.y = 0;
+	}
+
+	return r;
 }

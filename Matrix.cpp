@@ -1,7 +1,15 @@
 #include"Matrix.h"
 #include<assert.h>
 #include<cmath>
+	
+Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
+	return {
+		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0],
+		v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1],
+		v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2],
 
+	};
+}
 
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
@@ -347,12 +355,15 @@ float Length(Vector3 v) {
 // 正規化
 Vector3 Normalize(Vector3 v) {
 	float length = Length(v);
-	Vector3 Answer = {
-		v.x / length,
-		v.y / length,
-		v.z / length,
-	};
-	return Answer;
+	if (length != 0) {
+		Vector3 Answer = {
+			v.x / length,
+			v.y / length,
+			v.z / length,
+		};
+		return Answer;
+	}
+	return {0,0,0};
 }
 
 

@@ -2,14 +2,11 @@
 #include<stdint.h>
 #include<vector>
 #include<string>
-
+#include"Vector2.h"
 
 #pragma region 構造体
 
-struct Vector2 {
-	float x;
-	float y;
-};
+
 struct Vector3 {
 	float x;
 	float y;

@@ -4,8 +4,8 @@
 
 #define DIRECTINPUT_VERSION 0x0800 //バージョン設定
 #include<dinput.h>
-
-
+#include <XInput.h>
+#include"Vector2.h"
 #include"WinApp.h"
 
 
@@ -24,6 +24,16 @@ public:
 	bool PushKey(BYTE keyNum);
 
 	bool TriggerKey(BYTE keyNum);
+
+
+
+	bool IsControllerActive();
+
+	Vector2 GetjoyStickR();
+
+	Vector2 GetjoyStickL();
+
+	void SetDeadLine(float deadLine) { deadLine_ = deadLine; }
 private:
 
 	//キーボードデバイス
@@ -33,4 +43,7 @@ private:
 
 	BYTE preKey[256] = {};
 
+	XINPUT_STATE joyState;
+	//デッドライン
+	float deadLine_ = 0.1f;
 };

@@ -2,6 +2,7 @@
 #include"struct.h"
 #include <math.h>
 
+Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);

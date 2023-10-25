@@ -51,7 +51,7 @@ public:
 	void Finalize();
 
 #pragma region ゲッター
-	ID3D12Device* GetDevice()const { return device.Get(); }
+	ID3D12Device* GetDevice()const { return device; }
 
 	ID3D12GraphicsCommandList* GetCMDList()const { return commandList.Get();}
 
@@ -89,7 +89,7 @@ public:
 	//dxgiファクトリー
 	ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
 	//デバイス
-	ComPtr<ID3D12Device> device = nullptr;
+	ID3D12Device* device = nullptr;
 	//コマンドキュー
 	ComPtr<ID3D12CommandQueue> commandQueue = nullptr;
 	//コマンドアロケータ
