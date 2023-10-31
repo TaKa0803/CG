@@ -5,14 +5,13 @@
 #include"DirectXFunc.h"
 #include"Vector2.h"
 
-
 #include<wrl.h>
-using namespace Microsoft::WRL;
 
 class Model {
-
-
 public:
+
+	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 	//円作成
 	static Model* CreateSphere(float kSubdivision, bool enableLighting);
 

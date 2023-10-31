@@ -93,6 +93,11 @@ void InGame::Update() {
 	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
 	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
 	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
+
+	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
+
 	ImGui::End();
 
 	PlaneUpdate();

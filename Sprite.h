@@ -4,15 +4,15 @@
 #include"DirectXFunc.h"
 #include"struct.h"
 #include"Vector2.h"
-
 #include<wrl.h>
 
-using namespace Microsoft::WRL;
+
 
 class Sprite {
 public:
 
-	
+	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
