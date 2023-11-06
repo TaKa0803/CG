@@ -1,6 +1,7 @@
 #include"DirectXFunc.h"
 #include"Log.h"
 #include"function.h"
+
 #include<cassert>
 
 #pragma comment(lib,"d3d12.lib")
@@ -39,7 +40,7 @@ void DirectXFunc::D3D12Devicenitialize()
 #pragma endregion
 #pragma region 使用するアダプタを決定する
 	//使用するアダプタ用の変数。最初にnullptrを入れておく
-	IDXGIAdapter4* useAdapter = nullptr;
+	
 	//いい順にアダプタを積む
 	for (UINT i = 0; dxgiFactory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&useAdapter)) != DXGI_ERROR_NOT_FOUND; ++i) {
 		//アダプターの情報取得
@@ -65,7 +66,7 @@ void DirectXFunc::D3D12Devicenitialize()
 	//高い順に生成できるか試していく
 	for (size_t i = 0; i < _countof(featureLevels); ++i) {
 		//採用したアダプターでデバイスを生成
-		hr = D3D12CreateDevice(useAdapter, featureLevels[i], IID_PPV_ARGS(&device));
+		hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(&device));
 		if (SUCCEEDED(hr)) {
 			Log(std::format("FeatureLevel : {}\n", featurelevelString[i]));
 			break;
@@ -76,14 +77,14 @@ void DirectXFunc::D3D12Devicenitialize()
 	Log("Complete create D3D12Device!!\n");
 #pragma region エラー・警告で停止
 #ifdef _DEBUG
-	ID3D12InfoQueue* infoQueue = nullptr;
+	
 	if (SUCCEEDED(device->QueryInterface(IID_PPV_ARGS(&infoQueue)))) {
 		//やばいエラー時に止まる
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 		//エラー時に止まる
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 		//警告時に止まる
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+		//infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 #pragma region エラー警告の抑制
 		D3D12_MESSAGE_ID denyIds[] = {
 			//Windows11
@@ -100,8 +101,7 @@ void DirectXFunc::D3D12Devicenitialize()
 		//指定したメッセージの表示を抑制する
 		infoQueue->PushStorageFilter(&filter);
 #pragma endregion
-		//開放
-		infoQueue->Release();
+		
 	}
 #endif
 #pragma endregion
@@ -153,7 +153,7 @@ void DirectXFunc::SwapChainInitialize()
 void DirectXFunc::RTVInitialize()
 {
 	//RTVようのヒープでディスクリプタの数は２。RTVはSHADER内で触るものではないのでShaderVisibleはfalse
-	ID3D12DescriptorHeap* rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	rtvDescriptorHeap = CreateDescriptorHeap(device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
 	const uint32_t descriptorSizeRTV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 #pragma region RTV
 	//RTV
@@ -161,7 +161,7 @@ void DirectXFunc::RTVInitialize()
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	//ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV, 0);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap.Get(), descriptorSizeRTV, 0);
 	//
 	
 	//
@@ -175,18 +175,20 @@ void DirectXFunc::RTVInitialize()
 
 void DirectXFunc::DSVInitialize()
 {
+	
 	//DSV用のヒープでディスクリプタの数は１。DSVはShader内で触るものではないので、ShaderVisibleはfalse
-	dsvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+	dsvDescriptorHeap = CreateDescriptorHeap(device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
 	descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 #pragma region DSV
 	//DepthStencilTextureをウィンドウサイズで作成
-	ID3D12Resource* depthStencilResource = CreateDepthStencilTextureResource(device, WinApp::kClientWidth, WinApp::kClientHeight);
+	depthStencilResource = CreateDepthStencilTextureResource(device.Get(), WinApp::kClientWidth, WinApp::kClientHeight);
 	//DSVの設定
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//Format基本的にはResourceに合わせる
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;	//2dTexture
+
 	//DSVHEapの先頭にDSVを作る
-	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateDepthStencilView(depthStencilResource.Get(), &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #pragma endregion
 }
 
@@ -226,7 +228,7 @@ void DirectXFunc::PreDraw()
 #pragma endregion
 #pragma region RTVとDSVの設定
 	//描画先のRTVとDSVを設定する
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorHeap, descriptorSizeDSV, 0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorHeap.Get(), descriptorSizeDSV, 0);
 	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
 #pragma endregion
 	//指定した色で画面全体をクリアする
@@ -289,7 +291,7 @@ void DirectXFunc::KickCommand()
 	//Fenceの値を更新
 	fenceValue++;
 	//GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-	commandQueue->Signal(fence, fenceValue);
+	commandQueue->Signal(fence.Get(), fenceValue);
 	//Fenceの値が指定したSignal値にたどり着いているか確認する
 	//GetCompleteValueの初期値はFence作成時に渡した初期値
 	if (fence->GetCompletedValue() < fenceValue) {
@@ -312,16 +314,9 @@ void DirectXFunc::KickCommand()
 void DirectXFunc::Finalize()
 {
 	CloseHandle(fenceEvent);
-	fence->Release();
 
 	//depthStencilResource->Release();
-
-
-	dsvDescriptorHeap->Release();
+	//dsvDescriptorHeap->Release();
 	//rtvDescriptorHeap->Release();
-	
-	
-	device->Release();
-	
 }
 

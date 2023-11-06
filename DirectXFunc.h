@@ -1,8 +1,8 @@
 #pragma once
 #include"WinApp.h"
+
 #include<d3d12.h>
 #include<dxgi1_6.h>
-
 #include<stdint.h>
 
 #include<wrl.h>
@@ -23,7 +23,7 @@ private://シングルトンパターン
 
 public:	//静的メンバ変数
 
-	
+
 
 public:
 	/// <summary>
@@ -47,20 +47,20 @@ public:
 	/// </summary>
 	void KickCommand();
 
-	
+
 	void Finalize();
 
 #pragma region ゲッター
-	ID3D12Device* GetDevice()const { return device; }
+	ID3D12Device* GetDevice()const { return device.Get(); }
 
-	ID3D12GraphicsCommandList* GetCMDList()const { return commandList.Get();}
+	ID3D12GraphicsCommandList* GetCMDList()const { return commandList.Get(); }
 
 	DXGI_SWAP_CHAIN_DESC1 GetswapChainDesc()const { return swapChainDesc; }
 
 	D3D12_RENDER_TARGET_VIEW_DESC GetrtvDesc()const { return rtvDesc; }
 #pragma endregion
 
-	
+
 
 
 #pragma region クラス内関数
@@ -74,22 +74,22 @@ public:
 
 	void DSVInitialize();
 
-	
+
 	void FenceInitialize();
 #pragma endregion
 
 
-
+	ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
 
 	//ポインタ
 	WinApp* winApp_ = nullptr;
 
-
+	ComPtr<IDXGIAdapter4> useAdapter = nullptr;
 
 	//dxgiファクトリー
 	ComPtr<IDXGIFactory7> dxgiFactory = nullptr;
 	//デバイス
-	ID3D12Device* device = nullptr;
+	ComPtr <ID3D12Device> device = nullptr;
 	//コマンドキュー
 	ComPtr<ID3D12CommandQueue> commandQueue = nullptr;
 	//コマンドアロケータ
@@ -109,11 +109,18 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 
-	ID3D12DescriptorHeap* dsvDescriptorHeap;
+	ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap;
+
+
+	ComPtr<ID3D12Resource> depthStencilResource;
+
+	ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap;
 	uint32_t descriptorSizeDSV;
+
+
 	//フェンス
-	ID3D12Fence* fence = nullptr;
-	uint32_t fenceValue = 0;
+	ComPtr<ID3D12Fence> fence = nullptr;
+	uint64_t fenceValue = 0;
 	//イベント
 	HANDLE fenceEvent;
 
