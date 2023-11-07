@@ -33,53 +33,60 @@ struct D3DResourceLeakChecker {
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+	//リークチェック
 	static D3DResourceLeakChecker lackCheck;
-
 
 	HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
 
 
 #pragma region 基板初期化
+	//windowsアプリケーション
 	WinApp* winApp = WinApp::GetInstance();
 	winApp->Initialize();
-
+	
+	//DirectX
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
-
+	
+	//Graphic関係
 	GraphicsSystem* graphics = GraphicsSystem::GetInstance();	
 	graphics->Initialize(DXF->GetDevice());
-
-
-
+	
+	//画像関係
 	TextureManager::GetInstance()->Initialize(DXF);
 
-
-	Input* input = Input::GetInstance();
-	input->Initialize(winApp);
-
-#pragma endregion
-
-
-	//InGame* ingame = new InGame();
-	//ingame->Initialize();
-
-
-
-
-
-
+	//ImGui
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Initialize(winApp, DXF);
 
+	//入力
+	Input* input = Input::GetInstance();
+	input->Initialize(winApp);
+#pragma endregion
+
+
+	InGame* ingame = new InGame();
+	ingame->Initialize();
+
+
+
+
+
+
+	
+
 #pragma region 更新
-
 	while (winApp->ProcessMessage()) {
+#pragma region 状態更新
+		///更新前処理
+		//ImGui
 		imguiManager->PreUpdate();
-		//ゲーム内処理
+
+		//キー入力
 		input->Update();
+		///=以下更新=//
 
-
-		//ingame->Update();
+		ingame->Update();
 
 
 
@@ -87,44 +94,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::ShowDemoWindow();
 
 
-
+		//==更新終わり==//
+		//更新終わり描画前処理
 		imguiManager->PostUpdate();
+#pragma endregion
 #pragma region 描画		
-#pragma region コマンドを積み込んで確定させる
+		///描画前処理
+		//DirectX
 		DXF->PreDraw();
+		//ImGui
 		imguiManager->PreDraw();
+		//Graphics
 		graphics->PreDraw(DXF->GetCMDList());
 
+		//==以下描画==//
 
 
-
-		//ingame->Draw();
-
+		ingame->Draw();
 
 
+		//==描画終わり==//
 
+		///描画あと処理
+		//imGui
 		imguiManager->PostDraw();
+		//DirectX
 		DXF->PostDraw();
 #pragma endregion
-#pragma endregion
-
 	}
 #pragma endregion
 
-
-
-
-
-
-
+	///開放処理
 	imguiManager->Finalize();	
 	DXF->Finalize();
 	winApp->Finalize();
 
-
-
-
-
+	//終わり
 	CoUninitialize();
 	return 0;
 }
