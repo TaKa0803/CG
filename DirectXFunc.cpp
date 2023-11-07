@@ -25,6 +25,7 @@ void DirectXFunc::Initialize(WinApp* winApp)
 	CommandInitialize();
 	SwapChainInitialize();
 	RTVInitialize();
+	SRVInitialize();
 	DSVInitialize();
 	FenceInitialize();
 
@@ -325,6 +326,7 @@ void DirectXFunc::Finalize()
 
 	depthStencilResource->Release();
 	dsvDescriptorHeap->Release();
+	srvDescriptorHeap->Release();
 	rtvDescriptorHeap->Release();
 }
 

@@ -61,7 +61,7 @@ public:
 
 	D3D12_RENDER_TARGET_VIEW_DESC GetrtvDesc()const { return rtvDesc; }
 
-	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap.Get(); }
+	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap; }
 	uint32_t GetSRVSize()const { return descriptorSizeSRV; }
 #pragma endregion
 
@@ -119,7 +119,7 @@ public:
 
 
 	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
+	ID3D12DescriptorHeap* srvDescriptorHeap;
 	uint32_t descriptorSizeSRV;
 
 

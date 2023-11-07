@@ -20,11 +20,7 @@ void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
 
 	assert(DXF);
 	DXF_ = DXF;
-
-	textureManager_ = TextureManager::GetInstance();
-
 	
-
 #pragma region ImGuiの初期化
 	//ImGuiの初期化。詳細はさして重要ではないので解説は省略
 	//こういうもんである

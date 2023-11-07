@@ -54,8 +54,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	TextureManager::GetInstance()->Initialize(DXF);
 
 
-	//Input* input = Input::GetInstance();
-	//input->Initialize(winApp);
+	Input* input = Input::GetInstance();
+	input->Initialize(winApp);
 
 #pragma endregion
 
@@ -68,15 +68,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-	//ImGuiManager* imguiManager = ImGuiManager::GetInstance();
-	//imguiManager->Initialize(winApp, DXF);
+	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
+	imguiManager->Initialize(winApp, DXF);
 
 #pragma region 更新
 
 	while (winApp->ProcessMessage()) {
-		//imguiManager->PreUpdate();
+		imguiManager->PreUpdate();
 		//ゲーム内処理
-		//input->Update();
+		input->Update();
 
 
 		//ingame->Update();
@@ -84,15 +84,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 
 
 
-		//imguiManager->PostUpdate();
+		imguiManager->PostUpdate();
 #pragma region 描画		
 #pragma region コマンドを積み込んで確定させる
 		DXF->PreDraw();
-		//imguiManager->PreDraw();
+		imguiManager->PreDraw();
 		graphics->PreDraw(DXF->GetCMDList());
 
 
@@ -103,7 +103,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		//imguiManager->PostDraw();
+		imguiManager->PostDraw();
 		DXF->PostDraw();
 #pragma endregion
 #pragma endregion
@@ -117,7 +117,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-	//imguiManager->Finalize();	
+	imguiManager->Finalize();	
 	DXF->Finalize();
 	winApp->Finalize();
 
