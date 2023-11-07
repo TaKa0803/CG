@@ -92,17 +92,10 @@ void TextureManager::Initialize(DirectXFunc* DXF_)
 {
 	DXF = DXF_;
 
-	SRVInitialize();
-
 	Log("Complete TextureManager Initialize\n");
 
 }
-void TextureManager::SRVInitialize()
-{
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = CreateDescriptorHeap(DXF->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-	descriptorSizeSRV = DXF->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-}
+
 
 #pragma endregion
 
@@ -150,11 +143,11 @@ int TextureManager::LoadTex(const std::string& filePath)
 
 D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPU_DES_HANDLE()
 {
-	return GetCPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorSizeSRV, GetDataSize() + 1);
+	return GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVSize(), GetDataSize() + 1);
 }
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetGPU_DES_HANDLE()
 {
-	return  GetGPUDescriptorHandle(srvDescriptorHeap.Get(), descriptorSizeSRV, GetDataSize() + 1);
+	return  GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVSize(), GetDataSize() + 1);
 }
 
 

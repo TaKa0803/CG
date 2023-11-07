@@ -35,22 +35,16 @@ public:
 
 	int GetDataSize() { return (int)textureData_.size(); }
 
-	ID3D12DescriptorHeap* GetSRV() { return srvDescriptorHeap.Get(); }
-
+	
 private://メンバ関数
 	
 
-
-	void SRVInitialize();
 	
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPU_DES_HANDLE();
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPU_DES_HANDLE();
 
 
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
-	uint32_t descriptorSizeSRV;
-
+	
 	//
 	DirectXFunc* DXF;
 

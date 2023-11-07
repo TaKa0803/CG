@@ -60,6 +60,9 @@ public:
 	DXGI_SWAP_CHAIN_DESC1 GetswapChainDesc()const { return swapChainDesc; }
 
 	D3D12_RENDER_TARGET_VIEW_DESC GetrtvDesc()const { return rtvDesc; }
+
+	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap.Get(); }
+	uint32_t GetSRVSize()const { return descriptorSizeSRV; }
 #pragma endregion
 
 
@@ -76,6 +79,7 @@ public:
 
 	void DSVInitialize();
 
+	void SRVInitialize();
 
 	void FenceInitialize();
 #pragma endregion
@@ -114,8 +118,12 @@ public:
 	ID3D12DescriptorHeap* rtvDescriptorHeap;
 
 
-	ID3D12Resource* depthStencilResource;
+	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
+	ComPtr<ID3D12DescriptorHeap> srvDescriptorHeap;
+	uint32_t descriptorSizeSRV;
 
+
+	ID3D12Resource* depthStencilResource;
 	ID3D12DescriptorHeap* dsvDescriptorHeap;
 	uint32_t descriptorSizeDSV;
 

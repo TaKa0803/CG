@@ -51,7 +51,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-	//TextureManager::GetInstance()->Initialize(DXF);
+	TextureManager::GetInstance()->Initialize(DXF);
 
 
 	//Input* input = Input::GetInstance();
