@@ -3,21 +3,25 @@
 #include<string>
 #include<d3d12.h>
 #include<dxcapi.h>
+#include<wrl.h>
 
 class GraphicsSystem
 {
-public://静的メンバ
-	static IDxcBlob* CompileShader(
-		//CompilerするShaderファイルへのパス
-		const std::wstring& filePath,
-		//Compilerに使用するProfire
-		const wchar_t* profile,
-		//初期化で生成したものを3つ
-		IDxcUtils* dxcUtils,
-		IDxcCompiler3* dxcCompiler,
-		IDxcIncludeHandler* includeHandler);
+
+public://シングルトンパターン
+	static GraphicsSystem* GetInstance();
+
+private://シングルトンパターン
+
+	GraphicsSystem() = default;
+	~GraphicsSystem() = default;
+	GraphicsSystem(const GraphicsSystem& o) = delete;
+	const GraphicsSystem& operator=(const GraphicsSystem& o) = delete;
+
 
 public:
+	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 	void Initialize(ID3D12Device* device);
 
 
@@ -25,9 +29,9 @@ public:
 private:
 
 	//ルートシグネチャ
-	ID3D12RootSignature* rootSignature = nullptr;
+	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 
 	//グラフィックパイプライン
-	ID3D12PipelineState* graphicsPipelineState = nullptr;
+	ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
 };
 

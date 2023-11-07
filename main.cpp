@@ -46,9 +46,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
 
-	//GraphicsSystem *graphics = nullptr;
-	//graphics = new GraphicsSystem;
-	//graphics->Initialize(DXF->GetDevice());
+	GraphicsSystem* graphics = GraphicsSystem::GetInstance();	
+	graphics->Initialize(DXF->GetDevice());
 
 
 
@@ -94,7 +93,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 #pragma region コマンドを積み込んで確定させる
 		DXF->PreDraw();
 		//imguiManager->PreDraw();
-		//graphics->PreDraw(DXF->GetCMDList());
+		graphics->PreDraw(DXF->GetCMDList());
 
 
 

@@ -6,7 +6,6 @@
 #include<stdint.h>
 
 #include<wrl.h>
-using namespace Microsoft::WRL;
 
 
 class DirectXFunc {
@@ -26,6 +25,9 @@ public:	//静的メンバ変数
 
 
 public:
+
+	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 	/// <summary>
 	/// イニシャライズ
 	/// </summary>
