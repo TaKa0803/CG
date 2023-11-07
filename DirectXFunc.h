@@ -109,12 +109,12 @@ public:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2];
 
-	ComPtr <ID3D12DescriptorHeap> rtvDescriptorHeap;
+	ID3D12DescriptorHeap* rtvDescriptorHeap;
 
 
-	ComPtr<ID3D12Resource> depthStencilResource;
+	ID3D12Resource* depthStencilResource;
 
-	ComPtr <ID3D12DescriptorHeap> dsvDescriptorHeap;
+	ID3D12DescriptorHeap* dsvDescriptorHeap;
 	uint32_t descriptorSizeDSV;
 
 
@@ -128,4 +128,5 @@ public:
 	D3D12_RESOURCE_BARRIER barrier{};
 
 
+	const bool isAssertForgetReleasing_ = false;
 };

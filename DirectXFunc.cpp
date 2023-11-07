@@ -83,8 +83,10 @@ void DirectXFunc::D3D12Devicenitialize()
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 		//エラー時に止まる
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-		//警告時に止まる
-		//infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+		if (isAssertForgetReleasing_) {
+			//警告時に止まる
+			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+		}
 #pragma region エラー警告の抑制
 		D3D12_MESSAGE_ID denyIds[] = {
 			//Windows11
@@ -161,7 +163,7 @@ void DirectXFunc::RTVInitialize()
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	//ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap.Get(), descriptorSizeRTV, 0);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = GetCPUDescriptorHandle(rtvDescriptorHeap, descriptorSizeRTV, 0);
 	//
 	
 	//
@@ -188,7 +190,7 @@ void DirectXFunc::DSVInitialize()
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;	//2dTexture
 
 	//DSVHEapの先頭にDSVを作る
-	device->CreateDepthStencilView(depthStencilResource.Get(), &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #pragma endregion
 }
 
@@ -228,7 +230,7 @@ void DirectXFunc::PreDraw()
 #pragma endregion
 #pragma region RTVとDSVの設定
 	//描画先のRTVとDSVを設定する
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorHeap.Get(), descriptorSizeDSV, 0);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = GetCPUDescriptorHandle(dsvDescriptorHeap, descriptorSizeDSV, 0);
 	commandList->OMSetRenderTargets(1, &rtvHandles[backBufferIndex], false, &dsvHandle);
 #pragma endregion
 	//指定した色で画面全体をクリアする
@@ -315,8 +317,8 @@ void DirectXFunc::Finalize()
 {
 	CloseHandle(fenceEvent);
 
-	//depthStencilResource->Release();
-	//dsvDescriptorHeap->Release();
-	//rtvDescriptorHeap->Release();
+	depthStencilResource->Release();
+	dsvDescriptorHeap->Release();
+	rtvDescriptorHeap->Release();
 }
 
