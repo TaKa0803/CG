@@ -80,34 +80,11 @@ void InGame::Initialize() {
 
 	eLT_.translate_= { -2.0f, 0, 0 };
 	eRT_.translate_ = { 2.0f, 0, 0 };
-	eRT_.rotate_.x = 3.14f / 2.0f;;
-
+	eRT_.rotate_.x = 3.14f / 2.0f;
+	
 }
 
 void InGame::Update() {
-
-
-
-#pragma region 台座処理
-	ImGui::Begin("plane");
-	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
-
-	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
-
-	ImGui::End();
-
-	PlaneUpdate();
-
-	planeTrans1_.UpdateMatrix();
-	planeTrans2_.UpdateMatrix();
-	planeTrans3_.UpdateMatrix();
-
-#pragma endregion
-
 #pragma region プレイヤー挙動
 	ImGui::Begin("obj");
 	ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
@@ -126,7 +103,8 @@ void InGame::Update() {
 
 		if (nyu.x == 0 && nyu.y == 0) {
 			moveVelo = { 0,0,0 };
-		}else{
+		}
+		else {
 			moveVelo = { nyu.x,0,nyu.y };
 			moveVelo = Normalize(moveVelo);
 			moveVelo = Scalar(spd, moveVelo);
@@ -226,6 +204,31 @@ void InGame::Update() {
 
 #pragma endregion
 
+
+	
+#pragma region 台座処理
+	ImGui::Begin("plane");
+	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
+	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
+	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
+
+	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
+
+	ImGui::End();
+
+	PlaneUpdate();
+
+	planeTrans1_.UpdateMatrix();
+	planeTrans2_.UpdateMatrix();
+	planeTrans3_.UpdateMatrix();
+
+#pragma endregion
+
+
+
+
 #pragma region 天球
 	ImGui::Begin("skydome");
 	ImGui::DragInt("scale", &scaleNum, 0.01f);
@@ -276,13 +279,14 @@ void InGame::Update() {
 
 
 	Collision();
+	
 }
 
 void InGame::Draw() {
 
 	playerM_->Draw(playerW_.matWorld_, VP, playertexture);
 
-
+	
 	plane1->Draw(planeTrans1_.matWorld_, VP, planeTex_);
 	plane2->Draw(planeTrans2_.matWorld_, VP, planeTex_);
 	plane3->Draw(planeTrans3_.matWorld_, VP, planeTex_);
@@ -295,6 +299,21 @@ void InGame::Draw() {
 
 
 	goal_->Draw(goalT_.matWorld_, VP, goalTex);
+	
+}
+void InGame::Finalize() {
+	delete playerM_;
+	delete plane1;
+	delete plane2;
+	delete plane3;
+
+	delete skydome_;
+
+	delete ehead_;
+	delete eLA_;
+	delete eRA_;
+
+	delete goal_;
 }
 
 void InGame::PlaneUpdate() {

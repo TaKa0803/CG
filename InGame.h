@@ -3,6 +3,7 @@
 #include"Model.h"
 #include"struct.h"
 #include"WorldTransform.h"
+#include<iostream>
 
 struct AABB {
 	Vector3 min;
@@ -19,6 +20,7 @@ public:
 
 	void Draw();
 
+	void Finalize();
 private:
 	Input* input = nullptr;
 
@@ -48,9 +50,9 @@ private:
 	//カメラ用
 	Matrix4x4 VP;
 
+	
 	//地面
 	int planeTex_;
-	
 	Model* plane1 = nullptr;
 	WorldTransform planeTrans1_;
 
@@ -131,5 +133,5 @@ private:
 			goalT_.matWorld_.m[3][2]
 		};
 	}
-
+	
 };

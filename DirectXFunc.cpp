@@ -296,6 +296,7 @@ void DirectXFunc::KickCommand()
 	commandQueue->ExecuteCommandLists(1, commandLists);
 	//GPUとOSに画面の交換を行うよう通知する
 	swapChain->Present(1, 0);
+	
 #pragma region GPUにSignalをおくる
 	//Fenceの値を更新
 	fenceValue++;
@@ -311,7 +312,8 @@ void DirectXFunc::KickCommand()
 	}
 	//GPUにシグナルを送るおわり
 #pragma endregion 
-			//次フレーム用のコマンドリストを取得
+	
+	//次フレーム用のコマンドリストを取得
 	hr = commandAllocator->Reset();
 	assert(SUCCEEDED(hr));
 	hr = commandList->Reset(commandAllocator.Get(), nullptr);

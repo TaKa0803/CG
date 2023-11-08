@@ -128,6 +128,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 void Model::Initialize(
 	std::string name_,
 	int point, 
+	ID3D12Resource* vertexRtea,
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView, 
 	ID3D12Resource* wvpResource,
 	WorldTransformation* wvpData, 
@@ -140,12 +141,20 @@ void Model::Initialize(
 
 	name = name_;
 	point_ = point;
+	vertexRtea_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
 	wvpData_ = wvpData;
 	wvpResource_ = wvpResource;
 	materialResource_ = materialResourceS;
 	materialData_ = materialData;
 	directionalLightResource_ = directionalLightResource;
+}
+
+Model::~Model() {
+	vertexRtea_->Release();
+	wvpResource_->Release();
+	materialResource_->Release();
+	directionalLightResource_->Release();
 }
 
 Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
@@ -258,7 +267,7 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 
 
 	Model* model = new Model();
-	model->Initialize("Sphere", point, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
+	model->Initialize("Sphere", point,vertexResourceSphere, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
 	return model;
 
 }
@@ -318,8 +327,11 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 #pragma endregion
 
 	Model* model =new Model();
-	model->Initialize(filePath,UINT(modeltea.vertices.size()), vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
+	model->Initialize(filePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
 
+
+	
+	
 	return model;
 }
 

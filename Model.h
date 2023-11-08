@@ -10,6 +10,8 @@
 class Model {
 public:
 
+	~Model();
+
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	//円作成
@@ -46,7 +48,7 @@ private:
 
 	
 	//初期化
-	void Initialize(std::string name,int point,D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	void Initialize(std::string name,int point, ID3D12Resource* vertexRtea,D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		ID3D12Resource* wvpResource,
 		WorldTransformation* wvpData, 
 		ID3D12Resource* materialResourceS,
@@ -65,14 +67,16 @@ private:
 	//頂点数
 	int point_;
 
+
+	ID3D12Resource* vertexRtea_;
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	ComPtr<ID3D12Resource> wvpResource_;
+	ID3D12Resource* wvpResource_;
 	WorldTransformation* wvpData_ = nullptr;
 
-	ComPtr<ID3D12Resource> materialResource_;
+	ID3D12Resource* materialResource_;
 	Material* materialData_ = nullptr;
 
-	ComPtr<ID3D12Resource> directionalLightResource_;
+	ID3D12Resource* directionalLightResource_;
 };

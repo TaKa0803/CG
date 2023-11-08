@@ -64,6 +64,15 @@
     <Filter Include="Scene">
       <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Camera">
+      <UniqueIdentifier>{53ccce7d-667a-4c91-a596-8e4a6aee45b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\MainSystem">
+      <UniqueIdentifier>{19647fad-a6e8-46f4-9f68-c4f164b49362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\NewFilter1">
+      <UniqueIdentifier>{fadc7696-22d4-4e59-ab5d-4f09a800cb2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -131,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="InGame.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="MainSystem.cpp">
+      <Filter>Engine\MainSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Engine\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +228,12 @@
     </ClInclude>
     <ClInclude Include="InGame.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="MainSystem.h">
+      <Filter>Engine\MainSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Engine\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
