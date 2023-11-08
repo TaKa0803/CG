@@ -8,6 +8,9 @@ void Camera::Initialize() {
 	//カメラの初期距離を設定
 	mainCamera_.translate_.z = rangeCameraFeaturedPoint;
 
+	//ポイントカメラの回転の設定
+	CameraMotionSupport_.rotate_ = { 0.6f,0.0f,0.0f };
+
 	//親子関係の処理
 	mainCamera_.SetParent(&CameraMotionSupport_);
 
@@ -49,6 +52,7 @@ void Camera::Update() {
 }
 
 void Camera::DrawDebugWindow(const char* name) {
+#ifdef _DEBUG
 
 	ImGui::Begin(name);
 	ImGui::Text("mainCamera");
@@ -63,6 +67,8 @@ void Camera::DrawDebugWindow(const char* name) {
 	ImGui::DragFloat3("PCM scale", &CameraMotionSupport_.scale_.x, 0.01f);
 	ImGui::Checkbox("isOnlyGetPosition", &isOnlyGetPosition);
 	ImGui::End();
+
+#endif // _DEBUG
 
 }
 

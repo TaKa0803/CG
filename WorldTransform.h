@@ -2,31 +2,47 @@
 #include"struct.h"
 #include"Matrix.h"
 
+
 class WorldTransform {
 
 public:
 
+	/// <summary>
+	/// 更新
+	/// </summary>
 	void UpdateMatrix();
 
-	Vector3 translate_ = { 0.0f,0.0f,0.0f };
-
-	Vector3 rotate_ = { 0.0f,0.0f,0.0f };
-
-	Vector3 scale_ = { 1.0f,1.0f,1.0f };
-
-	Matrix4x4 matWorld_ = MakeIdentity4x4();
+	/// <summary>
+	/// パラメータデバッグ表示
+	/// </summary>
+	void DrawDebug(const char*name);
 
 
-	//ローカル座標取得
+#pragma region ゲッター
+public://Getter
+
+	/// <summary>
+	/// ローカル座標取得
+	/// </summary>
+	/// <returns>ローカルtranslate</returns>
 	const Vector3& GetTranslate() const { return translate_; }
 
-	//ローカル回転量取得
+	/// <summary>
+	/// ローカル回転取得
+	/// </summary>
+	/// <returns>ローカルrotate</returns>
 	const Vector3& GetRotate()const { return rotate_; }
 
-	//ローカルサイズ取得
+	/// <summary>
+	/// ローカル拡縮取得
+	/// </summary>
+	/// <returns>ローカルscale</returns>
 	const Vector3& GetScale()const { return scale_; }
 
-	//matWorldの座標取得
+	/// <summary>
+	/// matWorldのTranslate取得
+	/// </summary>
+	/// <returns>ワールドのtranslate</returns>
 	const Vector3 GetMatWorldTranslate() const {
 		Vector3 matTranslation = {
 			matWorld_.m[3][0],
@@ -35,9 +51,36 @@ public:
 		};
 		return matTranslation;
 	}
+#pragma endregion
 
+#pragma region セッター
+	/// <summary>
+	/// 親子関係設定
+	/// </summary>
+	/// <param name="parent">親とするWorldTransform</param>
 	void SetParent(const WorldTransform* parent = nullptr) { parent_ = parent; }
+
+#pragma endregion
+
+
+public://変数
+	
+	//座標
+	Vector3 translate_ = { 0.0f,0.0f,0.0f };
+
+	//回転
+	Vector3 rotate_ = { 0.0f,0.0f,0.0f };
+
+	//拡縮
+	Vector3 scale_ = { 1.0f,1.0f,1.0f };
+
+	//ワールド行列
+	Matrix4x4 matWorld_ = MakeIdentity4x4();
+
+
 private:
+
+	//親
 	const WorldTransform* parent_ = nullptr;
 
 
