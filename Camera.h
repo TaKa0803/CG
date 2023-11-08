@@ -9,12 +9,14 @@ public:
 
 	void Update();
 
-	void IsDebugWindowActive(bool isActive);
+	void DrawDebugWindow(const char* name);
 
 
 public:
 
 	const Matrix4x4& GetViewProjectionMatrix() { return viewProjection_; }
+
+	const Matrix4x4& GetCameraDirectionToFace()const { return mainCamera_.matWorld_; }
 
 public:
 	void SetTarget(const WorldTransform* parent);

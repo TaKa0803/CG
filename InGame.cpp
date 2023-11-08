@@ -22,17 +22,9 @@ bool InCollision(const AABB& a, const AABB& b) {
 void InGame::Initialize() {
 	input = Input::GetInstance();
 
-
-	//カメラ傾き
-	parentCmaera.rotate_ = { 0.6f,0.0f,0.0f };
-	cameraTransform.translate_ = { 0.0f,0.0f,-50.0f };
-
-	cameraTransform.SetParent(&parentCmaera);
-
-	
-
 	playerM_ = Model::CreateFromOBJ("ALPlayer.obj");
 	playerM_->IsEnableShader(false);
+	playerW_.UpdateMatrix();
 
 	camera.Initialize();
 	camera.SetTarget(&playerW_);
@@ -91,6 +83,28 @@ void InGame::Initialize() {
 }
 
 void InGame::Update() {
+
+
+#pragma region 台座処理
+	ImGui::Begin("plane");
+	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
+	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
+	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
+
+	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
+
+	ImGui::End();
+
+	PlaneUpdate();
+
+	planeTrans1_.UpdateMatrix();
+	planeTrans2_.UpdateMatrix();
+	planeTrans3_.UpdateMatrix();
+
+#pragma endregion
+
 #pragma region プレイヤー挙動
 	ImGui::Begin("obj");
 	ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
@@ -115,7 +129,7 @@ void InGame::Update() {
 			moveVelo = Normalize(moveVelo);
 			moveVelo = Scalar(spd, moveVelo);
 
-			Matrix4x4 C_Affine = MakeAffineMatrix(parentCmaera.scale_, parentCmaera.rotate_, parentCmaera.translate_);
+			Matrix4x4 C_Affine = camera.GetCameraDirectionToFace();
 			moveVelo = TransformNormal(moveVelo, C_Affine);
 			moveVelo.y = 0;
 		}
@@ -140,7 +154,7 @@ void InGame::Update() {
 	}
 
 	if (ismoveActive) {
-		Matrix4x4 C_Affine = MakeAffineMatrix(parentCmaera.scale_, parentCmaera.rotate_, parentCmaera.translate_);
+		Matrix4x4 C_Affine = camera.GetCameraDirectionToFace();
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 
@@ -165,77 +179,8 @@ void InGame::Update() {
 	playerW_.UpdateMatrix();
 #pragma endregion
 
-#pragma region カメラ処理
-
+	camera.DrawDebugWindow("Camera");
 	camera.Update();
-
-	ImGui::Begin("Camera");
-	ImGui::DragFloat3("Camera translate", &parentCmaera.translate_.x, 0.01f);
-	ImGui::DragFloat3("Camera rotate", &parentCmaera.rotate_.x, 0.01f);
-	ImGui::End();
-
-	if (input->IsControllerActive()) {
-		Vector2 rota = input->GetjoyStickR();
-
-		if (rota.x == 0 && rota.y == 0) {
-
-		}
-		else {
-			Vector3 rotate_ = { -rota.y,rota.x,0 };
-
-			rotate_ = Normalize(rotate_);
-
-			//一回で動く量
-			float theta = (1.0f / 120.0f) * 3.14f;
-
-			rotate_ = Scalar(theta, rotate_);
-
-			parentCmaera.rotate_ = Add(parentCmaera.rotate_, rotate_);
-
-		}
-	}
-
-	//カメラをプレイヤーの座標に合わせる
-	parentCmaera.translate_ = GetmatT();
-
-	parentCmaera.UpdateMatrix();
-
-	//カメラ処理
-	cameraTransform.UpdateMatrix();
-
-
-	//親の行列掛け算
-	Matrix4x4 viewMatrix = Inverse(cameraTransform.matWorld_);
-	//透視投影行列
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(WinApp::kClientWidth) / float(WinApp::kClientHeight), 0.1f, 100.0f);
-	VP = Multiply(viewMatrix, projectionMatrix);
-
-
-#pragma endregion
-
-
-
-#pragma region 台座処理
-	ImGui::Begin("plane");
-	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
-
-	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
-
-	ImGui::End();
-
-	PlaneUpdate();
-
-	planeTrans1_.UpdateMatrix();
-	planeTrans2_.UpdateMatrix();
-	planeTrans3_.UpdateMatrix();
-
-#pragma endregion
-
-
 
 
 #pragma region 天球
@@ -281,7 +226,6 @@ void InGame::Update() {
 
 
 #pragma region ゴール
-
 	goalT_.UpdateMatrix();
 #pragma endregion
 

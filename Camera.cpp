@@ -1,6 +1,8 @@
 #include"Camera.h"
 #include"WinApp.h"
 
+#include"externals/Imgui/imgui.h"
+
 void Camera::Initialize() {
 
 	//カメラの初期距離を設定
@@ -9,6 +11,9 @@ void Camera::Initialize() {
 	//親子関係の処理
 	mainCamera_.SetParent(&CameraMotionSupport_);
 
+	//行列更新
+	CameraMotionSupport_.UpdateMatrix();
+	mainCamera_.UpdateMatrix();
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
@@ -41,6 +46,24 @@ void Camera::Update() {
 	view_ = Inverse(mainCamera_.matWorld_);
 	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
 	viewProjection_ = Multiply(view_, projection_);
+}
+
+void Camera::DrawDebugWindow(const char* name) {
+
+	ImGui::Begin(name);
+	ImGui::Text("mainCamera");
+	ImGui::DragFloat2("mainC pos", &mainCamera_.translate_.x, 0.01f);
+	ImGui::DragFloat("mainC farZ", &mainCamera_.translate_.z, 0.01f);
+	ImGui::DragFloat3("mainC rotate", &mainCamera_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("mainC scale", &mainCamera_.scale_.x, 0.01f);
+
+	ImGui::Text("LocationCenterMotion");
+	ImGui::DragFloat3("PCM pos", &CameraMotionSupport_.translate_.x, 0.01f);
+	ImGui::DragFloat3("PCM rotate", &CameraMotionSupport_.rotate_.x, 0.01f);
+	ImGui::DragFloat3("PCM scale", &CameraMotionSupport_.scale_.x, 0.01f);
+	ImGui::Checkbox("isOnlyGetPosition", &isOnlyGetPosition);
+	ImGui::End();
+
 }
 
 void Camera::SetTarget(const WorldTransform* parent) {

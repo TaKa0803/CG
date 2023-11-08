@@ -42,15 +42,12 @@ private:
 	const float pSize_ = 1;
 	Vector3 GetmatT() { return {playerW_.matWorld_.m[3][0],playerW_.matWorld_.m[3][1],playerW_.matWorld_.m[3][2] }; }
 	int nowParent = 0;
-	//カメラ情報
-	WorldTransform cameraTransform;
-	//カメラの親（基本的にこちらでカメラ操作
-	WorldTransform parentCmaera;
+	
+
 
 	const Vector3 startPos = { 0.0f,5.0f,0.0f };
 	
-	//カメラ用
-	Matrix4x4 VP;
+	
 
 	
 	//地面
