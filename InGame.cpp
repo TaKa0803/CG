@@ -27,10 +27,16 @@ void InGame::Initialize() {
 	parentCmaera.rotate_ = { 0.6f,0.0f,0.0f };
 	cameraTransform.translate_ = { 0.0f,0.0f,-50.0f };
 
-	cameraTransform.parent_ = &parentCmaera;
+	cameraTransform.SetParent(&parentCmaera);
+
+	
 
 	playerM_ = Model::CreateFromOBJ("ALPlayer.obj");
 	playerM_->IsEnableShader(false);
+
+	camera.Initialize();
+	camera.SetTarget(&playerW_);
+
 
 	playertexture = TextureManager::LoadTex("resources/player.png");
 
@@ -66,22 +72,22 @@ void InGame::Initialize() {
 	goalTex = TextureManager::LoadTex("resources/goal.png");
 	goal_ = Model::CreateFromOBJ("goal.obj");
 	goal_->IsEnableShader(false);
-	goalT_.parent_ = &planeTrans3_;
+	goalT_.SetParent(&planeTrans3_);
 
 
 	goalT_.translate_.y = 2;
 
 	eWorld_.translate_.y = 2;
 
-	eWorld_.parent_ = &planeTrans2_;
-	ehT_.parent_ = &eWorld_;
-	eLT_.parent_ = &ehT_;
-	eRT_.parent_ = &ehT_;
+	eWorld_.SetParent(&planeTrans2_);
+	ehT_.SetParent(&eWorld_);
+	eLT_.SetParent(&ehT_);
+	eRT_.SetParent(&ehT_);
 
-	eLT_.translate_= { -2.0f, 0, 0 };
+	eLT_.translate_ = { -2.0f, 0, 0 };
 	eRT_.translate_ = { 2.0f, 0, 0 };
 	eRT_.rotate_.x = 3.14f / 2.0f;
-	
+
 }
 
 void InGame::Update() {
@@ -151,7 +157,7 @@ void InGame::Update() {
 
 	if (playerW_.translate_.y <= -50) {
 		playerW_.translate_ = startPos;
-		playerW_.parent_ = nullptr;
+		playerW_.SetParent(nullptr);
 		pState_ = kStay;
 		nowParent = 0;
 	}
@@ -160,6 +166,9 @@ void InGame::Update() {
 #pragma endregion
 
 #pragma region カメラ処理
+
+	camera.Update();
+
 	ImGui::Begin("Camera");
 	ImGui::DragFloat3("Camera translate", &parentCmaera.translate_.x, 0.01f);
 	ImGui::DragFloat3("Camera rotate", &parentCmaera.rotate_.x, 0.01f);
@@ -205,7 +214,7 @@ void InGame::Update() {
 #pragma endregion
 
 
-	
+
 #pragma region 台座処理
 	ImGui::Begin("plane");
 	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
@@ -238,7 +247,7 @@ void InGame::Update() {
 #pragma endregion
 
 #pragma region 敵
-	
+
 	ImGui::Begin("enemy");
 	ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
 	ImGui::End();
@@ -254,8 +263,8 @@ void InGame::Update() {
 
 	eWorld_.translate_ = Add(eWorld_.translate_, move);
 
-	
-	
+
+
 	float theta = (1.0f / 60.0f) * 3.14f;
 
 
@@ -279,27 +288,27 @@ void InGame::Update() {
 
 
 	Collision();
-	
+
 }
 
 void InGame::Draw() {
 
-	playerM_->Draw(playerW_.matWorld_, VP, playertexture);
-
-	
-	plane1->Draw(planeTrans1_.matWorld_, VP, planeTex_);
-	plane2->Draw(planeTrans2_.matWorld_, VP, planeTex_);
-	plane3->Draw(planeTrans3_.matWorld_, VP, planeTex_);
-
-	skydome_->Draw(skydomeTrans_.matWorld_, VP, skydomeTex);
-
-	ehead_->Draw(ehT_.matWorld_, VP, eh);
-	eLA_->Draw(eLT_.matWorld_, VP, eWeapon);
-	eRA_->Draw(eRT_.matWorld_, VP, eWeapon);
+	playerM_->Draw(playerW_.matWorld_, camera.GetViewProjectionMatrix(), playertexture);
 
 
-	goal_->Draw(goalT_.matWorld_, VP, goalTex);
-	
+	plane1->Draw(planeTrans1_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
+	plane2->Draw(planeTrans2_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
+	plane3->Draw(planeTrans3_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
+
+	skydome_->Draw(skydomeTrans_.matWorld_, camera.GetViewProjectionMatrix(), skydomeTex);
+
+	ehead_->Draw(ehT_.matWorld_, camera.GetViewProjectionMatrix(), eh);
+	eLA_->Draw(eLT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
+	eRA_->Draw(eRT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
+
+
+	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
+
 }
 void InGame::Finalize() {
 	delete playerM_;
@@ -396,7 +405,7 @@ void InGame::Collision() {
 
 			playerW_.translate_ = pos;
 			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.parent_ = &planeTrans1_;
+			playerW_.SetParent(&planeTrans1_);
 
 
 			playerW_.UpdateMatrix();
@@ -416,7 +425,7 @@ void InGame::Collision() {
 
 			playerW_.translate_ = pos;
 			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.parent_ = &planeTrans2_;
+			playerW_.SetParent(&planeTrans2_);
 
 
 			playerW_.UpdateMatrix();
@@ -438,7 +447,7 @@ void InGame::Collision() {
 
 			playerW_.translate_ = pos;
 			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.parent_ = &planeTrans3_;
+			playerW_.SetParent(&planeTrans3_);
 
 
 			playerW_.UpdateMatrix();
@@ -448,7 +457,7 @@ void InGame::Collision() {
 	if (ishit == false) {
 		//親子関係を消して処理
 		playerW_.translate_ = GetmatT();
-		playerW_.parent_ = nullptr;
+		playerW_.SetParent();
 		playerW_.UpdateMatrix();
 		pState_ = kFalling;
 		nowParent = 0;
@@ -457,7 +466,7 @@ void InGame::Collision() {
 
 	if (InCollision(pAABB, goa) || InCollision(pAABB, ene)) {
 		playerW_.translate_ = startPos;
-		playerW_.parent_ = nullptr;
+		playerW_.SetParent();
 		pState_ = kStay;
 		nowParent = 0;
 	}

@@ -5,6 +5,8 @@
 #include"WorldTransform.h"
 #include<iostream>
 
+#include"Camera.h"
+
 struct AABB {
 	Vector3 min;
 	Vector3 max;
@@ -134,4 +136,5 @@ private:
 		};
 	}
 	
+	Camera camera;
 };

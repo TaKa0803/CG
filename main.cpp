@@ -13,13 +13,15 @@ struct D3DResourceLeakChecker {
 		}
 	}
 };
+
 //リークチェック
 static D3DResourceLeakChecker lackCheck;
-
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
+
+
 	MainSystem* Engine = MainSystem::GetInstance();
 
 	Engine->Run();

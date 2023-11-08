@@ -223,17 +223,17 @@ void DirectXFunc::PreDraw()
 #pragma region TransitionBarrierを張る
 	//Transitionbarrierの設定
 	//今回のバリアはTransition
-	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	//Noneにしておく
-	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	//バリアを張る対象のリソース、現在のバックバッファに対して行う
-	barrier.Transition.pResource = swapChainResources[backBufferIndex].Get();
+	barrier_.Transition.pResource = swapChainResources[backBufferIndex].Get();
 	//遷移前（現在）のResourceState
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	//遷移後のResourceState
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	//TransitionBarrierを張る
-	commandList->ResourceBarrier(1, &barrier);
+	commandList->ResourceBarrier(1, &barrier_);
 #pragma endregion
 #pragma region RTVとDSVの設定
 	//描画先のRTVとDSVを設定する
@@ -275,10 +275,10 @@ void DirectXFunc::PostDraw()
 #pragma region 画面表示できるようにする
 	//画面に描く処理はすべて終わり、画面に移すので状態を遷移
 	//今回はRenderTargetからPresentにする
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	//TransitionBarrierを張る
-	commandList->ResourceBarrier(1, &barrier);
+	commandList->ResourceBarrier(1, &barrier_);
 	//画面表示できるようにするおわり
 #pragma endregion	
 

@@ -17,7 +17,7 @@ public:
 	const Matrix4x4& GetViewProjectionMatrix() { return viewProjection_; }
 
 public:
-	void SetParent(const WorldTransform* parent);
+	void SetTarget(const WorldTransform* parent);
 
 	void SetCameraFar(const float far);
 

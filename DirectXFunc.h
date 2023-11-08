@@ -135,8 +135,8 @@ public:
 	HANDLE fenceEvent;
 
 	//バリア
-	D3D12_RESOURCE_BARRIER barrier{};
+	D3D12_RESOURCE_BARRIER barrier_{};
 
-
-	const bool isAssertForgetReleasing_ = false;
+	//開放チェックエラーで実行を止めるか	
+	const bool isAssertForgetReleasing_ = true;
 };
