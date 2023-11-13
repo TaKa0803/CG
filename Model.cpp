@@ -352,7 +352,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 
 
 
-void Model::Draw(Matrix4x4 worldMatrix,Matrix4x4 viewProjection,int texture)
+void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
 	
 	Matrix4x4 WVP = Multiply(worldMatrix, viewProjection);

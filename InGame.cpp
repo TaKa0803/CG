@@ -20,17 +20,15 @@ bool InCollision(const AABB& a, const AABB& b) {
 
 
 void InGame::Initialize() {
-	input = Input::GetInstance();
-
-	playerM_ = Model::CreateFromOBJ("weapon/weapon");
-	playerM_->IsEnableShader(false);
-	playerW_.UpdateMatrix();
+	
+	player_ = new Player();
+	player_->Initialize();
 
 	camera.Initialize();
-	camera.SetTarget(&playerW_);
+	camera.SetTarget(&player_->GetWorld());
+	
+	player_->SetCamera(camera);
 
-
-	playertexture = TextureManager::LoadTex("resources/player.png");
 
 	plane1 = Model::CreateFromOBJ("Plane");
 	plane2 = Model::CreateFromOBJ("Plane");
@@ -83,19 +81,29 @@ void InGame::Initialize() {
 }
 
 void InGame::Update() {
+#ifdef _DEBUG
+	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
+	ImGui::BeginMenuBar();
+#endif // _DEBUG
 
 
 #pragma region 台座処理
-	ImGui::Begin("plane");
-	ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
-	ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
+#ifdef _DEBUG
+	if (ImGui::BeginMenu("plane")) {
+		ImGui::DragFloat3("pos1", &planeTrans1_.translate_.x, 0.01f);
+		ImGui::DragFloat3("pos2", &planeTrans2_.translate_.x, 0.01f);
+		ImGui::DragFloat3("pos3", &planeTrans3_.translate_.x, 0.01f);
 
-	ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
+		ImGui::DragFloat3("posr1", &planeTrans1_.rotate_.x, 0.01f);
+		ImGui::DragFloat3("posr2", &planeTrans2_.rotate_.x, 0.01f);
+		ImGui::DragFloat3("posr3", &planeTrans3_.rotate_.x, 0.01f);
+		ImGui::EndMenu();
+	}
+#endif // _DEBUG
 
-	ImGui::End();
+	
+
+	
 
 	PlaneUpdate();
 
@@ -105,98 +113,25 @@ void InGame::Update() {
 
 #pragma endregion
 
-#pragma region プレイヤー挙動
-	ImGui::Begin("obj");
-	ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
-	ImGui::DragFloat3("rotate", &playerW_.rotate_.x, 0.01f);
-	ImGui::DragFloat3("scale", &playerW_.scale_.x, 0.01f);
-	ImGui::Text("%d", nowParent);
-	ImGui::End();
-
-	Vector3 moveVelo = { 0,0,0 };
-	bool ismoveActive = false;
-
-	float spd = 0.3f;
-
-	if (input->IsControllerActive()) {
-		Vector2 nyu = input->GetjoyStickL();
-
-		if (nyu.x == 0 && nyu.y == 0) {
-			moveVelo = { 0,0,0 };
-		}
-		else {
-			moveVelo = { nyu.x,0,nyu.y };
-			moveVelo = Normalize(moveVelo);
-			moveVelo = Scalar(spd, moveVelo);
-
-			Matrix4x4 C_Affine = camera.GetCameraDirectionToFace();
-			moveVelo = TransformNormal(moveVelo, C_Affine);
-			moveVelo.y = 0;
-		}
-	}
-	else {
-		if (input->PushKey(DIK_UP)) {
-			moveVelo.z += spd;
-			ismoveActive = true;
-		}
-		if (input->PushKey(DIK_DOWN)) {
-			moveVelo.z -= spd;
-			ismoveActive = true;
-		}
-		if (input->PushKey(DIK_RIGHT)) {
-			moveVelo.x += spd;
-			ismoveActive = true;
-		}
-		if (input->PushKey(DIK_LEFT)) {
-			moveVelo.x -= spd;
-			ismoveActive = true;
-		}
-	}
-
-	if (ismoveActive) {
-		Matrix4x4 C_Affine = camera.GetCameraDirectionToFace();
-		moveVelo = TransformNormal(moveVelo, C_Affine);
-		moveVelo.y = 0;
-
-
-
-	}
-
-	if (pState_ == kFalling) {
-		moveVelo.y += gravity;
-	}
-
-
-	playerW_.translate_ = Add(playerW_.translate_, moveVelo);
-
-	if (playerW_.translate_.y <= -50) {
-		playerW_.translate_ = startPos;
-		playerW_.SetParent(nullptr);
-		pState_ = kStay;
-		nowParent = 0;
-	}
-
-	playerW_.UpdateMatrix();
-#pragma endregion
+	player_->Update();
 
 	camera.DrawDebugWindow("Camera");
 	camera.Update();
 
-
 #pragma region 天球
-	ImGui::Begin("skydome");
-	ImGui::DragInt("scale", &scaleNum, 0.01f);
-	ImGui::End();
+	if (ImGui::BeginMenu("skydome")) {
+		ImGui::DragInt("scale", &scaleNum);
+		ImGui::EndMenu();
+	}
 	skydomeTrans_.scale_ = { (float)scaleNum,(float)scaleNum,(float)scaleNum };
 	skydomeTrans_.UpdateMatrix();
 #pragma endregion
-
 #pragma region 敵
 
-	ImGui::Begin("enemy");
-	ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
-	ImGui::End();
-
+	if (ImGui::BeginMenu("enemy")) {
+		ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
+		ImGui::EndMenu();
+	}
 	float mtheta = 1.0f / 60.0f * 3.14f;
 	eWorld_.rotate_.y += mtheta;
 
@@ -224,7 +159,6 @@ void InGame::Update() {
 	eRT_.UpdateMatrix();
 #pragma endregion
 
-
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
@@ -233,12 +167,15 @@ void InGame::Update() {
 
 	Collision();
 
+#ifdef _DEBUG
+	ImGui::EndMenuBar();
+	ImGui::End();
+#endif // _DEBUG
 }
 
 void InGame::Draw() {
 
-	playerM_->Draw(playerW_.matWorld_, camera.GetViewProjectionMatrix(), playertexture);
-
+	player_->Draw();
 
 	plane1->Draw(planeTrans1_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
 	plane2->Draw(planeTrans2_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
@@ -255,7 +192,9 @@ void InGame::Draw() {
 
 }
 void InGame::Finalize() {
-	delete playerM_;
+	
+	delete player_;
+
 	delete plane1;
 	delete plane2;
 	delete plane3;
@@ -296,15 +235,9 @@ void InGame::PlaneUpdate() {
 }
 
 void InGame::Collision() {
-	AABB pAABB = {
-		.min{GetmatT().x - pSize_,GetmatT().y - pSize_,GetmatT().z - pSize_},
-		.max{GetmatT().x + pSize_,GetmatT().y + pSize_,GetmatT().z + pSize_}
-	};
+	AABB pAABB = player_->GetAABB();
 
-	AABB pParentP = {
-		.min{GetmatT().x,GetmatT().y - pSize_,GetmatT().z},
-		.max{GetmatT().x,GetmatT().y - pSize_,GetmatT().z}
-	};
+	
 
 	AABB p1 = {
 		.min{GetmatPW1().x - planeSize,GetmatPW1().y - 1.0f,GetmatPW1().z - planeSize},
@@ -336,83 +269,30 @@ void InGame::Collision() {
 	//土台1とのコリジョン
 	if (InCollision(pAABB, p1)) {
 		ishit = true;
-		pState_ = kStay;
+		
 
-
-		//if (InCollision(p2, pParentP)) {
-			//ペアレントが違うものだったら
-		if (nowParent != 1) {
-			nowParent = 1;
-			//台座から見たプレイヤーの座標取得
-			Vector3 pos = Subtract(GetmatT(), GetmatPW1());
-
-
-			playerW_.translate_ = pos;
-			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.SetParent(&planeTrans1_);
-
-
-			playerW_.UpdateMatrix();
-		}
-		//}
+		player_->OnCollision(1,&planeTrans1_);
+		
+		
 	}
 	else if (InCollision(pAABB, p2)) {
 		ishit = true;
-		pState_ = kStay;
+		player_->OnCollision(1, &planeTrans2_);
 
-		//if (InCollision(p2, pParentP)) {
-			//ペアレントが違うものだったら
-		if (nowParent != 2) {
-			nowParent = 2;
-			//台座から見たプレイヤーの座標取得
-			Vector3 pos = Subtract(GetmatT(), GetmatPW2());
-
-			playerW_.translate_ = pos;
-			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.SetParent(&planeTrans2_);
-
-
-			playerW_.UpdateMatrix();
-		}
-		//}
+		
+		
 	}
 	else if (InCollision(pAABB, p3)) {
 		ishit = true;
-		pState_ = kStay;
-
-
-		//if (InCollision(p2, pParentP)) {
-			//ペアレントが違うものだったら
-		if (nowParent != 3) {
-			nowParent = 3;
-			//台座から見たプレイヤーの座標取得
-			Vector3 pos = Subtract(GetmatT(), GetmatPW3());
-
-
-			playerW_.translate_ = pos;
-			playerW_.translate_.y = 1.0f + pSize_;
-			playerW_.SetParent(&planeTrans3_);
-
-
-			playerW_.UpdateMatrix();
-		}
-		//}
+		player_->OnCollision(1, &planeTrans3_);		
 	}
 	if (ishit == false) {
-		//親子関係を消して処理
-		playerW_.translate_ = GetmatT();
-		playerW_.SetParent();
-		playerW_.UpdateMatrix();
-		pState_ = kFalling;
-		nowParent = 0;
+		player_->NoCollision();
 	}
 
 
 	if (InCollision(pAABB, goa) || InCollision(pAABB, ene)) {
-		playerW_.translate_ = startPos;
-		playerW_.SetParent();
-		pState_ = kStay;
-		nowParent = 0;
+		player_->SetStartPosition();
 	}
 
 }

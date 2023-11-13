@@ -7,10 +7,9 @@
 
 #include"Camera.h"
 
-struct AABB {
-	Vector3 min;
-	Vector3 max;
-};
+#include"Player.h"
+
+
 
 
 
@@ -24,29 +23,8 @@ public:
 
 	void Finalize();
 private:
-	Input* input = nullptr;
-
-	enum PlayerState {
-		kStay,
-		kFalling
-	};
-
-	PlayerState pState_ = kStay;
-
-	float gravity = -0.1f;
-
-	//プレイヤー
-	Model* playerM_ = nullptr;
-	int playertexture;
-	WorldTransform playerW_;
-	const float pSize_ = 1;
-	Vector3 GetmatT() { return {playerW_.matWorld_.m[3][0],playerW_.matWorld_.m[3][1],playerW_.matWorld_.m[3][2] }; }
-	int nowParent = 0;
 	
-
-
-	const Vector3 startPos = { 0.0f,5.0f,0.0f };
-	
+	Player*player_;
 	
 
 	

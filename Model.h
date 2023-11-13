@@ -32,7 +32,7 @@ public:
 	/// <param name="WVP"></param>
 	/// <param name="worldMatrix"></param>
 	/// <param name="texture"></param>
-	void Draw(Matrix4x4 WVP, Matrix4x4 worldMatrix, int texture);
+	void Draw(const Matrix4x4& WVP,const Matrix4x4& worldMatrix, int texture);
 
 
 	void IsEnableShader(bool ans) { materialData_->enableLighting = ans; }

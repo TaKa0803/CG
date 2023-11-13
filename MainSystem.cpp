@@ -1,6 +1,6 @@
 #include "MainSystem.h"
 #include"InGame.h"
-
+#include"GlobalVariables.h"
 
 MainSystem* MainSystem::GetInstance() {
 	static MainSystem instance;
@@ -52,6 +52,9 @@ void MainSystem::Initializes() {
 }
 
 void MainSystem::Update() {
+
+	GlobalVariables::GetInstance()->LoadFiles();
+
 	InGame* ingame = new InGame();
 	ingame->Initialize();
 
@@ -65,6 +68,8 @@ void MainSystem::Update() {
 		//キー入力
 		input->Update();
 		///=以下更新=//
+
+		GlobalVariables::GetInstance()->Update();
 
 		ingame->Update();
 

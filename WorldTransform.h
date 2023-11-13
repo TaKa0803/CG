@@ -51,6 +51,7 @@ public://Getter
 		};
 		return matTranslation;
 	}
+
 #pragma endregion
 
 #pragma region セッター

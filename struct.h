@@ -3,17 +3,13 @@
 #include<vector>
 #include<string>
 #include"Vector2.h"
-
+#include"Vector3.h"
 #pragma region 構造体
 
-
-struct Vector3 {
-	float x;
-	float y;
-	float z;
+struct AABB {
+	Vector3 min;
+	Vector3 max;
 };
-
-
 
 struct Vector4 {
 	float x;
