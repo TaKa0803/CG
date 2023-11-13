@@ -22,7 +22,7 @@ bool InCollision(const AABB& a, const AABB& b) {
 void InGame::Initialize() {
 	input = Input::GetInstance();
 
-	playerM_ = Model::CreateFromOBJ("ALPlayer.obj");
+	playerM_ = Model::CreateFromOBJ("weapon/weapon");
 	playerM_->IsEnableShader(false);
 	playerW_.UpdateMatrix();
 
@@ -32,13 +32,13 @@ void InGame::Initialize() {
 
 	playertexture = TextureManager::LoadTex("resources/player.png");
 
-	plane1 = Model::CreateFromOBJ("Plane.obj");
-	plane2 = Model::CreateFromOBJ("Plane.obj");
-	plane3 = Model::CreateFromOBJ("Plane.obj");
+	plane1 = Model::CreateFromOBJ("Plane");
+	plane2 = Model::CreateFromOBJ("Plane");
+	plane3 = Model::CreateFromOBJ("Plane");
 
 	planeTex_ = TextureManager::LoadTex("resources/Plane.png");
 
-	skydome_ = Model::CreateFromOBJ("sssssk.obj");
+	skydome_ = Model::CreateFromOBJ("sssssk");
 	//skydome_->IsEnableShader(false);
 	skydomeTex = TextureManager::LoadTex("resources/Space.png");
 
@@ -53,16 +53,16 @@ void InGame::Initialize() {
 	eh = TextureManager::LoadTex("resources/head.png");
 	eWeapon = TextureManager::LoadTex("resources/Eweapon.png");
 
-	ehead_ = Model::CreateFromOBJ("head.obj");
-	eLA_ = Model::CreateFromOBJ("Eweapon.obj");
-	eRA_ = Model::CreateFromOBJ("Eweapon.obj");
+	ehead_ = Model::CreateFromOBJ("head");
+	eLA_ = Model::CreateFromOBJ("Eweapon");
+	eRA_ = Model::CreateFromOBJ("Eweapon");
 
 	ehead_->IsEnableShader(false);
 	eLA_->IsEnableShader(false);
 	eRA_->IsEnableShader(false);
 
 	goalTex = TextureManager::LoadTex("resources/goal.png");
-	goal_ = Model::CreateFromOBJ("goal.obj");
+	goal_ = Model::CreateFromOBJ("goal");
 	goal_->IsEnableShader(false);
 	goalT_.SetParent(&planeTrans3_);
 

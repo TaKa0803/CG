@@ -13,10 +13,19 @@
 #include<cassert>
 #include<fstream>
 
+struct MaterialData {
+	std::string textureFilePath;
+};
+
+struct ModelData {
+	std::vector<VertexData> vertices;
+	MaterialData material;
+};
 
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//1中で必要になる変数の宣言
 	MaterialData materialdata;
+	
 	std::string line;
 	//２ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
@@ -50,7 +59,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 #pragma endregion
 #pragma region ファイルを開く
 	
-	std::ifstream file(directoryPath + "/" + filename);
+	std::ifstream file(directoryPath + "/" + filename+".obj");
 	assert(file.is_open());//開けなかったら止める
 #pragma endregion
 #pragma region 実際にファイルを読みModelDataを構築していく
@@ -113,7 +122,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 		else if (identifier == "mtllib") {
 			//materialTemplateLibraryファイルの名前を変更する
 			std::string materialFilename;
-			s >> materialFilename;
+			materialFilename = filename + ".mtl";
 			//基本的にobjファイルと同一改装にmtlは存在させるので、ディレクトリ名とファイル名を渡す
 			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
 		}

@@ -7,6 +7,8 @@
 
 #include<wrl.h>
 
+
+
 class Model {
 public:
 
@@ -45,7 +47,10 @@ public:
 
 	void DebugParameter();
 private:
-
+	struct WorldTransformation {
+		Matrix4x4 WVP;
+		Matrix4x4 World;
+	};
 	
 	//初期化
 	void Initialize(std::string name,int point, ID3D12Resource* vertexRtea,D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
@@ -57,6 +62,9 @@ private:
 	);
 
 private:
+
+	
+
 
 	DirectXFunc* DXF;
 

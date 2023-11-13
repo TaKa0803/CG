@@ -26,11 +26,7 @@ struct Matrix4x4 {
 	float m[4][4];
 };
 
-struct Transform {
-	Vector3 scale;
-	Vector3 rotate;
-	Vector3 translate;
-};
+
 
 struct VertexData {
 	Vector4 position;
@@ -48,10 +44,7 @@ struct Material {
 	int32_t enableHalfLambert;
 };
 
-struct WorldTransformation {
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-};
+
 
 struct DirectionalLight {
 	Vector4 color;
@@ -59,14 +52,8 @@ struct DirectionalLight {
 	float intensity;
 };
 
-struct MaterialData {
-	std::string textureFilePath;
-};
 
-struct ModelData {
-	std::vector<VertexData> vertices;
-	MaterialData material;
-};
+
 
 
 #pragma endregion

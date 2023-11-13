@@ -6,6 +6,7 @@
 
 
 
+
 void Sprite::Initialize(DirectXFunc* DXF_)
 {
 	assert(DXF_);
