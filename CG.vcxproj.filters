@@ -73,6 +73,9 @@
     <Filter Include="Engine\NewFilter1">
       <UniqueIdentifier>{fadc7696-22d4-4e59-ab5d-4f09a800cb2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GlobalVati">
+      <UniqueIdentifier>{67ea9f6a-9f72-4887-9cba-cb0d8cffc083}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

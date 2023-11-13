@@ -1,6 +1,5 @@
 #include"Camera.h"
 #include"WinApp.h"
-
 #include"externals/Imgui/imgui.h"
 
 void Camera::Initialize() {
@@ -53,7 +52,6 @@ void Camera::Update() {
 
 void Camera::DrawDebugWindow(const char* name) {
 #ifdef _DEBUG
-
 	ImGui::Begin(name);
 	ImGui::Text("mainCamera");
 	ImGui::DragFloat2("mainC pos", &mainCamera_.translate_.x, 0.01f);
@@ -67,7 +65,6 @@ void Camera::DrawDebugWindow(const char* name) {
 	ImGui::DragFloat3("PCM scale", &CameraMotionSupport_.scale_.x, 0.01f);
 	ImGui::Checkbox("isOnlyGetPosition", &isOnlyGetPosition);
 	ImGui::End();
-
 #endif // _DEBUG
 
 }
