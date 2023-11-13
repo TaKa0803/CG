@@ -73,7 +73,7 @@
     <Filter Include="Engine\NewFilter1">
       <UniqueIdentifier>{fadc7696-22d4-4e59-ab5d-4f09a800cb2e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\GlobalVati">
+    <Filter Include="Engine\GlobalVariables">
       <UniqueIdentifier>{67ea9f6a-9f72-4887-9cba-cb0d8cffc083}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -149,6 +149,9 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Engine\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalVariables.cpp">
+      <Filter>Engine\GlobalVariables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -237,6 +240,9 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVariables.h">
+      <Filter>Engine\GlobalVariables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

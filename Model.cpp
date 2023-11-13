@@ -3,6 +3,7 @@
 #include"DirectXFunc.h"
 #include"function.h"
 #include"TextureManager.h"
+#include"Log.h"
 
 #include"ImGuiManager.h"
 
@@ -148,6 +149,8 @@ void Model::Initialize(
 	materialResource_ = materialResourceS;
 	materialData_ = materialData;
 	directionalLightResource_ = directionalLightResource;
+
+	Log("Model is Created!\n");
 }
 
 Model::~Model() {
@@ -268,6 +271,9 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 
 	Model* model = new Model();
 	model->Initialize("Sphere", point,vertexResourceSphere, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
+	
+	
+	
 	return model;
 
 }

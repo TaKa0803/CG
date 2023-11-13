@@ -9,6 +9,10 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 #pragma endregion
 
+
+int WinApp::kClientWidth = 1280;
+int WinApp::kClientHeight = 720;
+
 WinApp* WinApp::GetInstance()
 {
 	static WinApp instance;

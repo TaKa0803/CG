@@ -19,8 +19,8 @@ public://静的メンバ変数
 	static LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 		
 	//
-	static const int kClientWidth = 1280;
-	static const int kClientHeight = 720;
+	static int kClientWidth ;
+	static int kClientHeight;
 
 public:
 	/// <summary>
