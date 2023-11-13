@@ -3,7 +3,7 @@
 #include"WorldTransform.h"
 #include"Input.h"
 #include"Camera.h"
-
+#include<optional>
 
 class Player {
 
@@ -40,14 +40,44 @@ public:
 	void SetStartPosition();
 private:
 
+#pragma region 
+
+	void StayInitialize();
+
+	void FallInitialize();
+
+	void DashInitialize();
+
+	void ATKInitialize();
+
+	void FallUpdate();
+
+	void StayUpdate();
+
+	void DashUpdate();
+
+	void ATKUpdate();
+
+#pragma endregion
+
+
+
+	
+private:
+
 	Input* input_ = nullptr;
 
-	enum PlayerState {
+	enum class PlayerState {
 		kStay,
-		kFalling
+		kFalling,
+		kATK,
+		kDash
 	};
 
-	PlayerState pState_ = kStay;
+
+	PlayerState pState_ = PlayerState::kStay;
+
+	std::optional<PlayerState>stateRequest_ = std::nullopt;
 
 	float gravity = -0.1f;
 
@@ -66,4 +96,24 @@ private:
 	const Camera* camera_=nullptr;
 
 	const Vector3 startPos = { 0.0f,5.0f,0.0f };
+
+	//ダッシュ量
+	float dashPower_ = 1;
+
+	float dashtimeSecond_ = 0.1f;
+
+	//ダッシュの長さ (秒)*(フレーム)
+	float dashTime;
+
+	int count_ = 0;
+
+	//ダッシュ量
+	Vector3 dashVelo;
+
+	//減速量
+	Vector3 DecelerationVector;
+
+
+	//ダッシュの遅延
+	float dashSecond_ = 1;
 };

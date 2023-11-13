@@ -277,14 +277,14 @@ void InGame::Collision() {
 	}
 	else if (InCollision(pAABB, p2)) {
 		ishit = true;
-		player_->OnCollision(1, &planeTrans2_);
+		player_->OnCollision(2, &planeTrans2_);
 
 		
 		
 	}
 	else if (InCollision(pAABB, p3)) {
 		ishit = true;
-		player_->OnCollision(1, &planeTrans3_);		
+		player_->OnCollision(3, &planeTrans3_);		
 	}
 	if (ishit == false) {
 		player_->NoCollision();
