@@ -87,6 +87,17 @@ void Camera::DrawDebugWindow(const char* name) {
 
 }
 
+void Camera::UpdateMatrixes() {
+	//行列更新
+	CameraMotionSupport_.UpdateMatrix();
+	mainCamera_.UpdateMatrix();
+
+	//各種更新に必要な処理
+	view_ = Inverse(mainCamera_.matWorld_);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
+	viewProjection_ = Multiply(view_, projection_);
+}
+
 void Camera::SetTarget(const WorldTransform* parent) {
 	FeaturedWorldTransform_ = parent;
 }

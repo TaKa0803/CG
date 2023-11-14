@@ -1,10 +1,11 @@
 #include "Player.h"
 #include"TextureManager.h"
 #include<imgui.h>
-
+#include"GlobalVariables.h"
 
 Player::~Player() {
 	delete playerM_;
+	delete weaponM_;
 }
 
 void Player::Initialize() {
@@ -16,10 +17,40 @@ void Player::Initialize() {
 	playertexture = TextureManager::LoadTex("resources/player.png");
 
 
+	weaponM_ = Model::CreateFromOBJ("weapon/weapon");
+	weaponTex_ = TextureManager::LoadTex("resources/weapon/weapon.png");
+
+	weaponW_.SetParent(&playerW_);
+
+
+#pragma region globalVariables
+	GlobalVariables* globalV = GlobalVariables::GetInstance();
+	
+	globalV->CreateGroup(name);
+
+
+	globalV->AddItem(name,keys[0], cameraDelaySecond_);
+	globalV->AddItem(name, keys[1], dashPower_);
+	globalV->AddItem(name, keys[2], dashtimeSecond_);
+	globalV->AddItem(name, keys[3], MovingSecond_);
+
+
+	cameraDelaySecond_= globalV->GetFloatvalue(name, keys[0]);
+	dashPower_ =globalV->GetFloatvalue(name, keys[1]);
+	dashtimeSecond_= globalV->GetFloatvalue(name, keys[2]);
+	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
+#pragma endregion
+
 }
 
 void Player::Update() {
 #pragma region プレイヤー挙動
+	GlobalVariables* globalV = GlobalVariables::GetInstance();
+	cameraDelaySecond_ = globalV->GetFloatvalue(name, keys[0]);
+	dashPower_ = globalV->GetFloatvalue(name, keys[1]);
+	dashtimeSecond_ = globalV->GetFloatvalue(name, keys[2]);
+	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
+
 	if (ImGui::BeginMenu("player")) {
 		ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
 		ImGui::DragFloat3("rotate", &playerW_.rotate_.x, 0.01f);
@@ -76,9 +107,40 @@ void Player::Update() {
 #pragma endregion
 }
 
+Vector3 Esing(const Vector3& st, const Vector3 ed, float t) {
+	return{
+		st.x * (1.0f - t) + ed.x * t,
+		st.y * (1.0f - t) + ed.y * t,
+		st.z * (1.0f - t) + ed.z * t,
+	};
+}
+
+
+void Player::DashCameraUpdate(Camera& camera) {
+	
+
+	if (isCameraDelay_) {
+		delayT_ += 1.0f / (cameraDelaySecond_ * 60);
+
+		
+			Vector3 newpos = Esing(startCameraPos_, camera.GetFeaturedPos(), delayT_);
+
+			camera.SetCameraFeaturedPos(newpos);
+		
+			camera.UpdateMatrixes();
+			if (delayT_ >= 1.0f) {
+				isCameraDelay_ = false;
+			}
+	}
+	
+}
+
 void Player::Draw() {
 	playerM_->Draw(playerW_.matWorld_, camera_->GetViewProjectionMatrix(), playertexture);
 
+	if (pState_ == PlayerState::kATK) {
+		weaponM_->Draw(weaponW_.matWorld_, camera_->GetViewProjectionMatrix(), weaponTex_);
+	}
 }
 
 void Player::OnCollision(int hitparent, const WorldTransform* parent) {
@@ -191,10 +253,19 @@ void Player::DashInitialize() {
 		-(dashVelo.z / dashTime)
 
 	};
+
+	delayT_ = 0;
+	isCameraDelay_ = true;
+
+	startCameraPos_ = camera_->GetFeaturedPos();
 }
 
 void Player::ATKInitialize() {
+	animationT_ = 0;
 }
+
+float CheckR_F_Y(const Vector2& v) { return std::atan2(v.x, v.y); }
+
 
 void Player::FallUpdate() {
 	Vector3 moveVelo = { 0,0,0 };
@@ -241,6 +312,9 @@ void Player::FallUpdate() {
 		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
+
+		Vector2 newR = { moveVelo.x,moveVelo.z };
+		playerW_.rotate_.y = CheckR_F_Y(newR);
 	}
 
 	moveVelo.y += gravity;
@@ -297,10 +371,15 @@ void Player::StayUpdate() {
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 
-
+		//プレイヤー回転
+		Vector2 newR = { moveVelo.x,moveVelo.z };
+		playerW_.rotate_.y = CheckR_F_Y(newR);
 
 	}
 	playerW_.translate_ = Add(playerW_.translate_, moveVelo);
+
+	
+
 #pragma endregion
 
 	//ダッシュ処理
@@ -325,9 +404,20 @@ void Player::DashUpdate() {
 		stateRequest_ = PlayerState::kStay;
 	}
 
-	
+
 }
 
 void Player::ATKUpdate() {
-	stateRequest_ = PlayerState::kStay;
+
+	animationT_ += 1.0f / (MovingSecond_ * 60);
+	Vector3 newR = Esing(weaponStR, weaponEndR, animationT_);
+	
+	weaponW_.rotate_ = newR;
+
+	weaponW_.UpdateMatrix();
+
+	if (animationT_ >= 1.0f) {
+		stateRequest_ = PlayerState::kStay;
+	}
+	
 }

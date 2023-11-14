@@ -15,9 +15,16 @@ public:
 
 	void Update();
 
+	void DashCameraUpdate(Camera& camera);
+
+
 	void Draw();
 
 	const WorldTransform& GetWorld() { return playerW_; }
+
+	const WorldTransform& GetWeaponWorld() { return weaponW_; }
+
+	const float GetWeaponRadius() { return WRadius_; }
 
 	int GetNowParent() { return nowParent; }
 
@@ -38,6 +45,9 @@ public:
 	void NoCollision();
 
 	void SetStartPosition();
+
+
+	bool IsStateATK() { if (pState_ == PlayerState::kATK) { return true; } else { return false; } }
 private:
 
 #pragma region 
@@ -100,6 +110,7 @@ private:
 	//ダッシュ量
 	float dashPower_ = 1;
 
+	//ダッシュする秒数
 	float dashtimeSecond_ = 0.1f;
 
 	//ダッシュの長さ (秒)*(フレーム)
@@ -114,6 +125,43 @@ private:
 	Vector3 DecelerationVector;
 
 
-	//ダッシュの遅延
-	float dashSecond_ = 1;
+	
+	//カメラの最初の地点取得
+	Vector3 startCameraPos_;
+
+	//ダッシュ時のカメラの遅延量
+	float cameraDelaySecond_ = 0.5f;
+
+	float delayT_ = 0;
+
+	bool isCameraDelay_ = false;
+	
+#pragma region 攻撃
+	//武器のワールド座標
+	WorldTransform weaponW_;
+	//モデル
+	Model* weaponM_ = nullptr;
+	//武器画像
+	int weaponTex_;
+
+	float WRadius_ = 4;
+
+	Vector3 weaponStR = { 0.0f,0.0f,0.0f };
+	Vector3 weaponEndR = { 1.5f,0.0f,0.0f };
+
+	//アニメーションにかける時間
+	float MovingSecond_ = 1.0f;
+
+	//アニメーション変数
+	float animationT_;
+#pragma endregion
+	
+
+	const char* name = "Player";
+	std::string keys[5] = {
+		"Camera Dash Delay Second",
+		"Dash Power",
+		"Dash Second",
+		"ATK Second"
+	};
 };

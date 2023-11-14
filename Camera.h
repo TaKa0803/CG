@@ -11,8 +11,10 @@ public:
 
 	void DrawDebugWindow(const char* name);
 
-
+	void UpdateMatrixes();
 public:
+
+	const Vector3& GetFeaturedPos()const { return CameraMotionSupport_.translate_; }
 
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjection_; }
 
@@ -23,6 +25,7 @@ public:
 
 	void SetCameraFar(const float far);
 
+	void SetCameraFeaturedPos(const Vector3& pos) { CameraMotionSupport_.translate_ = pos; }
 private:
 	//カメラ本体
 	WorldTransform mainCamera_;
@@ -39,9 +42,12 @@ private:
 	//完全追従するか座標のみ取得するか
 	bool isOnlyGetPosition = true;
 
+	//ビュー
 	Matrix4x4 view_ = MakeIdentity4x4();
 
+	//プロジェクション
 	Matrix4x4 projection_ = MakeIdentity4x4();
 
+	//VP
 	Matrix4x4 viewProjection_ = MakeIdentity4x4();
 };

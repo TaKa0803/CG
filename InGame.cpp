@@ -20,13 +20,13 @@ bool InCollision(const AABB& a, const AABB& b) {
 
 
 void InGame::Initialize() {
-	
+
 	player_ = new Player();
 	player_->Initialize();
 
 	camera.Initialize();
 	camera.SetTarget(&player_->GetWorld());
-	
+
 	player_->SetCamera(camera);
 
 
@@ -101,9 +101,9 @@ void InGame::Update() {
 	}
 #endif // _DEBUG
 
-	
 
-	
+
+
 
 	PlaneUpdate();
 
@@ -113,10 +113,13 @@ void InGame::Update() {
 
 #pragma endregion
 
+
 	player_->Update();
 
 	camera.DrawDebugWindow("Camera");
 	camera.Update();
+
+	player_->DashCameraUpdate(camera);
 
 #pragma region 天球
 	if (ImGui::BeginMenu("skydome")) {
@@ -183,16 +186,17 @@ void InGame::Draw() {
 
 	skydome_->Draw(skydomeTrans_.matWorld_, camera.GetViewProjectionMatrix(), skydomeTex);
 
-	ehead_->Draw(ehT_.matWorld_, camera.GetViewProjectionMatrix(), eh);
-	eLA_->Draw(eLT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
-	eRA_->Draw(eRT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
-
+	if (!isEDead_) {
+		ehead_->Draw(ehT_.matWorld_, camera.GetViewProjectionMatrix(), eh);
+		eLA_->Draw(eLT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
+		eRA_->Draw(eRT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
+	}
 
 	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
 
 }
 void InGame::Finalize() {
-	
+
 	delete player_;
 
 	delete plane1;
@@ -237,7 +241,7 @@ void InGame::PlaneUpdate() {
 void InGame::Collision() {
 	AABB pAABB = player_->GetAABB();
 
-	
+
 
 	AABB p1 = {
 		.min{GetmatPW1().x - planeSize,GetmatPW1().y - 1.0f,GetmatPW1().z - planeSize},
@@ -269,30 +273,43 @@ void InGame::Collision() {
 	//土台1とのコリジョン
 	if (InCollision(pAABB, p1)) {
 		ishit = true;
-		
-
-		player_->OnCollision(1,&planeTrans1_);
-		
-		
+		player_->OnCollision(1, &planeTrans1_);
 	}
 	else if (InCollision(pAABB, p2)) {
 		ishit = true;
 		player_->OnCollision(2, &planeTrans2_);
-
-		
-		
 	}
 	else if (InCollision(pAABB, p3)) {
 		ishit = true;
-		player_->OnCollision(3, &planeTrans3_);		
+		player_->OnCollision(3, &planeTrans3_);
 	}
 	if (ishit == false) {
 		player_->NoCollision();
 	}
 
-
-	if (InCollision(pAABB, goa) || InCollision(pAABB, ene)) {
+	//ゴール
+	if (InCollision(pAABB, goa) ) {
 		player_->SetStartPosition();
+		isEDead_ = false;
+	}
+
+	//敵
+	if (InCollision(pAABB, ene) && !isEDead_) {
+		player_->SetStartPosition();
+		isEDead_ = false;
+	}
+
+
+	//武器とのコリジョン
+	if (player_->IsStateATK()) {
+		Vector3 weaponPos = player_->GetWeaponWorld().GetMatWorldTranslate();
+		Vector3 ePos = eWorld_.GetMatWorldTranslate();
+
+		float hlong = Length(Subtract(weaponPos, ePos));
+
+		if (hlong <= player_->GetWeaponRadius() + eSize_) {
+			isEDead_ = true;
+		}
 	}
 
 }

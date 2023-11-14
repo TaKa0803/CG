@@ -16,9 +16,6 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{42dfa00b-bee8-4df7-bb64-c7b2d65e7a72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{9214b52f-a14a-4ae8-96bb-1fa4d26aca69}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="Player">
       <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\shaders">
+      <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -162,16 +162,16 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="Particle.VS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="Particle.PS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -261,10 +261,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d.hlsli">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </None>
     <None Include="Particle.hlsli">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -82,10 +82,12 @@ private:
 	Model* eRA_ = nullptr;
 
 	WorldTransform eWorld_;
-	int eSize_ = 1;
+	float eSize_ = 1.5f;
 	WorldTransform ehT_;
 	WorldTransform eLT_;
 	WorldTransform eRT_;
+
+	bool isEDead_ = false;
 
 	Vector3 GetEmat() {
 		return{
