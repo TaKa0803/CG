@@ -8,17 +8,6 @@
 class GraphicsSystem
 {
 
-public://シングルトンパターン
-	static GraphicsSystem* GetInstance();
-
-private://シングルトンパターン
-
-	GraphicsSystem() = default;
-	~GraphicsSystem() = default;
-	GraphicsSystem(const GraphicsSystem& o) = delete;
-	const GraphicsSystem& operator=(const GraphicsSystem& o) = delete;
-
-
 public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 

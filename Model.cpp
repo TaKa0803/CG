@@ -147,7 +147,10 @@ void Model::Initialize(
 	ID3D12Resource* directionalLightResource)
 {
 
-	DXF = DirectXFunc::GetInstance();
+	DXF_ = DirectXFunc::GetInstance();
+
+	grarphics_ = std::make_unique<GraphicsSystem>();
+	grarphics_->Initialize(DXF_->GetDevice());
 
 	name = name_;
 	point_ = point;
@@ -158,6 +161,7 @@ void Model::Initialize(
 	materialResource_ = materialResourceS;
 	materialData_ = materialData;
 	directionalLightResource_ = directionalLightResource;
+
 
 	Log("Model is Created!\n");
 }
@@ -360,19 +364,19 @@ void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,in
 	wvpData_->WVP = WVP;
 	wvpData_->World = worldMatrix;
 
-	DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-	DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//wvp用のCBufferの場所の設定
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	//マテリアルCBufferの場所を設定
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
 	//描画！		
-	DXF->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
+	DXF_->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
 }
 
 void Model::DebugParameter()

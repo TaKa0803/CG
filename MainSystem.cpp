@@ -32,10 +32,6 @@ void MainSystem::Initializes() {
 	DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
 
-	//グラフィック
-	graphics = GraphicsSystem::GetInstance();
-	graphics->Initialize(DXF->GetDevice());
-
 	//画像関係
 	textureManager= TextureManager::GetInstance();
 	textureManager->InitializeBase(DXF);
@@ -89,9 +85,7 @@ void MainSystem::Update() {
 		DXF->PreDraw();
 		//ImGui
 		imguiManager->PreDraw();
-		//Graphics
-		graphics->PreDraw(DXF->GetCMDList());
-
+		
 		//==以下描画==//
 
 

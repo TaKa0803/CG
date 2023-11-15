@@ -38,9 +38,7 @@ private:
 	//DirectX
 	DirectXFunc* DXF;
 
-	//Graphic関係
-	GraphicsSystem* graphics;
-
+	
 	//ImGui
 	ImGuiManager* imguiManager;
 
