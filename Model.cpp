@@ -149,7 +149,7 @@ void Model::Initialize(
 
 	DXF_ = DirectXFunc::GetInstance();
 
-	grarphics_ = std::make_unique<GraphicsSystem>();
+	grarphics_ = new GraphicsSystem();
 	grarphics_->Initialize(DXF_->GetDevice());
 
 	name = name_;

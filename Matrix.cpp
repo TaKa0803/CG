@@ -1,7 +1,38 @@
 #include"Matrix.h"
 #include<assert.h>
 #include<cmath>
-	
+
+
+
+
+Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
+
+	return{
+
+		axis.x * axis.x * (1 - std::cos(angle)) + std::cos(angle),
+		axis.x * axis.y * (1 - std::cos(angle)) + axis.z * std::sin(angle),
+		axis.x * axis.z * (1 - std::cos(angle)) - axis.y * std::sin(angle),
+		0,
+
+		axis.x * axis.y * (1 - std::cos(angle)) - axis.z * std::sin(angle),
+		axis.y * axis.y * (1 - std::cos(angle)) + std::cos(angle),
+		axis.y * axis.z * (1 - std::cos(angle)) + axis.x * std::sin(angle),
+		0,
+
+		axis.x * axis.z * (1 - std::cos(angle)) + axis.y * std::sin(angle),
+		axis.y * axis.z * (1 - std::cos(angle)) - axis.x * std::sin(angle),
+		axis.z * axis.z * (1 - std::cos(angle)) + std::cos(angle),
+		0,
+
+		0,
+		0,
+		0,
+		1
+	};
+
+}
+
+
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
 	return {
 		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0],
@@ -363,7 +394,7 @@ Vector3 Normalize(Vector3 v) {
 		};
 		return Answer;
 	}
-	return {0,0,0};
+	return { 0,0,0 };
 }
 
 

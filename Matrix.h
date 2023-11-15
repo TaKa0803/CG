@@ -4,6 +4,10 @@
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
+
+Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle);
+
+
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
 

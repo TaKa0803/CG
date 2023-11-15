@@ -102,7 +102,7 @@ private:
 	
 	DirectXFunc* DXF_;
 
-	std::unique_ptr<GraphicsSystem> grarphics_;
+	GraphicsSystem* grarphics_;
 
 
 	std::string name;

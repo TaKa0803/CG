@@ -8,10 +8,7 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 
-GraphicsSystem* GraphicsSystem::GetInstance() {
-	static GraphicsSystem instance;
-	return &instance;
-}
+
 
 IDxcBlob* CompileShader(
 	//CompilerするShaderファイルへのパス
