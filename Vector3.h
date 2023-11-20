@@ -51,7 +51,4 @@ Vector3 Normalize(const Vector3& v);
 float Distance(const Vector3& v1,const Vector3& v2);
 
 
-//a-bの向きベクトルのnormalize
-Vector3 FacingVectorNormalize(const Vector3& a, const Vector3& b);
-
 

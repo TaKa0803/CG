@@ -60,7 +60,7 @@ void InGame::Initialize() {
 	eRA_->IsEnableShader(false);
 
 	goalTex = TextureManager::LoadTex("resources/goal.png");
-	goal_ = Model::CreateFromOBJ("goal");
+	goal_ = Model::CreateSphere(128 ,true);
 	goal_->IsEnableShader(false);
 	goalT_.SetParent(&planeTrans3_);
 

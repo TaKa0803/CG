@@ -43,9 +43,6 @@ Vector3 Normalize(const Vector3& v) {
 	return Answer;
 }
 
-Vector3 FacingVectorNormalize(const Vector3& a, const Vector3& b) {
-	return Vector3();
-}
 
 
 float Distance(const Vector3& v1, const Vector3& v2) {
