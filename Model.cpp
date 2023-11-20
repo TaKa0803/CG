@@ -150,7 +150,7 @@ void Model::Initialize(
 {
 
 	DXF_ = DirectXFunc::GetInstance();
-
+	
 	grarphics_ = new GraphicsSystem();
 	grarphics_->Initialize(DXF_->GetDevice());
 
