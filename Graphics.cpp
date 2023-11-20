@@ -8,7 +8,9 @@
 #pragma comment(lib,"dxcompiler.lib")
 
 
-IDxcBlob* GraphicsSystem::CompileShader(
+
+
+IDxcBlob* CompileShader(
 	//CompilerするShaderファイルへのパス
 	const std::wstring& filePath,
 	//Compilerに使用するProfire
@@ -226,7 +228,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 #pragma endregion
 #pragma region PSOを生成
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-	graphicsPipelineStateDesc.pRootSignature = rootSignature;	//RootSignature
+	graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();	//RootSignature
 	graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	//InputLayout
 	graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),
 		vertexShaderBlob->GetBufferSize() };
@@ -258,7 +260,9 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 
 void GraphicsSystem::PreDraw(ID3D12GraphicsCommandList* commandList)
 {
+
+	
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
-	commandList->SetGraphicsRootSignature(rootSignature);
-	commandList->SetPipelineState(graphicsPipelineState);
+	commandList->SetGraphicsRootSignature(rootSignature.Get());
+	commandList->SetPipelineState(graphicsPipelineState.Get());
 }

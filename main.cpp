@@ -1,20 +1,6 @@
-#include"DirectXFunc.h"
-#include"WinApp.h"
-#include"ImGuiManager.h"
-#include"Graphics.h"
-#include"TextureManager.h"
-
-
-#include"Model.h"
-#include"Sprite.h"
-#include"Input.h"
+#include"MainSystem.h"
 
 #include<dxgidebug.h>
-
-#include"InGame.h"
-
-
-#pragma region 構造体
 struct D3DResourceLeakChecker {
 	~D3DResourceLeakChecker() {
 		//リソースリークチェック
@@ -27,105 +13,20 @@ struct D3DResourceLeakChecker {
 		}
 	}
 };
-#pragma endregion
 
-
+//リークチェック
+static D3DResourceLeakChecker lackCheck;
 
 //Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	HRESULT hr= CoInitializeEx(0, COINIT_MULTITHREADED);
-	
-	D3DResourceLeakChecker lackCheck;
-
-#pragma region 基板初期化
-	WinApp* winApp = WinApp::GetInstance();
-	winApp->Initialize();
-
-	DirectXFunc* DXF = DirectXFunc::GetInstance();
-	DXF->Initialize(winApp);
-
-	GraphicsSystem *graphics = nullptr;
-	graphics = new GraphicsSystem;
-	graphics->Initialize(DXF->GetDevice());
-
-
-	
-	TextureManager::GetInstance()->Initialize(DXF);
-
-
-	Input* input = Input::GetInstance();
-	input->Initialize(winApp);
-
-#pragma endregion
-
-
-	InGame* ingame = new InGame();
-	ingame->Initialize();
-
-
-
 	
 
 
-ImGuiManager* imguiManager = ImGuiManager::GetInstance();
-imguiManager->Initialize(winApp, DXF);
+	MainSystem* Engine = MainSystem::GetInstance();
 
-#pragma region 更新
-
-	while (winApp->ProcessMessage())
-	{	
-		imguiManager->PreUpdate();
-		//ゲーム内処理
-		input->Update();
-
-
-		ingame->Update();
-
-
-
-		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
-		ImGui::ShowDemoWindow();
-
-
-
-		imguiManager->PostUpdate();
-#pragma region 描画		
-#pragma region コマンドを積み込んで確定させる
-		DXF->PreDraw();
-		imguiManager->PreDraw();
-		graphics->PreDraw(DXF->GetCMDList());
-		
-		
-				
-				
-		ingame->Draw();
-				
-		
-			
-
-		imguiManager->PostDraw();
-		DXF->PostDraw();
-#pragma endregion
-#pragma endregion
-		
-	}
-#pragma endregion
-
-
-	
-	
-
-
-
-	imguiManager->Finalize();	
-	DXF->Finalize();	
-	winApp->Finalize();
+	Engine->Run();
 
 	
 
-
-	
-	CoUninitialize();
-	lackCheck.~D3DResourceLeakChecker();
 	return 0;
 }

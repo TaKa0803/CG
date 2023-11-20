@@ -16,9 +16,6 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{42dfa00b-bee8-4df7-bb64-c7b2d65e7a72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{9214b52f-a14a-4ae8-96bb-1fa4d26aca69}</UniqueIdentifier>
     </Filter>
@@ -63,6 +60,27 @@
     </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Camera">
+      <UniqueIdentifier>{53ccce7d-667a-4c91-a596-8e4a6aee45b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\MainSystem">
+      <UniqueIdentifier>{19647fad-a6e8-46f4-9f68-c4f164b49362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\NewFilter1">
+      <UniqueIdentifier>{fadc7696-22d4-4e59-ab5d-4f09a800cb2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GlobalVariables">
+      <UniqueIdentifier>{67ea9f6a-9f72-4887-9cba-cb0d8cffc083}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\shaders">
+      <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\math\Vector3">
+      <UniqueIdentifier>{2c85f174-d6b7-4e52-be72-3f2b1bf8228d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -132,19 +150,34 @@
     <ClCompile Include="InGame.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="MainSystem.cpp">
+      <Filter>Engine\MainSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Engine\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalVariables.cpp">
+      <Filter>Engine\GlobalVariables</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Engine\math\Vector3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="Particle.VS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
     <FxCompile Include="Particle.PS.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +247,24 @@
     <ClInclude Include="InGame.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="MainSystem.h">
+      <Filter>Engine\MainSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalVariables.h">
+      <Filter>Engine\GlobalVariables</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Engine\math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Engine\math\Vector3</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
@@ -222,10 +273,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Object3d.hlsli">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </None>
     <None Include="Particle.hlsli">
-      <Filter>shaders</Filter>
+      <Filter>Engine\shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

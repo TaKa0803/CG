@@ -28,6 +28,12 @@ public:
 	void SetMaterialDataColor(Vector4 color) { materialSpriteData->color = color; }
 private:
 
+	struct WorldTransformation {
+		Matrix4x4 WVP;
+		Matrix4x4 World;
+	};
+
+
 	DirectXFunc* DXF = nullptr;
 
 

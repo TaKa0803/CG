@@ -3,6 +3,7 @@
 #include"DirectXFunc.h"
 #include"function.h"
 #include"TextureManager.h"
+#include"Log.h"
 
 #include"ImGuiManager.h"
 
@@ -13,9 +14,20 @@
 #include<fstream>
 
 
+
+struct MaterialData {
+	std::string textureFilePath;
+};
+
+struct ModelData {
+	std::vector<VertexData> vertices;
+	MaterialData material;
+};
+
 MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
 	//1中で必要になる変数の宣言
 	MaterialData materialdata;
+	
 	std::string line;
 	//２ファイルを開く
 	std::ifstream file(directoryPath + "/" + filename);
@@ -49,7 +61,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 #pragma endregion
 #pragma region ファイルを開く
 	
-	std::ifstream file(directoryPath + "/" + filename);
+	std::ifstream file(directoryPath + "/" + filename+".obj");
 	assert(file.is_open());//開けなかったら止める
 #pragma endregion
 #pragma region 実際にファイルを読みModelDataを構築していく
@@ -112,7 +124,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 		else if (identifier == "mtllib") {
 			//materialTemplateLibraryファイルの名前を変更する
 			std::string materialFilename;
-			s >> materialFilename;
+			materialFilename = filename + ".mtl";
 			//基本的にobjファイルと同一改装にmtlは存在させるので、ディレクトリ名とファイル名を渡す
 			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
 		}
@@ -128,6 +140,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 void Model::Initialize(
 	std::string name_,
 	int point, 
+	ID3D12Resource* vertexRtea,
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView, 
 	ID3D12Resource* wvpResource,
 	WorldTransformation* wvpData, 
@@ -136,16 +149,33 @@ void Model::Initialize(
 	ID3D12Resource* directionalLightResource)
 {
 
-	DXF = DirectXFunc::GetInstance();
+	DXF_ = DirectXFunc::GetInstance();
+
+	grarphics_ = new GraphicsSystem();
+	grarphics_->Initialize(DXF_->GetDevice());
 
 	name = name_;
 	point_ = point;
+	vertexRtea_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
 	wvpData_ = wvpData;
 	wvpResource_ = wvpResource;
 	materialResource_ = materialResourceS;
 	materialData_ = materialData;
 	directionalLightResource_ = directionalLightResource;
+
+
+	Log("Model is Created!\n");
+}
+
+Model::~Model() {
+
+	delete grarphics_;
+
+	vertexRtea_->Release();
+	wvpResource_->Release();
+	materialResource_->Release();
+	directionalLightResource_->Release();
 }
 
 Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
@@ -258,7 +288,10 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 
 
 	Model* model = new Model();
-	model->Initialize("Sphere", point, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
+	model->Initialize("Sphere", point,vertexResourceSphere, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
+	
+	
+	
 	return model;
 
 }
@@ -318,34 +351,38 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 #pragma endregion
 
 	Model* model =new Model();
-	model->Initialize(filePath,UINT(modeltea.vertices.size()), vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
+	model->Initialize(filePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
 
+
+	
+	
 	return model;
 }
 
 
 
-void Model::Draw(Matrix4x4 worldMatrix,Matrix4x4 viewProjection,int texture)
+void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
-	
-	Matrix4x4 WVP = Multiply(worldMatrix, viewProjection);
+	grarphics_->PreDraw(DXF_->GetCMDList());
+
+	Matrix4x4 WVP = worldMatrix* viewProjection;
 
 	wvpData_->WVP = WVP;
 	wvpData_->World = worldMatrix;
 
-	DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-	DXF->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//wvp用のCBufferの場所の設定
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, wvpResource_->GetGPUVirtualAddress());
 	//マテリアルCBufferの場所を設定
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
 	//描画！		
-	DXF->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
+	DXF_->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
 }
 
 void Model::DebugParameter()

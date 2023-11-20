@@ -20,11 +20,7 @@ void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
 
 	assert(DXF);
 	DXF_ = DXF;
-
-	textureManager_ = TextureManager::GetInstance();
-
 	
-
 #pragma region ImGuiの初期化
 	//ImGuiの初期化。詳細はさして重要ではないので解説は省略
 	//こういうもんである
@@ -35,9 +31,9 @@ void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
 	ImGui_ImplDX12_Init(DXF_->GetDevice(),
 		DXF_->GetswapChainDesc().BufferCount,
 		DXF_->GetrtvDesc().Format,
-		textureManager_->GetSRV(),
-		textureManager_->GetSRV()->GetCPUDescriptorHandleForHeapStart(),
-		textureManager_->GetSRV()->GetGPUDescriptorHandleForHeapStart());
+		DXF_->GetSRV(),
+		DXF_->GetSRV()->GetCPUDescriptorHandleForHeapStart(),
+		DXF_->GetSRV()->GetGPUDescriptorHandleForHeapStart());
 #pragma endregion
 
 }
@@ -61,7 +57,7 @@ void ImGuiManager::PreDraw()
 {
 #pragma region ImGuiの処理
 	//描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { textureManager_->GetSRV() };
+	ID3D12DescriptorHeap* descriptorHeaps[] = { DXF_->GetSRV() };
 	DXF_->GetCMDList()->SetDescriptorHeaps(1, descriptorHeaps);
 #pragma endregion
 }
