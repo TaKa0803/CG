@@ -79,6 +79,9 @@
     <Filter Include="Engine\shaders">
       <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\math\Vector3">
+      <UniqueIdentifier>{2c85f174-d6b7-4e52-be72-3f2b1bf8228d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -158,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>Engine\math\Vector3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -252,6 +258,12 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Engine\math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Engine\math\Vector3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

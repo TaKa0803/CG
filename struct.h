@@ -2,13 +2,17 @@
 #include<stdint.h>
 #include<vector>
 #include<string>
+
 #include"Vector2.h"
 #include"Vector3.h"
+#include"Matrix.h"
+
+
 #pragma region 構造体
 
 struct AABB {
-	Vector3 min;
-	Vector3 max;
+	Vector3 minV;
+	Vector3 maxV;
 };
 
 struct Vector4 {
@@ -17,12 +21,6 @@ struct Vector4 {
 	float z;
 	float w;
 };
-
-struct Matrix4x4 {
-	float m[4][4];
-};
-
-
 
 struct VertexData {
 	Vector4 position;
@@ -39,8 +37,6 @@ struct Material {
 	float padding2[3];
 	int32_t enableHalfLambert;
 };
-
-
 
 struct DirectionalLight {
 	Vector4 color;

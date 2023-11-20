@@ -1,6 +1,91 @@
 #pragma once
-#include"struct.h"
-#include <math.h>
+#include"Vector3.h"
+
+struct Matrix4x4 {
+	float m[4][4];
+
+	Matrix4x4& operator+=(const Matrix4x4& m1) {
+		*this = {
+		(m[0][0] + m1.m[0][0]), (m[0][1] + m1.m[0][1]), (m[0][2] + m1.m[0][2]), (m[0][3] + m1.m[0][3]),
+		(m[1][0] + m1.m[1][0]), (m[1][1] + m1.m[1][1]), (m[1][2] + m1.m[1][2]), (m[1][3] + m1.m[1][3]),
+		(m[2][0] + m1.m[2][0]), (m[2][1] + m1.m[2][1]), (m[2][2] + m1.m[2][2]), (m[2][3] + m1.m[2][3]),
+		(m[3][0] + m1.m[3][0]), (m[3][1] + m1.m[3][1]), (m[3][2] + m1.m[3][2]), (m[3][3] + m1.m[3][3]),
+		};
+		return *this;
+	}
+
+	Matrix4x4& operator-=(const Matrix4x4& m1) {
+		*this = {
+		(m[0][0] - m1.m[0][0]), (m[0][1] - m1.m[0][1]), (m[0][2] - m1.m[0][2]), (m[0][3] - m1.m[0][3]),
+		(m[1][0] - m1.m[1][0]), (m[1][1] - m1.m[1][1]), (m[1][2] - m1.m[1][2]), (m[1][3] - m1.m[1][3]),
+		(m[2][0] - m1.m[2][0]), (m[2][1] - m1.m[2][1]), (m[2][2] - m1.m[2][2]), (m[2][3] - m1.m[2][3]),
+		(m[3][0] - m1.m[3][0]), (m[3][1] - m1.m[3][1]), (m[3][2] - m1.m[3][2]), (m[3][3] - m1.m[3][3]),
+		};
+		return *this;
+	}
+
+	Matrix4x4& operator*=(const Matrix4x4& m1) {
+		*this = {
+			m[0][0] * m1.m[0][0] + m[0][1] * m1.m[1][0] + m[0][2] * m1.m[2][0] + m[0][3] * m1.m[3][0],
+			m[0][0] * m1.m[0][1] + m[0][1] * m1.m[1][1] + m[0][2] * m1.m[2][1] + m[0][3] * m1.m[3][1],
+			m[0][0] * m1.m[0][2] + m[0][1] * m1.m[1][2] + m[0][2] * m1.m[2][2] + m[0][3] * m1.m[3][2],
+			m[0][0] * m1.m[0][3] + m[0][1] * m1.m[1][3] + m[0][2] * m1.m[2][3] + m[0][3] * m1.m[3][3],
+
+			m[1][0] * m1.m[0][0] + m[1][1] * m1.m[1][0] + m[1][2] * m1.m[2][0] + m[1][3] * m1.m[3][0],
+			m[1][0] * m1.m[0][1] + m[1][1] * m1.m[1][1] + m[1][2] * m1.m[2][1] + m[1][3] * m1.m[3][1],
+			m[1][0] * m1.m[0][2] + m[1][1] * m1.m[1][2] + m[1][2] * m1.m[2][2] + m[1][3] * m1.m[3][2],
+			m[1][0] * m1.m[0][3] + m[1][1] * m1.m[1][3] + m[1][2] * m1.m[2][3] + m[1][3] * m1.m[3][3],
+
+			m[2][0] * m1.m[0][0] + m[2][1] * m1.m[1][0] + m[2][2] * m1.m[2][0] + m[2][3] * m1.m[3][0],
+			m[2][0] * m1.m[0][1] + m[2][1] * m1.m[1][1] + m[2][2] * m1.m[2][1] + m[2][3] * m1.m[3][1],
+			m[2][0] * m1.m[0][2] + m[2][1] * m1.m[1][2] + m[2][2] * m1.m[2][2] + m[2][3] * m1.m[3][2],
+			m[2][0] * m1.m[0][3] + m[2][1] * m1.m[1][3] + m[2][2] * m1.m[2][3] + m[2][3] * m1.m[3][3],
+
+			m[3][0] * m1.m[0][0] + m[3][1] * m1.m[1][0] + m[3][2] * m1.m[2][0] + m[3][3] * m1.m[3][0],
+			m[3][0] * m1.m[0][1] + m[3][1] * m1.m[1][1] + m[3][2] * m1.m[2][1] + m[3][3] * m1.m[3][1],
+			m[3][0] * m1.m[0][2] + m[3][1] * m1.m[1][2] + m[3][2] * m1.m[2][2] + m[3][3] * m1.m[3][2],
+			m[3][0] * m1.m[0][3] + m[3][1] * m1.m[1][3] + m[3][2] * m1.m[2][3] + m[3][3] * m1.m[3][3],
+		};
+		return *this;
+	}
+
+	friend Matrix4x4 operator+(const Matrix4x4& m, const Matrix4x4& m1) { return {
+		(m.m[0][0] + m1.m[0][0]), (m.m[0][1] + m1.m[0][1]), (m.m[0][2] + m1.m[0][2]), (m.m[0][3] + m1.m[0][3]),
+		(m.m[1][0] + m1.m[1][0]), (m.m[1][1] + m1.m[1][1]), (m.m[1][2] + m1.m[1][2]), (m.m[1][3] + m1.m[1][3]),
+		(m.m[2][0] + m1.m[2][0]), (m.m[2][1] + m1.m[2][1]), (m.m[2][2] + m1.m[2][2]), (m.m[2][3] + m1.m[2][3]),
+		(m.m[3][0] + m1.m[3][0]), (m.m[3][1] + m1.m[3][1]), (m.m[3][2] + m1.m[3][2]), (m.m[3][3] + m1.m[3][3]),
+	}; }
+	friend Matrix4x4 operator-(const Matrix4x4& m, const Matrix4x4& m1) { return {
+		(m.m[0][0] - m1.m[0][0]), (m.m[0][1] - m1.m[0][1]), (m.m[0][2] - m1.m[0][2]), (m.m[0][3] - m1.m[0][3]),
+		(m.m[1][0] - m1.m[1][0]), (m.m[1][1] - m1.m[1][1]), (m.m[1][2] - m1.m[1][2]), (m.m[1][3] - m1.m[1][3]),
+		(m.m[2][0] - m1.m[2][0]), (m.m[2][1] - m1.m[2][1]), (m.m[2][2] - m1.m[2][2]), (m.m[2][3] - m1.m[2][3]),
+		(m.m[3][0] - m1.m[3][0]), (m.m[3][1] - m1.m[3][1]), (m.m[3][2] - m1.m[3][2]), (m.m[3][3] - m1.m[3][3]),
+	};; }
+	friend Matrix4x4 operator*(const Matrix4x4& m, const Matrix4x4& m1) { return {
+			m.m[0][0] * m1.m[0][0] + m.m[0][1] * m1.m[1][0] + m.m[0][2] * m1.m[2][0] + m.m[0][3] * m1.m[3][0],
+			m.m[0][0] * m1.m[0][1] + m.m[0][1] * m1.m[1][1] + m.m[0][2] * m1.m[2][1] + m.m[0][3] * m1.m[3][1],
+			m.m[0][0] * m1.m[0][2] + m.m[0][1] * m1.m[1][2] + m.m[0][2] * m1.m[2][2] + m.m[0][3] * m1.m[3][2],
+			m.m[0][0] * m1.m[0][3] + m.m[0][1] * m1.m[1][3] + m.m[0][2] * m1.m[2][3] + m.m[0][3] * m1.m[3][3],
+
+			m.m[1][0] * m1.m[0][0] + m.m[1][1] * m1.m[1][0] + m.m[1][2] * m1.m[2][0] + m.m[1][3] * m1.m[3][0],
+			m.m[1][0] * m1.m[0][1] + m.m[1][1] * m1.m[1][1] + m.m[1][2] * m1.m[2][1] + m.m[1][3] * m1.m[3][1],
+			m.m[1][0] * m1.m[0][2] + m.m[1][1] * m1.m[1][2] + m.m[1][2] * m1.m[2][2] + m.m[1][3] * m1.m[3][2],
+			m.m[1][0] * m1.m[0][3] + m.m[1][1] * m1.m[1][3] + m.m[1][2] * m1.m[2][3] + m.m[1][3] * m1.m[3][3],
+
+			m.m[2][0] * m1.m[0][0] + m.m[2][1] * m1.m[1][0] + m.m[2][2] * m1.m[2][0] + m.m[2][3] * m1.m[3][0],
+			m.m[2][0] * m1.m[0][1] + m.m[2][1] * m1.m[1][1] + m.m[2][2] * m1.m[2][1] + m.m[2][3] * m1.m[3][1],
+			m.m[2][0] * m1.m[0][2] + m.m[2][1] * m1.m[1][2] + m.m[2][2] * m1.m[2][2] + m.m[2][3] * m1.m[3][2],
+			m.m[2][0] * m1.m[0][3] + m.m[2][1] * m1.m[1][3] + m.m[2][2] * m1.m[2][3] + m.m[2][3] * m1.m[3][3],
+
+			m.m[3][0] * m1.m[0][0] + m.m[3][1] * m1.m[1][0] + m.m[3][2] * m1.m[2][0] + m.m[3][3] * m1.m[3][0],
+			m.m[3][0] * m1.m[0][1] + m.m[3][1] * m1.m[1][1] + m.m[3][2] * m1.m[2][1] + m.m[3][3] * m1.m[3][1],
+			m.m[3][0] * m1.m[0][2] + m.m[3][1] * m1.m[1][2] + m.m[3][2] * m1.m[2][2] + m.m[3][3] * m1.m[3][2],
+			m.m[3][0] * m1.m[0][3] + m.m[3][1] * m1.m[1][3] + m.m[3][2] * m1.m[2][3] + m.m[3][3] * m1.m[3][3],
+	};
+	}
+
+};
+
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
@@ -17,12 +102,10 @@ Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float botto
 //ビューポート変換
 Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
-// 加算
-Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2);
-// 減算
-Matrix4x4 Subtract(const Matrix4x4& m1, const Matrix4x4& m2);
-// 積
-Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2);
+
+
+
+
 // 逆行列
 Matrix4x4 Inverse(const Matrix4x4& m);
 // 転置行列
@@ -37,27 +120,7 @@ Matrix4x4 MakeRotateYMatrix(float radian);
 // z軸回転行列
 Matrix4x4 MakeRotateZMatrix(float radian);
 
-//heikou
-Vector3 AddVec3(Vector3 translate, Vector3 vec);
-
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 
 //Matrix4x4 MakeAffineMatrix(Matrix4x4 scale, Matrix4x4 rotate, Matrix4x4 translate);
 
-
-// 加算
-Vector3 Add(Vector3 v1, Vector3 v2);
-// 減算
-Vector3 Subtract(Vector3 v1, Vector3 v2);
-// スカラー倍
-Vector3 Scalar(float scalar, Vector3 v);
-// 内積
-float Dot(Vector3 v1, Vector3 v2);
-// 長さ
-float Length(Vector3 v);
-
-// 正規化
-Vector3 Normalize(Vector3 v);
-
-//二点間の距離
-float Distance(Vector3 v1, Vector3 v2);

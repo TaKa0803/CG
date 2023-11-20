@@ -20,7 +20,7 @@ void Camera::Initialize() {
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
 	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
-	viewProjection_ = Multiply(view_, projection_);
+	viewProjection_ = view_ * projection_;
 }
 
 void Camera::Update() {
@@ -36,7 +36,7 @@ void Camera::Update() {
 		else {
 			CameraMotionSupport_.UpdateMatrix();
 			//起動していないとき行列をかけて親子関係処理
-			CameraMotionSupport_.matWorld_ = Multiply(CameraMotionSupport_.matWorld_, FeaturedWorldTransform_->matWorld_);
+			CameraMotionSupport_.matWorld_ = CameraMotionSupport_.matWorld_* FeaturedWorldTransform_->matWorld_;
 		}
 	}
 
@@ -47,7 +47,7 @@ void Camera::Update() {
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
 	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
-	viewProjection_ = Multiply(view_, projection_);
+	viewProjection_ = view_* projection_;
 }
 
 void Camera::DrawDebugWindow(const char* name) {
@@ -95,7 +95,7 @@ void Camera::UpdateMatrixes() {
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
 	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
-	viewProjection_ = Multiply(view_, projection_);
+	viewProjection_ = view_* projection_;
 }
 
 void Camera::SetTarget(const WorldTransform* parent) {

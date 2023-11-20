@@ -32,8 +32,8 @@ public:
 
 	const AABB GetAABB() {
 		AABB pAABB = {
-		.min{GetmatT().x - pSize_,GetmatT().y - pSize_,GetmatT().z - pSize_},
-		.max{GetmatT().x + pSize_,GetmatT().y + pSize_,GetmatT().z + pSize_}
+		.minV{GetmatT().x - pSize_,GetmatT().y - pSize_,GetmatT().z - pSize_},
+		.maxV{GetmatT().x + pSize_,GetmatT().y + pSize_,GetmatT().z + pSize_}
 		};
 
 		return pAABB;

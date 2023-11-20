@@ -25,19 +25,19 @@ void Player::Initialize() {
 
 #pragma region globalVariables
 	GlobalVariables* globalV = GlobalVariables::GetInstance();
-	
+
 	globalV->CreateGroup(name);
 
 
-	globalV->AddItem(name,keys[0], cameraDelaySecond_);
+	globalV->AddItem(name, keys[0], cameraDelaySecond_);
 	globalV->AddItem(name, keys[1], dashPower_);
 	globalV->AddItem(name, keys[2], dashtimeSecond_);
 	globalV->AddItem(name, keys[3], MovingSecond_);
 
 
-	cameraDelaySecond_= globalV->GetFloatvalue(name, keys[0]);
-	dashPower_ =globalV->GetFloatvalue(name, keys[1]);
-	dashtimeSecond_= globalV->GetFloatvalue(name, keys[2]);
+	cameraDelaySecond_ = globalV->GetFloatvalue(name, keys[0]);
+	dashPower_ = globalV->GetFloatvalue(name, keys[1]);
+	dashtimeSecond_ = globalV->GetFloatvalue(name, keys[2]);
 	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
 #pragma endregion
 
@@ -117,22 +117,22 @@ Vector3 Esing(const Vector3& st, const Vector3 ed, float t) {
 
 
 void Player::DashCameraUpdate(Camera& camera) {
-	
+
 
 	if (isCameraDelay_) {
 		delayT_ += 1.0f / (cameraDelaySecond_ * 60);
 
-		
-			Vector3 newpos = Esing(startCameraPos_, camera.GetFeaturedPos(), delayT_);
 
-			camera.SetCameraFeaturedPos(newpos);
-		
-			camera.UpdateMatrixes();
-			if (delayT_ >= 1.0f) {
-				isCameraDelay_ = false;
-			}
+		Vector3 newpos = Esing(startCameraPos_, camera.GetFeaturedPos(), delayT_);
+
+		camera.SetCameraFeaturedPos(newpos);
+
+		camera.UpdateMatrixes();
+		if (delayT_ >= 1.0f) {
+			isCameraDelay_ = false;
+		}
 	}
-	
+
 }
 
 void Player::Draw() {
@@ -153,7 +153,7 @@ void Player::OnCollision(int hitparent, const WorldTransform* parent) {
 	if (nowParent != hitparent) {
 		nowParent = hitparent;
 		//台座から見たプレイヤーの座標取得
-		Vector3 pos = Subtract(GetmatT(), parent->GetMatWorldTranslate());
+		Vector3 pos = GetmatT() - parent->GetMatWorldTranslate();
 
 
 		playerW_.translate_ = pos;
@@ -200,8 +200,8 @@ void Player::DashInitialize() {
 		}
 		else {
 			moveVelo = { nyu.x,0,nyu.y };
-			moveVelo = Normalize(moveVelo);
-			moveVelo = Scalar(dashPower_, moveVelo);
+			moveVelo.SetNormalize();
+			moveVelo = dashPower_ * moveVelo;
 
 			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 			moveVelo = TransformNormal(moveVelo, C_Affine);
@@ -231,7 +231,7 @@ void Player::DashInitialize() {
 	if (ismoveActive) {
 		if (moveVelo.x == 0 && moveVelo.z) {
 			moveVelo = Normalize(moveVelo);
-			moveVelo = Scalar(dashPower_, moveVelo);
+			moveVelo *= dashPower_;
 		}
 		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 		moveVelo = TransformNormal(moveVelo, C_Affine);
@@ -282,7 +282,7 @@ void Player::FallUpdate() {
 		else {
 			moveVelo = { nyu.x,0,nyu.y };
 			moveVelo = Normalize(moveVelo);
-			moveVelo = Scalar(spd, moveVelo);
+			moveVelo *= spd;
 
 			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 			moveVelo = TransformNormal(moveVelo, C_Affine);
@@ -319,7 +319,7 @@ void Player::FallUpdate() {
 
 	moveVelo.y += gravity;
 
-	playerW_.translate_ = Add(playerW_.translate_, moveVelo);
+	playerW_.translate_ += moveVelo;
 
 }
 
@@ -340,7 +340,7 @@ void Player::StayUpdate() {
 		else {
 			moveVelo = { nyu.x,0,nyu.y };
 			moveVelo = Normalize(moveVelo);
-			moveVelo = Scalar(spd, moveVelo);
+			moveVelo *= spd;
 
 			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 			moveVelo = TransformNormal(moveVelo, C_Affine);
@@ -376,9 +376,9 @@ void Player::StayUpdate() {
 		playerW_.rotate_.y = CheckR_F_Y(newR);
 
 	}
-	playerW_.translate_ = Add(playerW_.translate_, moveVelo);
+	playerW_.translate_ += moveVelo;
 
-	
+
 
 #pragma endregion
 
@@ -396,9 +396,9 @@ void Player::StayUpdate() {
 
 void Player::DashUpdate() {
 
-	playerW_.translate_ = Add(playerW_.translate_, dashVelo);
+	playerW_.translate_ += dashVelo;
 
-	dashVelo = Subtract(dashVelo, DecelerationVector);
+	dashVelo -= DecelerationVector;
 
 	if (count_++ >= dashTime) {
 		stateRequest_ = PlayerState::kStay;
@@ -411,7 +411,7 @@ void Player::ATKUpdate() {
 
 	animationT_ += 1.0f / (MovingSecond_ * 60);
 	Vector3 newR = Esing(weaponStR, weaponEndR, animationT_);
-	
+
 	weaponW_.rotate_ = newR;
 
 	weaponW_.UpdateMatrix();
@@ -419,5 +419,5 @@ void Player::ATKUpdate() {
 	if (animationT_ >= 1.0f) {
 		stateRequest_ = PlayerState::kStay;
 	}
-	
+
 }

@@ -13,6 +13,8 @@
 #include<cassert>
 #include<fstream>
 
+
+
 struct MaterialData {
 	std::string textureFilePath;
 };
@@ -359,7 +361,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
 	
-	Matrix4x4 WVP = Multiply(worldMatrix, viewProjection);
+	Matrix4x4 WVP = worldMatrix* viewProjection;
 
 	wvpData_->WVP = WVP;
 	wvpData_->World = worldMatrix;

@@ -8,9 +8,9 @@
 //AABB同士
 bool InCollision(const AABB& a, const AABB& b) {
 
-	if ((a.min.x <= b.max.x && a.max.x >= b.min.x) &&//x軸
-		(a.min.y <= b.max.y && a.max.y >= b.min.y) &&
-		(a.min.z <= b.max.z && a.max.z >= b.min.z)
+	if ((a.minV.x <= b.maxV.x && a.maxV.x >= b.minV.x) &&//x軸
+		(a.minV.y <= b.maxV.y && a.maxV.y >= b.minV.y) &&
+		(a.minV.z <= b.maxV.z && a.maxV.z >= b.minV.z)
 		) {
 		return true;
 	}

@@ -1,12 +1,12 @@
 #pragma once
 #include<d3d12.h>
-#include"Matrix.h"
+#include<wrl.h>
 #include<string>
 #include"DirectXFunc.h"
 #include"Graphics.h"
 #include"Vector2.h"
-
-#include<wrl.h>
+#include"Matrix.h"
+#include"struct.h"
 
 
 
