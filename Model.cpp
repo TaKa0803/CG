@@ -169,6 +169,9 @@ void Model::Initialize(
 }
 
 Model::~Model() {
+
+	delete grarphics_;
+
 	vertexRtea_->Release();
 	wvpResource_->Release();
 	materialResource_->Release();
@@ -360,7 +363,8 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 
 void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
-	
+	grarphics_->PreDraw(DXF_->GetCMDList());
+
 	Matrix4x4 WVP = worldMatrix* viewProjection;
 
 	wvpData_->WVP = WVP;

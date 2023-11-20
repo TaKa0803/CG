@@ -260,6 +260,8 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 
 void GraphicsSystem::PreDraw(ID3D12GraphicsCommandList* commandList)
 {
+
+	
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(graphicsPipelineState.Get());
