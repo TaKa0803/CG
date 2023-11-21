@@ -5,6 +5,24 @@
 #include<dxcapi.h>
 #include<wrl.h>
 
+
+enum class BlendMode {
+	//!<ブレンドなし
+	kNone,
+	//!<通常αブレンド
+	kNormal,
+	//!<加算
+	kAdd,
+	//!<減算
+	kSubtract,
+	//!<乗算
+	kMultily,
+	//!<スクリーン
+	kScreen,
+	//利用してはいけない
+	kCountOfBlendMode
+};
+
 class GraphicsSystem
 {
 

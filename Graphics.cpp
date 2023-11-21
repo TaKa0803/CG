@@ -192,6 +192,8 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 	//BlendStateの設定
 	D3D12_BLEND_DESC blendDesc{};
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
@@ -199,6 +201,18 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+	blendDesc.RenderTarget[1].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[1].BlendEnable = TRUE;
+	blendDesc.RenderTarget[1].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[1].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[1].DestBlend = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[1].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[1].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[1].DestBlendAlpha = D3D12_BLEND_ZERO;
+
+
+
 #pragma endregion
 #pragma region RasterizeStateの設定を行う
 	//RasterizerState

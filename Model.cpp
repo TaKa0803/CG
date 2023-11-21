@@ -394,7 +394,12 @@ void Model::DebugParameter()
 	ImGui::Begin("status");
 	ImGui::Checkbox("Texture", &useTexture);
 	ImGui::Checkbox("Shader", &useShader);
+	ImGui::ColorEdit4("color", &color.x);
 	ImGui::End();
+
+	materialData_->enableTexture = useTexture;
+	materialData_->enableLighting = useShader;
+	materialData_->color = color;
 }
 
 
