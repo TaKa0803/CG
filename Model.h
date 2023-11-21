@@ -46,9 +46,10 @@ public:
 	void Draw(const Matrix4x4& WVP,const Matrix4x4& viewProjection, int texture);
 
 	/// <summary>
-	/// デバッグ用ImGuiの表示
+	/// Debug用ImGui表示
 	/// </summary>
-	void DebugParameter();
+	/// <param name="name"></param>
+	void DebugParameter(const char* name);
 
 	/// <summary>
 	/// シェーダー処理の切り替え

@@ -23,22 +23,48 @@ enum class BlendMode {
 	kCountOfBlendMode
 };
 
+
 class GraphicsSystem
 {
 
 public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="device">デバイス</param>
 	void Initialize(ID3D12Device* device);
 
-
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="commandList">コマンドリスト</param>
 	void PreDraw(ID3D12GraphicsCommandList* commandList);
+
+
+	//ブレンドモード取得
+	BlendMode GetBlendMode()const { return blendMode_; }
+
+	//ブレンドモードを設定
+	void SetBlendMode(BlendMode blend);
+
+	
 private:
+	
+	
+private:
+	
+	//psoDesc
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
 
 	//ルートシグネチャ
 	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 
 	//グラフィックパイプライン
-	ComPtr<ID3D12PipelineState> graphicsPipelineState = nullptr;
+	ComPtr<ID3D12PipelineState> graphicsPipelineState[static_cast<int>(BlendMode::kCountOfBlendMode)] = { nullptr };
+
+	//blendMode1
+	BlendMode blendMode_ = BlendMode::kNormal;
 };
 
