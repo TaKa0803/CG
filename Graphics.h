@@ -55,9 +55,7 @@ private:
 	
 private:
 	
-	//psoDesc
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
-
+	
 	//ルートシグネチャ
 	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 

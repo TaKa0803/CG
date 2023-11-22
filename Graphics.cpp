@@ -288,6 +288,9 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 		depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 #pragma endregion
 #pragma region PSOを生成
+		//psoDesc
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC graphicsPipelineStateDesc{};
+
 		graphicsPipelineStateDesc.pRootSignature = rootSignature.Get();	//RootSignature
 		graphicsPipelineStateDesc.InputLayout = inputLayoutDesc;	//InputLayout
 		graphicsPipelineStateDesc.VS = { vertexShaderBlob->GetBufferPointer(),

@@ -161,13 +161,9 @@ void InGame::Update() {
 	eLT_.UpdateMatrix();
 	eRT_.UpdateMatrix();
 #pragma endregion
-
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
-
-
-
 	Collision();
 
 #ifdef _DEBUG

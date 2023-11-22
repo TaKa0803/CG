@@ -50,7 +50,7 @@ public:
 	bool IsStateATK() { if (pState_ == PlayerState::kATK) { return true; } else { return false; } }
 private:
 
-#pragma region 
+#pragma region 状態
 
 	void StayInitialize();
 
@@ -60,6 +60,8 @@ private:
 
 	void ATKInitialize();
 
+	void JumpInitialize();
+
 	void FallUpdate();
 
 	void StayUpdate();
@@ -68,6 +70,7 @@ private:
 
 	void ATKUpdate();
 
+	void JumpUpdate();
 #pragma endregion
 
 
@@ -81,7 +84,8 @@ private:
 		kStay,
 		kFalling,
 		kATK,
-		kDash
+		kDash,
+		kjump
 	};
 
 
@@ -155,6 +159,20 @@ private:
 	//アニメーション変数
 	float animationT_;
 #pragma endregion
+
+#pragma region ジャンプ
+
+	Vector3 velo_ = { 0.0f,0.0f,0.0f };
+
+	const float jumpPower_ = 1.0f;
+
+	//上がる速度が0になる時間
+	float zeroSecond = 0.2f;
+
+
+
+#pragma endregion
+
 	
 
 	const char* name = "Player";

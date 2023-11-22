@@ -51,13 +51,18 @@ void Player::Update() {
 	dashtimeSecond_ = globalV->GetFloatvalue(name, keys[2]);
 	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
 
+#ifdef _DEBUG
 	if (ImGui::BeginMenu("player")) {
 		ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
 		ImGui::DragFloat3("rotate", &playerW_.rotate_.x, 0.01f);
 		ImGui::DragFloat3("scale", &playerW_.scale_.x, 0.01f);
 		ImGui::Text("%d", nowParent);
+		ImGui::Text("state : %d", pState_);
 		ImGui::EndMenu();
 	}
+#endif // _DEBUG
+
+	
 
 	if (stateRequest_) {
 		pState_ = stateRequest_.value();
@@ -73,6 +78,10 @@ void Player::Update() {
 			break;
 		case Player::PlayerState::kDash:
 			DashInitialize();
+			break;
+
+		case Player::PlayerState::kjump:
+			JumpInitialize();
 			break;
 		default:
 			break;
@@ -92,6 +101,9 @@ void Player::Update() {
 		break;
 	case Player::PlayerState::kDash:
 		DashUpdate();
+		break;
+	case Player::PlayerState::kjump:
+		JumpUpdate();
 		break;
 	default:
 		break;
@@ -117,7 +129,6 @@ Vector3 Esing(const Vector3& st, const Vector3 ed, float t) {
 
 
 void Player::DashCameraUpdate(Camera& camera) {
-
 
 	if (isCameraDelay_) {
 		delayT_ += 1.0f / (cameraDelaySecond_ * 60);
@@ -145,23 +156,24 @@ void Player::Draw() {
 
 void Player::OnCollision(int hitparent, const WorldTransform* parent) {
 
-	if (pState_ == PlayerState::kFalling) {
+	if (pState_ != PlayerState::kStay) {
 		stateRequest_ = PlayerState::kStay;
-	}
-	//if (InCollision(p2, pParentP)) {
-			//ペアレントが違うものだったら
-	if (nowParent != hitparent) {
-		nowParent = hitparent;
-		//台座から見たプレイヤーの座標取得
-		Vector3 pos = GetmatT() - parent->GetMatWorldTranslate();
+
+		//if (InCollision(p2, pParentP)) {
+				//ペアレントが違うものだったら
+		if (nowParent != hitparent) {
+			nowParent = hitparent;
+			//台座から見たプレイヤーの座標取得
+			Vector3 pos = GetmatT() - parent->GetMatWorldTranslate();
 
 
-		playerW_.translate_ = pos;
-		playerW_.translate_.y = 1.0f + pSize_;
-		playerW_.SetParent(parent);
+			playerW_.translate_ = pos;
+			playerW_.translate_.y = 2.0f;
+			playerW_.SetParent(parent);
 
 
-		playerW_.UpdateMatrix();
+			playerW_.UpdateMatrix();
+		}
 	}
 }
 
@@ -171,7 +183,7 @@ void Player::NoCollision() {
 	playerW_.SetParent();
 	playerW_.UpdateMatrix();
 
-	stateRequest_ = PlayerState::kFalling;
+	pState_ = PlayerState::kjump;
 	nowParent = 0;
 }
 
@@ -183,6 +195,7 @@ void Player::SetStartPosition() {
 }
 
 void Player::StayInitialize() {
+	velo_ = { 0.0f,0.0f,0.0f };
 }
 
 void Player::FallInitialize() {
@@ -262,6 +275,11 @@ void Player::DashInitialize() {
 
 void Player::ATKInitialize() {
 	animationT_ = 0;
+}
+
+void Player::JumpInitialize() {
+	//初速度
+	velo_ = { 0.0f,jumpPower_,0.0f };
 }
 
 float CheckR_F_Y(const Vector2& v) { return std::atan2(v.x, v.y); }
@@ -390,6 +408,9 @@ void Player::StayUpdate() {
 	if (input_->TriggerKey(DIK_X)) {
 		stateRequest_ = PlayerState::kATK;
 	}
+	if (input_->TriggerKey(DIK_SPACE)) {
+		stateRequest_ = PlayerState::kjump;
+	}
 
 
 }
@@ -420,4 +441,70 @@ void Player::ATKUpdate() {
 		stateRequest_ = PlayerState::kStay;
 	}
 
+}
+
+void Player::JumpUpdate() {
+	
+#pragma region 移動
+
+	bool ismoveActive = false;
+
+	float spd = 0.3f;
+	Vector3 moveVelo = { 0,0,0 };
+	if (input_->IsControllerActive()) {
+		Vector2 nyu = input_->GetjoyStickL();
+
+		if (nyu.x == 0 && nyu.y == 0) {
+			moveVelo = { 0,0,0 };
+		}
+		else {
+			moveVelo = { nyu.x,0,nyu.y };
+			moveVelo = Normalize(moveVelo);
+			moveVelo *= spd;
+
+			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+			moveVelo = TransformNormal(moveVelo, C_Affine);
+			moveVelo.y = 0;
+		}
+	}
+	else {
+		if (input_->PushKey(DIK_UP)) {
+			moveVelo.z += spd;
+			ismoveActive = true;
+		}
+		if (input_->PushKey(DIK_DOWN)) {
+			moveVelo.z -= spd;
+			ismoveActive = true;
+		}
+		if (input_->PushKey(DIK_RIGHT)) {
+			moveVelo.x += spd;
+			ismoveActive = true;
+		}
+		if (input_->PushKey(DIK_LEFT)) {
+			moveVelo.x -= spd;
+			ismoveActive = true;
+		}
+	}
+
+	if (ismoveActive) {
+		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+		moveVelo = TransformNormal(moveVelo, C_Affine);
+		moveVelo.y = 0;
+
+		//プレイヤー回転
+		Vector2 newR = { moveVelo.x,moveVelo.z };
+		playerW_.rotate_.y = CheckR_F_Y(newR);
+
+	}
+	playerW_.translate_ += moveVelo;
+
+
+
+#pragma endregion
+
+
+	playerW_.translate_ += velo_;
+
+	velo_.y -= jumpPower_ / (60.0f * zeroSecond);
+	
 }

@@ -67,9 +67,6 @@
     <Filter Include="Engine\MainSystem">
       <UniqueIdentifier>{19647fad-a6e8-46f4-9f68-c4f164b49362}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\NewFilter1">
-      <UniqueIdentifier>{fadc7696-22d4-4e59-ab5d-4f09a800cb2e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\GlobalVariables">
       <UniqueIdentifier>{67ea9f6a-9f72-4887-9cba-cb0d8cffc083}</UniqueIdentifier>
     </Filter>
