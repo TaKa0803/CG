@@ -4,7 +4,7 @@
 #include"Input.h"
 #include"Camera.h"
 #include<optional>
-
+#include<array>
 class Player {
 
 public:
@@ -20,7 +20,7 @@ public:
 
 	void Draw();
 
-	const WorldTransform& GetWorld() { return playerW_; }
+	const WorldTransform& GetWorld() { return world_; }
 
 	const WorldTransform& GetWeaponWorld() { return weaponW_; }
 
@@ -97,13 +97,13 @@ private:
 
 
 	//プレイヤー
-	Model* playerM_ = nullptr;
+	Model* model_ = nullptr;
 	int playertexture;
 
-	WorldTransform playerW_;
+	WorldTransform world_;
 
 	const float pSize_ = 1;
-	Vector3 GetmatT() { return { playerW_.matWorld_.m[3][0],playerW_.matWorld_.m[3][1],playerW_.matWorld_.m[3][2] }; }
+	Vector3 GetmatT() { return { world_.matWorld_.m[3][0],world_.matWorld_.m[3][1],world_.matWorld_.m[3][2] }; }
 	
 	int nowParent = 0;
 
@@ -141,6 +141,46 @@ private:
 	bool isCameraDelay_ = false;
 	
 #pragma region 攻撃
+
+	void NextATK();
+
+	//攻撃用定数
+	struct ConstATK {
+		//振りかぶりの時間
+		uint32_t anicipationTime;
+		//ための時間
+		uint32_t chargeTime;
+		//攻撃振りの時間
+		uint32_t swingTime;
+		//硬直時間
+		uint32_t recoveryTime;
+		//振りかぶりの移動速さ
+		float anticipationSpeed;
+		//ための移動速さ
+		float chargeSpeed;
+		//攻撃振りの移動速さ
+		float swingSpeed;
+	};
+	//コンボ最大数
+	static const int maxComboNum_ = 3;
+
+	//コンボ構造体テーブル
+	static const std::array<ConstATK, maxComboNum_>kConstATKs_;
+
+	//攻撃用ワーク
+	struct WorkATK {
+		//攻撃ギミックの媒介変数
+		uint32_t attackParameter = 0;
+		//コンボ番号
+		int32_t comboIndex=0;
+		//コンボのフェーズ取得
+		int32_t inComboPhase = 0;
+		//トンボが次に進むか
+		bool comboNext = false;;
+	};
+
+	WorkATK workATK_{};
+
 	//武器のワールド座標
 	WorldTransform weaponW_;
 	//モデル
@@ -150,14 +190,12 @@ private:
 
 	float WRadius_ = 4;
 
-	Vector3 weaponStR = { 0.0f,0.0f,0.0f };
-	Vector3 weaponEndR = { 1.5f,0.0f,0.0f };
 
-	//アニメーションにかける時間
-	float MovingSecond_ = 1.0f;
+	Vector3 weaponStR[maxComboNum_] = { {0.0f,0.0f,0.0f},{1.5f,-1.5f,0.0f},{1.5f,1.5f,0.0f} };
+	Vector3 weaponEndR[maxComboNum_] = { { 1.5f,0.0f,0.0f },{1.5f,1.5f,0.0f},{1.5f,-1.5f,0.0f} };
 
-	//アニメーション変数
-	float animationT_;
+	
+	
 #pragma endregion
 
 #pragma region ジャンプ
@@ -172,6 +210,7 @@ private:
 
 
 #pragma endregion
+
 
 	
 

@@ -3,24 +3,35 @@
 #include<imgui.h>
 #include"GlobalVariables.h"
 
+
+const std::array<Player::ConstATK, Player::maxComboNum_>Player::kConstATKs_ = {
+	{
+		//振りかぶり、攻撃前硬直、攻撃振り時間、硬直（frame)各フェーズ移動速さ
+		{0,0,20,0,0.0f,0.0f,0.15f},
+		{15,10,15,0,2.0f,0.0f,0.0f},
+		{15,10,15,30,0.2f,0.0f,0.0f},
+
+	}
+};
+
 Player::~Player() {
-	delete playerM_;
+	delete model_;
 	delete weaponM_;
 }
 
 void Player::Initialize() {
 	input_ = Input::GetInstance();
 
-	playerM_ = Model::CreateFromOBJ("ALPlayer");
-	playerM_->IsEnableShader(false);
-	playerW_.UpdateMatrix();
+	model_ = Model::CreateFromOBJ("ALPlayer");
+	model_->IsEnableShader(false);
+	world_.UpdateMatrix();
 	playertexture = TextureManager::LoadTex("resources/player.png");
 
 
 	weaponM_ = Model::CreateFromOBJ("weapon/weapon");
 	weaponTex_ = TextureManager::LoadTex("resources/weapon/weapon.png");
 
-	weaponW_.SetParent(&playerW_);
+	weaponW_.SetParent(&world_);
 
 
 #pragma region globalVariables
@@ -32,13 +43,11 @@ void Player::Initialize() {
 	globalV->AddItem(name, keys[0], cameraDelaySecond_);
 	globalV->AddItem(name, keys[1], dashPower_);
 	globalV->AddItem(name, keys[2], dashtimeSecond_);
-	globalV->AddItem(name, keys[3], MovingSecond_);
-
-
+	
 	cameraDelaySecond_ = globalV->GetFloatvalue(name, keys[0]);
 	dashPower_ = globalV->GetFloatvalue(name, keys[1]);
 	dashtimeSecond_ = globalV->GetFloatvalue(name, keys[2]);
-	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
+	
 #pragma endregion
 
 }
@@ -49,20 +58,20 @@ void Player::Update() {
 	cameraDelaySecond_ = globalV->GetFloatvalue(name, keys[0]);
 	dashPower_ = globalV->GetFloatvalue(name, keys[1]);
 	dashtimeSecond_ = globalV->GetFloatvalue(name, keys[2]);
-	MovingSecond_ = globalV->GetFloatvalue(name, keys[3]);
-
+	
 #ifdef _DEBUG
 	if (ImGui::BeginMenu("player")) {
-		ImGui::DragFloat3("pos", &playerW_.translate_.x, 0.01f);
-		ImGui::DragFloat3("rotate", &playerW_.rotate_.x, 0.01f);
-		ImGui::DragFloat3("scale", &playerW_.scale_.x, 0.01f);
+		ImGui::DragFloat3("pos", &world_.translate_.x, 0.01f);
+		ImGui::DragFloat3("rotate", &world_.rotate_.x, 0.01f);
+		ImGui::DragFloat3("scale", &world_.scale_.x, 0.01f);
 		ImGui::Text("%d", nowParent);
 		ImGui::Text("state : %d", pState_);
+		ImGui::Text("combo : %d", workATK_.comboIndex);
 		ImGui::EndMenu();
 	}
 #endif // _DEBUG
 
-	
+
 
 	if (stateRequest_) {
 		pState_ = stateRequest_.value();
@@ -111,11 +120,11 @@ void Player::Update() {
 
 
 	//落ちたら初期位置へ
-	if (playerW_.translate_.y <= -50) {
+	if (world_.translate_.y <= -50) {
 		SetStartPosition();
 	}
 
-	playerW_.UpdateMatrix();
+	world_.UpdateMatrix();
 #pragma endregion
 }
 
@@ -147,7 +156,7 @@ void Player::DashCameraUpdate(Camera& camera) {
 }
 
 void Player::Draw() {
-	playerM_->Draw(playerW_.matWorld_, camera_->GetViewProjectionMatrix(), playertexture);
+	model_->Draw(world_.matWorld_, camera_->GetViewProjectionMatrix(), playertexture);
 
 	if (pState_ == PlayerState::kATK) {
 		weaponM_->Draw(weaponW_.matWorld_, camera_->GetViewProjectionMatrix(), weaponTex_);
@@ -156,40 +165,41 @@ void Player::Draw() {
 
 void Player::OnCollision(int hitparent, const WorldTransform* parent) {
 
-	if (pState_ != PlayerState::kStay) {
+	if (pState_ != PlayerState::kStay && pState_ != PlayerState::kATK) {
 		stateRequest_ = PlayerState::kStay;
-
-		//if (InCollision(p2, pParentP)) {
-				//ペアレントが違うものだったら
-		if (nowParent != hitparent) {
-			nowParent = hitparent;
-			//台座から見たプレイヤーの座標取得
-			Vector3 pos = GetmatT() - parent->GetMatWorldTranslate();
-
-
-			playerW_.translate_ = pos;
-			playerW_.translate_.y = 2.0f;
-			playerW_.SetParent(parent);
-
-
-			playerW_.UpdateMatrix();
-		}
 	}
+
+	//if (InCollision(p2, pParentP)) {
+			//ペアレントが違うものだったら
+	if (nowParent != hitparent) {
+		nowParent = hitparent;
+		//台座から見たプレイヤーの座標取得
+		Vector3 pos = GetmatT() - parent->GetMatWorldTranslate();
+
+
+		world_.translate_ = pos;
+		world_.translate_.y = 2.0f;
+		world_.SetParent(parent);
+
+
+		world_.UpdateMatrix();
+	}
+
 }
 
 void Player::NoCollision() {
 	//親子関係を消して処理
-	playerW_.translate_ = GetmatT();
-	playerW_.SetParent();
-	playerW_.UpdateMatrix();
+	world_.translate_ = GetmatT();
+	world_.SetParent();
+	world_.UpdateMatrix();
 
 	pState_ = PlayerState::kjump;
 	nowParent = 0;
 }
 
 void Player::SetStartPosition() {
-	playerW_.translate_ = startPos;
-	playerW_.SetParent();
+	world_.translate_ = startPos;
+	world_.SetParent();
 	stateRequest_ = PlayerState::kStay;
 	nowParent = 0;
 }
@@ -274,7 +284,7 @@ void Player::DashInitialize() {
 }
 
 void Player::ATKInitialize() {
-	animationT_ = 0;
+	workATK_ = { 0,0,0,false };
 }
 
 void Player::JumpInitialize() {
@@ -332,12 +342,12 @@ void Player::FallUpdate() {
 		moveVelo.y = 0;
 
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		playerW_.rotate_.y = CheckR_F_Y(newR);
+		world_.rotate_.y = CheckR_F_Y(newR);
 	}
 
 	moveVelo.y += gravity;
 
-	playerW_.translate_ += moveVelo;
+	world_.translate_ += moveVelo;
 
 }
 
@@ -391,10 +401,10 @@ void Player::StayUpdate() {
 
 		//プレイヤー回転
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		playerW_.rotate_.y = CheckR_F_Y(newR);
+		world_.rotate_.y = CheckR_F_Y(newR);
 
 	}
-	playerW_.translate_ += moveVelo;
+	world_.translate_ += moveVelo;
 
 
 
@@ -417,7 +427,7 @@ void Player::StayUpdate() {
 
 void Player::DashUpdate() {
 
-	playerW_.translate_ += dashVelo;
+	world_.translate_ += dashVelo;
 
 	dashVelo -= DecelerationVector;
 
@@ -428,23 +438,122 @@ void Player::DashUpdate() {
 
 }
 
+void Player::NextATK() {
+	if (workATK_.comboNext) {
+		workATK_.comboNext = false;
+		workATK_.comboIndex++;
+
+		workATK_.attackParameter = 0;
+		workATK_.inComboPhase = 0;
+	}
+	else {
+		workATK_.comboIndex = maxComboNum_;
+	}
+}
+
 void Player::ATKUpdate() {
 
-	animationT_ += 1.0f / (MovingSecond_ * 60);
-	Vector3 newR = Esing(weaponStR, weaponEndR, animationT_);
+	//コンボ数が最大になるまで処理
+	if (workATK_.comboIndex != maxComboNum_) {
 
-	weaponW_.rotate_ = newR;
+		//攻撃ボタントリガーで次へのフラグON
+		if (input_->TriggerKey(DIK_X)) {
+			workATK_.comboNext = true;
+		}
 
-	weaponW_.UpdateMatrix();
+		
 
-	if (animationT_ >= 1.0f) {
+
+#pragma region モデルアニメーション
+		float T;
+		//パーツのアニメーション
+		//各種状態による処理
+		switch (workATK_.inComboPhase) {
+		case 0:
+			if (kConstATKs_[workATK_.comboIndex].anicipationTime != 0) {
+				T = (float)workATK_.attackParameter / (float)kConstATKs_[workATK_.comboIndex].anicipationTime;
+			}
+			if (workATK_.comboIndex != 0) {
+				Vector3 newR = Esing(weaponEndR[workATK_.comboIndex-1], weaponStR[workATK_.comboIndex], T);
+
+				weaponW_.rotate_ = newR;
+			}
+			break;
+
+		case 1:
+
+			break;
+
+		case 2:
+			if (kConstATKs_[workATK_.comboIndex].swingTime != 0) {
+				T = (float)workATK_.attackParameter / (float)kConstATKs_[workATK_.comboIndex].swingTime;
+			}
+			Vector3 newR = Esing(weaponStR[workATK_.comboIndex], weaponEndR[workATK_.comboIndex], T);
+
+			weaponW_.rotate_ = newR;
+
+
+			break;
+
+		case 3:
+
+			break;
+
+		}
+#pragma endregion
+
+#pragma region 状態管理処理
+		//各種状態による処理
+		switch (workATK_.inComboPhase) {
+		case 0:
+			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].anicipationTime) {
+				workATK_.inComboPhase++;
+				workATK_.attackParameter = 0;
+			}
+			break;
+
+		case 1:
+			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].chargeTime) {
+				workATK_.inComboPhase++;
+				workATK_.attackParameter = 0;
+			}
+			break;
+
+		case 2:
+			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].swingTime) {
+				workATK_.inComboPhase++;
+				workATK_.attackParameter = 0;
+			}
+			break;
+
+		case 3:
+			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].recoveryTime) {
+				NextATK();
+			}
+			break;
+
+		}
+
+	}
+	else {
+		//コンボ外で終了
+
 		stateRequest_ = PlayerState::kStay;
 	}
 
+
+#pragma endregion
+
+		
+	
+
+
+
+	weaponW_.UpdateMatrix();
 }
 
 void Player::JumpUpdate() {
-	
+
 #pragma region 移動
 
 	bool ismoveActive = false;
@@ -493,18 +602,20 @@ void Player::JumpUpdate() {
 
 		//プレイヤー回転
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		playerW_.rotate_.y = CheckR_F_Y(newR);
+		world_.rotate_.y = CheckR_F_Y(newR);
 
 	}
-	playerW_.translate_ += moveVelo;
+	world_.translate_ += moveVelo;
 
 
 
 #pragma endregion
 
 
-	playerW_.translate_ += velo_;
+	world_.translate_ += velo_;
 
 	velo_.y -= jumpPower_ / (60.0f * zeroSecond);
-	
+
 }
+
+
