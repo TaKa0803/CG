@@ -9,7 +9,7 @@
 
 #include"Player.h"
 
-
+#include"Enemy.h"
 
 
 
@@ -73,7 +73,9 @@ private:
 
 	void Collision();
 
+	Enemy*enemy_;
 
+	/*
 	int eh;
 	int eWeapon;
 
@@ -89,7 +91,7 @@ private:
 	WorldTransform eRT_;
 
 	bool isEDead_ = false;
-
+	
 	Vector3 GetEmat() {
 		return{
 			eWorld_.matWorld_.m[3][0],
@@ -97,6 +99,7 @@ private:
 			eWorld_.matWorld_.m[3][2],
 		};
 	}
+	*/
 
 
 

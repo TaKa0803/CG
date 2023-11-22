@@ -8,8 +8,8 @@ const std::array<Player::ConstATK, Player::maxComboNum_>Player::kConstATKs_ = {
 	{
 		//振りかぶり、攻撃前硬直、攻撃振り時間、硬直（frame)各フェーズ移動速さ
 		{0,0,20,0,0.0f,0.0f,0.15f},
-		{15,10,15,0,2.0f,0.0f,0.0f},
-		{15,10,15,30,0.2f,0.0f,0.0f},
+		{5,5,15,0,2.0f,0.0f,0.0f},
+		{0,0,15,30,0.2f,0.0f,0.0f},
 
 	}
 };
@@ -465,7 +465,7 @@ void Player::ATKUpdate() {
 
 
 #pragma region モデルアニメーション
-		float T;
+		float T=0;
 		//パーツのアニメーション
 		//各種状態による処理
 		switch (workATK_.inComboPhase) {

@@ -99,8 +99,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="BoxColider.cpp" />
     <ClCompile Include="DebugScene.cpp" />
     <ClCompile Include="DirectXFunc.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="externals\Imgui\imgui.cpp" />
     <ClCompile Include="externals\Imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\Imgui\imgui_draw.cpp" />
@@ -118,7 +120,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="InGame.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="MainSystem.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -154,8 +155,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="BoxColider.h" />
     <ClInclude Include="DebugScene.h" />
     <ClInclude Include="DirectXFunc.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="externals\Imgui\imconfig.h" />
     <ClInclude Include="externals\Imgui\imgui.h" />
     <ClInclude Include="externals\Imgui\imgui_impl_dx12.h" />

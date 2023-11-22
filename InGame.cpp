@@ -48,35 +48,20 @@ void InGame::Initialize() {
 	planeTrans3_.translate_ = { 0.0f,-2.0f,planeSize * 4.0f };
 
 
-	eh = TextureManager::LoadTex("resources/head.png");
-	eWeapon = TextureManager::LoadTex("resources/Eweapon.png");
-
-	ehead_ = Model::CreateFromOBJ("head");
-	eLA_ = Model::CreateFromOBJ("Eweapon");
-	eRA_ = Model::CreateFromOBJ("Eweapon");
-
-	ehead_->IsEnableShader(false);
-	eLA_->IsEnableShader(false);
-	eRA_->IsEnableShader(false);
 
 	goalTex = TextureManager::LoadTex("resources/goal.png");
 	goal_ = Model::CreateSphere(128 ,true);
-	goal_->IsEnableShader(false);
 	goalT_.SetParent(&planeTrans3_);
 
 
 	goalT_.translate_.y = 2;
 
-	eWorld_.translate_.y = 2;
+	WorldTransform world;
+	world.translate_.x = -2;
 
-	eWorld_.SetParent(&planeTrans2_);
-	ehT_.SetParent(&eWorld_);
-	eLT_.SetParent(&ehT_);
-	eRT_.SetParent(&ehT_);
-
-	eLT_.translate_ = { -2.0f, 0, 0 };
-	eRT_.translate_ = { 2.0f, 0, 0 };
-	eRT_.rotate_.x = 3.14f / 2.0f;
+	enemy_ =new Enemy();
+	enemy_->Initialize(world);
+	enemy_->SetParent(&planeTrans2_);
 
 }
 
@@ -113,6 +98,7 @@ void InGame::Update() {
 
 #pragma endregion
 
+	enemy_->Update();
 
 	player_->Update();
 
@@ -129,38 +115,7 @@ void InGame::Update() {
 	skydomeTrans_.scale_ = { (float)scaleNum,(float)scaleNum,(float)scaleNum };
 	skydomeTrans_.UpdateMatrix();
 #pragma endregion
-#pragma region 敵
 
-	if (ImGui::BeginMenu("enemy")) {
-		ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
-		ImGui::EndMenu();
-	}
-	float mtheta = 1.0f / 60.0f * 3.14f;
-	eWorld_.rotate_.y += mtheta;
-
-	Vector3 move = { 0, 0, 0.1f };
-
-	move = TransformNormal(move, eWorld_.matWorld_);
-	// 光度さけす
-	move.y = 0;
-
-	eWorld_.translate_ +=  move;
-
-
-
-	float theta = (1.0f / 60.0f) * 3.14f;
-
-
-
-	eLT_.rotate_.x += theta;
-	eRT_.rotate_.x += theta;
-
-
-	eWorld_.UpdateMatrix();
-	ehT_.UpdateMatrix();
-	eLT_.UpdateMatrix();
-	eRT_.UpdateMatrix();
-#pragma endregion
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
@@ -182,11 +137,7 @@ void InGame::Draw() {
 
 	skydome_->Draw(skydomeTrans_.matWorld_, camera.GetViewProjectionMatrix(), skydomeTex);
 
-	if (!isEDead_) {
-		ehead_->Draw(ehT_.matWorld_, camera.GetViewProjectionMatrix(), eh);
-		eLA_->Draw(eLT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
-		eRA_->Draw(eRT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
-	}
+	enemy_->Draw(camera.GetViewProjectionMatrix());
 
 	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
 
@@ -195,16 +146,15 @@ void InGame::Finalize() {
 
 	delete player_;
 
+	delete enemy_;
+
 	delete plane1;
 	delete plane2;
 	delete plane3;
 
 	delete skydome_;
 
-	delete ehead_;
-	delete eLA_;
-	delete eRA_;
-
+	
 	delete goal_;
 }
 
@@ -259,8 +209,8 @@ void InGame::Collision() {
 	};
 
 	AABB ene = {
-		.minV{GetEmat().x - eSize_,GetEmat().y - eSize_,GetEmat().z - eSize_},
-		.maxV{GetEmat().x + eSize_,GetEmat().y + eSize_,GetEmat().z + eSize_}
+		.minV{enemy_->GetWorld().GetMatWorldTranslate().x - enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().y - enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().z - enemy_->GetSize()},
+		.maxV{enemy_->GetWorld().GetMatWorldTranslate().x + enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().y + enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().z + enemy_->GetSize()}
 	};
 
 	bool ishit = false;
@@ -286,25 +236,26 @@ void InGame::Collision() {
 	//ゴール
 	if (InCollision(pAABB, goa)) {
 		player_->SetStartPosition();
-		isEDead_ = false;
+		enemy_->SetDead(false);
 	}
 
 	//敵
-	if (InCollision(pAABB, ene) && !isEDead_) {
+	if (InCollision(pAABB, ene) && !enemy_->GetDead()) {
 		player_->SetStartPosition();
-		isEDead_ = false;
+		
+		enemy_->SetDead(false);
 	}
 
 
 	//武器とのコリジョン
 	if (player_->IsStateATK()) {
 		Vector3 weaponPos = player_->GetWeaponWorld().GetMatWorldTranslate();
-		Vector3 ePos = eWorld_.GetMatWorldTranslate();
+		Vector3 ePos = enemy_->GetWorld().GetMatWorldTranslate();
 
 		float hlong = Length(weaponPos- ePos);
 
-		if (hlong <= player_->GetWeaponRadius() + eSize_) {
-			isEDead_ = true;
+		if (hlong <= player_->GetWeaponRadius() + enemy_->GetSize()) {
+			enemy_->SetDead(true);
 		}
 	}
 

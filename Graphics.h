@@ -23,6 +23,14 @@ enum class BlendMode {
 	kCountOfBlendMode
 };
 
+enum class FillMode {
+	//埋める
+	kSolid,
+	//ワイヤー
+	kWireFrame,
+	//使用不可
+	kCountOfFillMode
+};
 
 class GraphicsSystem
 {
@@ -49,7 +57,7 @@ public:
 	//ブレンドモードを設定
 	void SetBlendMode(BlendMode blend);
 
-	
+	void SetFillMode(FillMode fillMode) { fillMode_ = fillMode; }
 private:
 	
 	
@@ -60,9 +68,12 @@ private:
 	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 
 	//グラフィックパイプライン
-	ComPtr<ID3D12PipelineState> graphicsPipelineState[static_cast<int>(BlendMode::kCountOfBlendMode)] = { nullptr };
+	ComPtr<ID3D12PipelineState> graphicsPipelineState[static_cast<int>(FillMode::kCountOfFillMode)][static_cast<int>(BlendMode::kCountOfBlendMode)] = { nullptr };
 
 	//blendMode1
 	BlendMode blendMode_ = BlendMode::kNormal;
+
+	//fillMode
+	FillMode fillMode_ = FillMode::kSolid;
 };
 
