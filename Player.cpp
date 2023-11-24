@@ -15,12 +15,16 @@ const std::array<Player::ConstATK, Player::maxComboNum_>Player::kConstATKs_ = {
 };
 
 Player::~Player() {
+	delete collider_;
 	delete model_;
 	delete weaponM_;
 }
 
 void Player::Initialize() {
 	input_ = Input::GetInstance();
+	
+	collider_ = new BoxColider();
+	collider_->Initialize(&world_);
 
 	model_ = Model::CreateFromOBJ("ALPlayer");
 	model_->IsEnableShader(false);
@@ -71,7 +75,7 @@ void Player::Update() {
 	}
 #endif // _DEBUG
 
-
+	
 
 	if (stateRequest_) {
 		pState_ = stateRequest_.value();
@@ -125,6 +129,9 @@ void Player::Update() {
 	}
 
 	world_.UpdateMatrix();
+
+	collider_->DebugImGui("player colloder");
+	collider_->Update();
 #pragma endregion
 }
 
@@ -161,6 +168,8 @@ void Player::Draw() {
 	if (pState_ == PlayerState::kATK) {
 		weaponM_->Draw(weaponW_.matWorld_, camera_->GetViewProjectionMatrix(), weaponTex_);
 	}
+
+	collider_->Draw(camera_->GetViewProjectionMatrix());
 }
 
 void Player::OnCollision(int hitparent, const WorldTransform* parent) {
@@ -466,6 +475,8 @@ void Player::ATKUpdate() {
 
 #pragma region モデルアニメーション
 		float T=0;
+		Vector3 newR;
+
 		//パーツのアニメーション
 		//各種状態による処理
 		switch (workATK_.inComboPhase) {
@@ -474,7 +485,7 @@ void Player::ATKUpdate() {
 				T = (float)workATK_.attackParameter / (float)kConstATKs_[workATK_.comboIndex].anicipationTime;
 			}
 			if (workATK_.comboIndex != 0) {
-				Vector3 newR = Esing(weaponEndR[workATK_.comboIndex-1], weaponStR[workATK_.comboIndex], T);
+				newR = Esing(weaponEndR[workATK_.comboIndex-1], weaponStR[workATK_.comboIndex], T);
 
 				weaponW_.rotate_ = newR;
 			}
@@ -488,7 +499,7 @@ void Player::ATKUpdate() {
 			if (kConstATKs_[workATK_.comboIndex].swingTime != 0) {
 				T = (float)workATK_.attackParameter / (float)kConstATKs_[workATK_.comboIndex].swingTime;
 			}
-			Vector3 newR = Esing(weaponStR[workATK_.comboIndex], weaponEndR[workATK_.comboIndex], T);
+			newR = Esing(weaponStR[workATK_.comboIndex], weaponEndR[workATK_.comboIndex], T);
 
 			weaponW_.rotate_ = newR;
 

@@ -2,31 +2,69 @@
 #include"WorldTransform.h"
 #include"Model.h"
 
-class BoxColider {
+
+enum class ColliderType {
+	Sphere,
+	Box
+};
+
+class Collider {
+protected:
+	Model* model_;
+	int texture_;
+
+
+public:
+	WorldTransform world_;
+
+	ColliderType type;
+
+	AABB aabb;
+
+public:
+	~Collider();
+
+	void Initialize(const WorldTransform* world = nullptr);
+
+	void Update();
+
+	void Draw(const Matrix4x4& VP);
+	
+	const WorldTransform& GetWorld() { return world_; }
+
+	
+	
+};
+
+
+class BoxColider: private Collider {
 public:
 
-	~BoxColider();
+	~BoxColider() ;
 
-	void Initialize(const WorldTransform* world=nullptr);
-
+	void Initialize(const WorldTransform* world);
 	
 	void Update();
 
 	void Draw(const Matrix4x4& VP);
 
+	
+	void DebugImGui(const char* name);
+	
+	//当たっていたら押し戻し処理
+	void Collision(const Collider& collider,Vector3&pushBackVelo );
+
+
 
 public://ゲッター
 #pragma region ゲッター
-	const WorldTransform& GetWorld() { return world_; }
 #pragma endregion
 
 
 public://セッター
 
-public://メンバ変数
-	WorldTransform world_;
+
 private:
-	Model* model_;
-	int texture_;
+	
 };
 

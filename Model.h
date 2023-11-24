@@ -75,6 +75,10 @@ public:
 	/// </summary>
 	/// <param name="color">色</param>
 	void SetColor(Vector4 color) { materialData_->color = color; }
+
+
+	void SetFillMode(FillMode fillmode) { grarphics_->SetFillMode(fillmode); }
+
 #pragma endregion
 
 	/// <summary>

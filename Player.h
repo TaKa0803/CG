@@ -3,6 +3,8 @@
 #include"WorldTransform.h"
 #include"Input.h"
 #include"Camera.h"
+#include"BoxColider.h"
+
 #include<optional>
 #include<array>
 class Player {
@@ -95,6 +97,7 @@ private:
 
 	float gravity = -0.1f;
 
+	BoxColider *collider_;
 
 	//プレイヤー
 	Model* model_ = nullptr;

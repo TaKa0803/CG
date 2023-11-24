@@ -195,12 +195,12 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 			D3D12_BLEND_DESC blendDesc{};
 
 			switch (blendNum) {
-			case (int)BlendMode::kNone:
+			case 0:
 				//ブレンドなし
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
 				break;
-			case (int)BlendMode::kNormal:
+			case 1:
 				//ノーマルブレンド
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				blendDesc.RenderTarget[0].BlendEnable = TRUE;
@@ -212,7 +212,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 				blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 
 				break;
-			case (int)BlendMode::kAdd:
+			case 2:
 				//加算
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				blendDesc.RenderTarget[0].BlendEnable = TRUE;
@@ -223,7 +223,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 				blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 				break;
-			case (int)BlendMode::kSubtract:
+			case 3:
 				//減算(逆減算
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				blendDesc.RenderTarget[0].BlendEnable = TRUE;
@@ -234,7 +234,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 				blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 				break;
-			case (int)BlendMode::kMultily:
+			case 4:
 				//乗算
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				blendDesc.RenderTarget[0].BlendEnable = TRUE;
@@ -245,7 +245,7 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 				blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 				break;
-			case (int)BlendMode::kScreen:
+			case 5:
 				//スクリーン
 				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				blendDesc.RenderTarget[0].BlendEnable = TRUE;
@@ -256,7 +256,9 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 				blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 				blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
 				break;
-			case (int)BlendMode::kCountOfBlendMode:
+			case 6:
+				//ブレンドなし
+				blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 				break;
 			default:
 				break;
@@ -268,16 +270,19 @@ void GraphicsSystem::Initialize(ID3D12Device* device)
 			D3D12_RASTERIZER_DESC rasterizerDesc{};
 			//裏面を表示しない
 			rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+
+
 			switch (fillNum) {
-			case (int)FillMode::kSolid:
+			case 0:
 				//三角形の中を塗りつぶす
 				rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 				break;
-			case (int)FillMode::kWireFrame:
-				break;
+			case 1:
 				//三角形の中を塗りつぶす
 				rasterizerDesc.FillMode = D3D12_FILL_MODE_WIREFRAME;
+				break;			
 			default:
+				rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
 				break;
 			}
 
