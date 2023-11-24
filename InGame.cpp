@@ -63,6 +63,9 @@ void InGame::Initialize() {
 	enemy_->Initialize(world);
 	enemy_->SetParent(&planeTrans2_);
 
+
+	lockOn_ = new LockOn();
+	lockOn_->Initialize();
 }
 
 void InGame::Update() {
@@ -119,6 +122,10 @@ void InGame::Update() {
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
+
+
+	lockOn_->Update();
+
 	Collision();
 
 #ifdef _DEBUG
@@ -141,6 +148,7 @@ void InGame::Draw() {
 
 	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
 
+	lockOn_->Draw();
 }
 void InGame::Finalize() {
 
@@ -156,6 +164,8 @@ void InGame::Finalize() {
 
 	
 	delete goal_;
+
+	delete lockOn_;
 }
 
 void InGame::PlaneUpdate() {

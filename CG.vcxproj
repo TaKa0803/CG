@@ -119,6 +119,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ClCompile>
     <ClCompile Include="InGame.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="LockOn.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainSystem.cpp" />
@@ -177,6 +178,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ClInclude>
     <ClInclude Include="InGame.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="LockOn.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MainSystem.h" />
     <ClInclude Include="Matrix.h" />

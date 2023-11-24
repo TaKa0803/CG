@@ -11,6 +11,7 @@
 
 #include"Enemy.h"
 
+#include"LockOn.h"
 
 
 class InGame {
@@ -118,4 +119,7 @@ private:
 	}
 
 	Camera camera;
+
+
+	LockOn* lockOn_ = nullptr;
 };

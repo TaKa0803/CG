@@ -80,6 +80,9 @@
     <Filter Include="Engine\Collider">
       <UniqueIdentifier>{2b2e9f2b-b756-43e4-89dd-acf02edfff59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LockOn">
+      <UniqueIdentifier>{ff0087b2-f60c-405a-ae48-3647c4cb644a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -170,6 +173,9 @@
       <Filter>Engine\Collider</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="LockOn.cpp">
+      <Filter>LockOn</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -278,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="BoxColider.h">
       <Filter>Engine\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="LockOn.h">
+      <Filter>LockOn</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
