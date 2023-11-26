@@ -80,10 +80,17 @@ void BoxColider::Initialize(const WorldTransform* world) {
 
 void BoxColider::Update() {
 	Collider::Update();
+	aabb = {
+		.minV{world_.GetMatWorldTranslate().x - world_.scale_.x,world_.GetMatWorldTranslate().y - world_.scale_.y,world_.GetMatWorldTranslate().z - world_.scale_.z},
+		.maxV{world_.GetMatWorldTranslate().x + world_.scale_.x,world_.GetMatWorldTranslate().y + world_.scale_.y,world_.GetMatWorldTranslate().z + world_.scale_.z},
+	};
+
+	CheckswitchAABB(aabb);
 }
 
 void BoxColider::Draw(const Matrix4x4& VP) {
 	Collider::Draw(VP);
+	
 
 }
 
@@ -96,6 +103,8 @@ void BoxColider::DebugImGui(const char* name) {
 #endif // _DEBUG
 
 }
+
+
 
 void BoxColider::Collision(const Collider& collider, Vector3& pushBackVelo) {
 	Collider::Update();

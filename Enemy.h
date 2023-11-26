@@ -6,6 +6,7 @@
 class Enemy {
 public:
 
+	//Enemy();
 	~Enemy();
 
 	void Initialize(WorldTransform& world);
@@ -15,13 +16,13 @@ public:
 	void Draw(const Matrix4x4& VP);
 
 
-	const WorldTransform& GetWorld() { return eWorld_; }
+	const WorldTransform& GetWorld() const{ return eWorld_; }
 
-	const float GetSize() { return eSize_; }
+	const float GetSize()const { return eSize_; }
 
 	void SetDead(bool isdead) { isEDead_ = isdead; }
 
-	bool GetDead() { return isEDead_; }
+	bool GetDead()const { return isEDead_; }
 
 	void SetParent(const WorldTransform* parent) { eWorld_.SetParent(parent); }
 private:

@@ -24,7 +24,7 @@ void Player::Initialize() {
 	input_ = Input::GetInstance();
 	
 	collider_ = new BoxColider();
-	collider_->Initialize(&world_);
+	collider_->Initialize(&weaponW_);
 
 	model_ = Model::CreateFromOBJ("ALPlayer");
 	model_->IsEnableShader(false);
@@ -123,10 +123,7 @@ void Player::Update() {
 	}
 
 
-	//落ちたら初期位置へ
-	if (world_.translate_.y <= -50) {
-		SetStartPosition();
-	}
+	
 
 	world_.UpdateMatrix();
 
@@ -211,6 +208,15 @@ void Player::SetStartPosition() {
 	world_.SetParent();
 	stateRequest_ = PlayerState::kStay;
 	nowParent = 0;
+}
+
+bool Player::FallingCheck() {
+	//落ちたら初期位置へ
+	if (world_.translate_.y <= -50) {
+		SetStartPosition();
+		return true;
+	}
+	return false;
 }
 
 void Player::StayInitialize() {
@@ -301,7 +307,6 @@ void Player::JumpInitialize() {
 	velo_ = { 0.0f,jumpPower_,0.0f };
 }
 
-float CheckR_F_Y(const Vector2& v) { return std::atan2(v.x, v.y); }
 
 
 void Player::FallUpdate() {
@@ -384,7 +389,8 @@ void Player::StayUpdate() {
 			moveVelo.y = 0;
 		}
 	}
-	else {
+	else { 
+
 		if (input_->PushKey(DIK_UP)) {
 			moveVelo.z += spd;
 			ismoveActive = true;

@@ -51,6 +51,8 @@ public:
 	
 	void DebugImGui(const char* name);
 	
+	const AABB& GetAABB()const { return aabb; }
+
 	//当たっていたら押し戻し処理
 	void Collision(const Collider& collider,Vector3&pushBackVelo );
 

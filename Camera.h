@@ -26,6 +26,8 @@ public:
 	void SetCameraFar(const float far);
 
 	void SetCameraFeaturedPos(const Vector3& pos) { CameraMotionSupport_.translate_ = pos; }
+
+	void SetCameraR_Y(float y) { CameraMotionSupport_.rotate_.y = y; }
 private:
 	//カメラ本体
 	WorldTransform mainCamera_;

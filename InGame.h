@@ -25,6 +25,9 @@ public:
 	void Finalize();
 private:
 
+
+	Input* input_ = Input::GetInstance();
+
 	Player* player_;
 
 
@@ -74,7 +77,10 @@ private:
 
 	void Collision();
 
-	Enemy*enemy_;
+
+	
+
+	std::list<Enemy*>enemies_;
 
 	/*
 	int eh;

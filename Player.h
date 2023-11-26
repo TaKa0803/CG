@@ -50,6 +50,11 @@ public:
 
 
 	bool IsStateATK() { if (pState_ == PlayerState::kATK) { return true; } else { return false; } }
+
+	bool FallingCheck();
+
+	const AABB& GetWeaponAABB() { return collider_->GetAABB(); }
+
 private:
 
 #pragma region 状態
@@ -195,7 +200,7 @@ private:
 
 
 	Vector3 weaponStR[maxComboNum_] = { {0.0f,0.0f,0.0f},{1.5f,-1.5f,0.0f},{1.5f,1.5f,0.0f} };
-	Vector3 weaponEndR[maxComboNum_] = { { 1.5f,0.0f,0.0f },{1.5f,1.5f,0.0f},{1.5f,-1.5f,0.0f} };
+	Vector3 weaponEndR[maxComboNum_] = { { 1.9f,0.0f,0.0f },{1.5f,1.5f,0.0f},{1.5f,-1.5f,0.0f} };
 
 	
 	

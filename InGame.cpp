@@ -59,16 +59,21 @@ void InGame::Initialize() {
 	WorldTransform world;
 	world.translate_.x = -2;
 
-	enemy_ =new Enemy();
+	Enemy* enemy_ =new Enemy();
 	enemy_->Initialize(world);
 	enemy_->SetParent(&planeTrans2_);
+
+	enemies_.push_back(enemy_);
 
 
 	lockOn_ = new LockOn();
 	lockOn_->Initialize();
+	lockOn_->SetBase(&player_->GetWorld());
 }
 
 void InGame::Update() {
+
+
 #ifdef _DEBUG
 	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
 	ImGui::BeginMenuBar();
@@ -101,7 +106,9 @@ void InGame::Update() {
 
 #pragma endregion
 
-	enemy_->Update();
+	for (Enemy* enemy : enemies_) {
+		enemy->Update();
+	}
 
 	player_->Update();
 
@@ -123,8 +130,11 @@ void InGame::Update() {
 	goalT_.UpdateMatrix();
 #pragma endregion
 
+	if (input_->TriggerKey(DIK_V) ){
+		lockOn_->LockOnEnemy(enemies_, &camera);
+	}
 
-	lockOn_->Update();
+	lockOn_->Update(&camera);
 
 	Collision();
 
@@ -144,8 +154,9 @@ void InGame::Draw() {
 
 	skydome_->Draw(skydomeTrans_.matWorld_, camera.GetViewProjectionMatrix(), skydomeTex);
 
-	enemy_->Draw(camera.GetViewProjectionMatrix());
-
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw(camera.GetViewProjectionMatrix());
+	}
 	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
 
 	lockOn_->Draw();
@@ -154,7 +165,10 @@ void InGame::Finalize() {
 
 	delete player_;
 
-	delete enemy_;
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+		enemy = nullptr;
+	}
 
 	delete plane1;
 	delete plane2;
@@ -218,11 +232,7 @@ void InGame::Collision() {
 		.maxV{GetgoalMat().x + gSize_,GetgoalMat().y + gSize_,GetgoalMat().z + gSize_}
 	};
 
-	AABB ene = {
-		.minV{enemy_->GetWorld().GetMatWorldTranslate().x - enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().y - enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().z - enemy_->GetSize()},
-		.maxV{enemy_->GetWorld().GetMatWorldTranslate().x + enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().y + enemy_->GetSize(),enemy_->GetWorld().GetMatWorldTranslate().z + enemy_->GetSize()}
-	};
-
+	
 	bool ishit = false;
 
 
@@ -243,29 +253,65 @@ void InGame::Collision() {
 		player_->NoCollision();
 	}
 
+
+	for (Enemy* enemy : enemies_) {
+		AABB ene = {
+			.minV{enemy->GetWorld().GetMatWorldTranslate().x - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z - enemy->GetSize()},
+			.maxV{enemy->GetWorld().GetMatWorldTranslate().x + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z + enemy->GetSize()}
+		};
+
+		
+
+		//敵
+		if (InCollision(pAABB, ene) && !enemy->GetDead()) {
+			player_->SetStartPosition();
+
+			enemy->SetDead(false);
+		}
+
+		if (player_->IsStateATK()) {
+			if (InCollision(player_->GetWeaponAABB(), ene)) {
+				enemy->SetDead(true);
+			}
+		}
+	}
+
 	//ゴール
 	if (InCollision(pAABB, goa)) {
 		player_->SetStartPosition();
-		enemy_->SetDead(false);
+		for (Enemy* enemy : enemies_) {
+			enemy->SetDead(false);
+		}
 	}
-
-	//敵
-	if (InCollision(pAABB, ene) && !enemy_->GetDead()) {
-		player_->SetStartPosition();
-		
-		enemy_->SetDead(false);
-	}
-
 
 	//武器とのコリジョン
 	if (player_->IsStateATK()) {
 		Vector3 weaponPos = player_->GetWeaponWorld().GetMatWorldTranslate();
-		Vector3 ePos = enemy_->GetWorld().GetMatWorldTranslate();
+		
+		for (Enemy* enemy : enemies_) {
 
-		float hlong = Length(weaponPos- ePos);
+			/*
+			Vector3 ePos = enemy->GetWorld().GetMatWorldTranslate();
 
-		if (hlong <= player_->GetWeaponRadius() + enemy_->GetSize()) {
-			enemy_->SetDead(true);
+			float hlong = Length(weaponPos - ePos);
+
+			if (hlong <= player_->GetWeaponRadius() + enemy->GetSize()) {
+				enemy->SetDead(true);
+			}
+			*/
+
+			AABB ene = {
+			.minV{enemy->GetWorld().GetMatWorldTranslate().x - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z - enemy->GetSize()},
+			.maxV{enemy->GetWorld().GetMatWorldTranslate().x + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z + enemy->GetSize()}
+			};
+			
+
+		}
+	}
+
+	if (player_->FallingCheck()) {
+		for (Enemy* enemy : enemies_) {
+			enemy->SetDead(false);
 		}
 	}
 

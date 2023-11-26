@@ -24,6 +24,7 @@ public:
 
 	void Draw(int texture=-1);
 
+	void SetPosition(Vector2 pos) { pos_.x = pos.x; pos_.y = pos.y; }
 	
 	void SetUV_T(Matrix4x4 uvT){ materialData_->uvTransform = uvT; }
 	

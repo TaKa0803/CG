@@ -1,5 +1,6 @@
 #pragma once
 #include"Vector3.h"
+#include"Vector2.h"
 
 struct Matrix4x4 {
 	float m[4][4];
@@ -86,6 +87,7 @@ struct Matrix4x4 {
 
 };
 
+float CheckR_F_Y(const Vector2& v);
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
@@ -103,6 +105,8 @@ Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float botto
 Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, float minDepth, float maxDepth);
 
 
+//座標変換
+Vector3 Transform(const Vector3& v, const Matrix4x4& m);
 
 
 

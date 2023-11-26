@@ -3,6 +3,8 @@
 #include"imgui.h"
 
 
+//Enemy::Enemy() {}
+
 Enemy::~Enemy() {
 	delete ehead_;
 	delete eLA_;
@@ -38,16 +40,16 @@ void Enemy::Update() {
 		ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
 		ImGui::EndMenu();
 	}
-	float mtheta = 1.0f / 60.0f * 3.14f;
-	eWorld_.rotate_.y += mtheta;
+	//float mtheta = 1.0f / 60.0f * 3.14f;
+	//eWorld_.rotate_.y += mtheta;
 
-	Vector3 move = { 0, 0, 0.1f };
+	//Vector3 move = { 0, 0, 0.1f };
 
-	move = TransformNormal(move, eWorld_.matWorld_);
+	//move = TransformNormal(move, eWorld_.matWorld_);
 	// 光度さけす
-	move.y = 0;
+	//move.y = 0;
 
-	eWorld_.translate_ += move;
+	//eWorld_.translate_ += move;
 
 
 
