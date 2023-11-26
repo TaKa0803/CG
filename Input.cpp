@@ -41,6 +41,8 @@ void Input::Update()
 
 	memcpy(preKey, key, sizeof(key));
 
+	preJoyState_=joyState;
+
 	//キーボード情報取得開始
 	keyboad->Acquire();
 
@@ -48,7 +50,10 @@ void Input::Update()
 	keyboad->GetDeviceState(sizeof(key), key);
 
 
-	XInputGetState(0, &joyState);
+	DWORD res= XInputGetState(0, &joyState);
+	if (res != ERROR_SUCCESS) {
+		assert(false);
+	}
 }
 
 bool Input::PushKey(BYTE keyNum) {
@@ -116,4 +121,130 @@ Vector2 Input::GetjoyStickL() {
 	}
 
 	return r;
+}
+
+bool Input::IsPushButton(kPadButton kButton) {
+
+	switch (kButton) {
+	case kButtonA:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+			return true;
+		}
+		break;
+	case kButtonB:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+			return true;
+		}
+		break;
+	case kButtonX:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+			return true;
+		}
+		break;
+	case kButtonY:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_Y) {
+			return true;
+		}
+		break;
+	case kLeftTrigger:
+		if (joyState.Gamepad.bLeftTrigger) {
+			return true;
+		}
+		break;
+	case kRightTrigger:
+		if (joyState.Gamepad.bRightTrigger) {
+			return true;
+		}
+		break;
+
+	case kUp:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) {
+			return true;
+		}
+		break;
+	case kDown:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+			return true;
+		}
+		break;
+	case kLeft:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+			return true;
+		}
+		break;
+	case kRight:
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+			return true;
+		}
+		break;
+	default:
+	
+		break;
+	}
+
+	
+	return false;
+}
+
+bool Input::IsTriggerButton(kPadButton kButton) {
+	if (IsPushButton(kButton)) {
+		switch (kButton) {
+		case kButtonA:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+				return false;
+			}
+			break;
+		case kButtonB:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+				return false;
+			}
+			break;
+		case kButtonX:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
+				return false;
+			}
+			break;
+		case kButtonY:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_Y) {
+				return false;
+			}
+			break;
+		case kLeftTrigger:
+			if (preJoyState_.Gamepad.bLeftTrigger) {
+				return false;
+			}
+			break;
+		case kRightTrigger:
+			if (preJoyState_.Gamepad.bRightTrigger) {
+				return false;
+			}
+			break;
+
+		case kUp:
+			if (preJoyState_.Gamepad.wButtons& XINPUT_GAMEPAD_DPAD_UP) {
+				return false;
+			}
+			break;
+		case kDown:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) {
+				return false;
+			}
+			break;
+		case kLeft:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) {
+				return false;
+			}
+			break;
+		case kRight:
+			if (preJoyState_.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) {
+				return false;
+			}
+			break;
+		default:
+			break;
+		}
+
+		return true;
+	}
+	return false;
 }

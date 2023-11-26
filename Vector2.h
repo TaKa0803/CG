@@ -18,6 +18,10 @@ public:
 
 };
 
+// 長さ
+float Length(const Vector2& v);
+
+Vector2 Normalize(const Vector2& v);
 
 
 

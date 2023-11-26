@@ -20,6 +20,7 @@ public:
 
 	const Matrix4x4& GetCameraDirectionToFace()const { return mainCamera_.matWorld_; }
 
+	float GetPCameraR_Y() { return CameraMotionSupport_.rotate_.y; }
 public:
 	void SetTarget(const WorldTransform* parent);
 

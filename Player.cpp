@@ -25,6 +25,8 @@ void Player::Initialize() {
 	
 	collider_ = new BoxColider();
 	collider_->Initialize(&weaponW_);
+	collider_->SetTranslate({ 0,8,0 });
+	collider_->SetScale({ 1,6,1 });
 
 	model_ = Model::CreateFromOBJ("ALPlayer");
 	model_->IsEnableShader(false);
@@ -300,6 +302,21 @@ void Player::DashInitialize() {
 
 void Player::ATKInitialize() {
 	workATK_ = { 0,0,0,false };
+
+	if (lockOn_->GetTarget() != nullptr) {
+
+		Vector3 epos = lockOn_->GetTarget()->GetWorld().GetMatWorldTranslate();
+
+		Vector3 pPos = world_.GetMatWorldTranslate();
+
+		Vector3 velo = epos - pPos;
+
+		float yrotate = CheckR_F_Y(Vector2(velo.x, velo.z));
+
+		world_.rotate_.y = yrotate;
+
+
+	}
 }
 
 void Player::JumpInitialize() {
@@ -384,9 +401,12 @@ void Player::StayUpdate() {
 			moveVelo = Normalize(moveVelo);
 			moveVelo *= spd;
 
+			/*
 			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
-			moveVelo = TransformNormal(moveVelo, C_Affine);
+			moveVelo = TransformNormal(moveVelo,C_Affine);
 			moveVelo.y = 0;
+			*/
+			ismoveActive = true;
 		}
 	}
 	else { 
@@ -407,8 +427,11 @@ void Player::StayUpdate() {
 			moveVelo.x -= spd;
 			ismoveActive = true;
 		}
+
+
 	}
 
+	//プレイヤー傾き処理
 	if (ismoveActive) {
 		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
 		moveVelo = TransformNormal(moveVelo, C_Affine);
@@ -426,14 +449,14 @@ void Player::StayUpdate() {
 #pragma endregion
 
 	//ダッシュ処理
-	if (input_->TriggerKey(DIK_LSHIFT)) {
+	if (/*input_->TriggerKey(DIK_LSHIFT)||*/input_->IsTriggerButton(kButtonX)) {
 		stateRequest_ = PlayerState::kDash;
 	}
 
-	if (input_->TriggerKey(DIK_X)) {
+	if (/*input_->TriggerKey(DIK_TAB) ||*/ input_->IsTriggerButton(kButtonB)) {
 		stateRequest_ = PlayerState::kATK;
 	}
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (/*input_->TriggerKey(DIK_SPACE) || */input_->IsTriggerButton(kButtonA)) {
 		stateRequest_ = PlayerState::kjump;
 	}
 
@@ -468,11 +491,26 @@ void Player::NextATK() {
 
 void Player::ATKUpdate() {
 
+	//ターゲットに攻撃向ける処理
+	if (lockOn_->GetTarget() != nullptr) {
+
+		Vector3 epos = lockOn_->GetTarget()->GetWorld().GetMatWorldTranslate();
+
+		Vector3 pPos = world_.GetMatWorldTranslate();
+
+		Vector3 velo = epos - pPos;
+
+		float yrotate = CheckR_F_Y(Vector2(velo.x, velo.z));
+
+		world_.rotate_.y = yrotate;
+	}
+
+
 	//コンボ数が最大になるまで処理
 	if (workATK_.comboIndex != maxComboNum_) {
 
 		//攻撃ボタントリガーで次へのフラグON
-		if (input_->TriggerKey(DIK_X)) {
+		if (input_->IsTriggerButton(kButtonB)) {
 			workATK_.comboNext = true;
 		}
 

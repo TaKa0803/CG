@@ -6,15 +6,109 @@ LockOn::~LockOn() {
 }
 
 void LockOn::Initialize() {
+	input_ = Input::GetInstance();
+
 	int texture = TextureManager::LoadTex("resources/lockOn.png");
 	lockOn_ = Sprite::Create(texture,{64,64});
 }
 
 
-void LockOn::Update(Camera*camera) {
+void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 	//マークの処理
 	if (target_) {
+
+
+#pragma region ターゲット変更
+		if (input_->IsTriggerButton(kLeft)) {
+			std::list<std::pair<float, Enemy*>>targetE_;
+
+			//ロックオンする
+			for (Enemy* enemy : enemies) {
+				//座標取得
+				Vector3 pos = enemy->GetWorld().GetMatWorldTranslate();
+
+				//ベース位置取得
+				Vector3 Bpos = base_->GetMatWorldTranslate();
+
+				//向きベクトル取得
+				Vector3 muki = pos - Bpos;
+				//長さ計算
+				float length = Length(muki);
+
+				//プレイヤーの向きベクトル計算
+				Vector3 offset = { 0,0,1.0f };
+				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = Normalize(offset);
+				//回転量計算
+				float yrotate = CheckR_F_Y(Vector2(offset.x, offset.z));
+
+				muki = Normalize(muki);
+				float erotate = CheckR_F_Y(Vector2(muki.x, muki.z));
+
+				if (erotate <= yrotate && erotate >= yrotate - angleRange_) {
+					if (length >= minDistance_ && length <= maxDistance_) {
+
+						if (target_ != enemy) {
+							std::pair<float, Enemy*>ans = std::make_pair(length, enemy);
+							targetE_.push_back(ans);
+						}
+					}
+				}
+			}
+
+			if (targetE_.size() != 0) {
+				targetE_.sort([](auto& pair1, auto& pair2) {return pair1.first < pair2.first; });
+				target_ = targetE_.front().second;
+
+			}
+		}
+		if (input_->IsTriggerButton(kRight)) {
+			std::list<std::pair<float, Enemy*>>targetE_;
+
+			//ロックオンする
+			for (Enemy* enemy : enemies) {
+				//座標取得
+				Vector3 pos = enemy->GetWorld().GetMatWorldTranslate();
+
+				//ベース位置取得
+				Vector3 Bpos = base_->GetMatWorldTranslate();
+
+				//向きベクトル取得
+				Vector3 muki = pos - Bpos;
+				//長さ計算
+				float length = Length(muki);
+
+				//プレイヤーの向きベクトル計算
+				Vector3 offset = { 0,0,1.0f };
+				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = Normalize(offset);
+				//回転量計算
+				float yrotate = CheckR_F_Y(Vector2(offset.x, offset.z));
+
+				muki = Normalize(muki);
+				float erotate = CheckR_F_Y(Vector2(muki.x, muki.z));
+
+				if (erotate <= yrotate + angleRange_ && erotate >= yrotate) {
+					if (length >= minDistance_ && length <= maxDistance_) {
+						if (target_ != enemy) {
+							std::pair<float, Enemy*>ans = std::make_pair(length, enemy);
+							targetE_.push_back(ans);
+						}
+					}
+				}
+			}
+
+			if (targetE_.size() != 0) {
+				targetE_.sort([](auto& pair1, auto& pair2) {return pair1.first < pair2.first; });
+				target_ = targetE_.front().second;
+
+			}
+		}
+#pragma endregion
+
+
+
 
 		Vector3 pos = target_->GetWorld().GetMatWorldTranslate();
 
@@ -57,6 +151,11 @@ void LockOn::Update(Camera*camera) {
 
 		//範囲外に移動したときキャンセル
 		if (length <= minDistance_ && length >= maxDistance_) {
+			target_ = nullptr;
+		}
+
+		//死んだらキャンセル
+		if (target_->GetDead()) {
 			target_ = nullptr;
 		}
 #pragma endregion
@@ -108,8 +207,10 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 
 			if (erotate <= yrotate + angleRange_ && erotate >= yrotate - angleRange_) {
 				if (length >= minDistance_ && length <= maxDistance_) {
-					std::pair<float, Enemy*>ans = std::make_pair(length, enemy);
-					targetE_.push_back(ans);
+					if (!enemy->GetDead()) {
+						std::pair<float, Enemy*>ans = std::make_pair(length, enemy);
+						targetE_.push_back(ans);
+					}
 				}
 			}
 		}
@@ -122,4 +223,8 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 	}
 
 
+}
+
+void LockOn::Reset() {
+	target_ = nullptr;
 }

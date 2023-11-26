@@ -1,7 +1,7 @@
 #pragma once
 
 #include"Sprite.h"
-
+#include"Input.h"
 #include"Enemy.h"
 #include<numbers>
 #include<list>
@@ -15,16 +15,20 @@ public:
 
 	void Initialize();
 
-	void Update(Camera*camera);
+	void Update(const std::list<Enemy*>& enemies,Camera*camera);
 
 	void Draw();
 
 	void LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera);
 
 	void SetBase(const WorldTransform* base) { base_ = base; }
+
+	void Reset();
+
+	const Enemy* GetTarget()const { return target_; }
 private:
-	//ロック音対象を選択
-	void SerchEnemy();
+	
+	Input* input_ = nullptr;
 
 	//画像
 	Sprite* lockOn_;
@@ -37,11 +41,11 @@ private:
 	float kDigreeToRadian = ((float)std::numbers::pi / 180.0f);
 
 	//最小距離
-	float minDistance_ = 1.0f;
+	float minDistance_ = 5.0f;
 	//最大距離
 	float maxDistance_ = 30.0f;
 
-	float angleRange_ = 40.0f * kDigreeToRadian;
+	float angleRange_ = 45.0f * kDigreeToRadian;
 
 
 	

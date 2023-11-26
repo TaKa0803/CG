@@ -5,6 +5,8 @@
 #include"Camera.h"
 #include"BoxColider.h"
 
+#include"LockOn.h"
+
 #include<optional>
 #include<array>
 class Player {
@@ -29,6 +31,9 @@ public:
 	const float GetWeaponRadius() { return WRadius_; }
 
 	int GetNowParent() { return nowParent; }
+
+
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 	void SetCamera(const Camera& camera) { camera_ = &camera; }
 
@@ -86,6 +91,8 @@ private:
 private:
 
 	Input* input_ = nullptr;
+
+	const LockOn* lockOn_;
 
 	enum class PlayerState {
 		kStay,

@@ -176,6 +176,9 @@
     <ClCompile Include="LockOn.cpp">
       <Filter>LockOn</Filter>
     </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>Engine\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">

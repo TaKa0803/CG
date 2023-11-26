@@ -60,6 +60,8 @@ public:
 
 public://ゲッター
 #pragma region ゲッター
+	void SetTranslate(const Vector3& pos) { world_.translate_ = pos; }
+	void SetScale(const Vector3& scale) { world_.scale_ = scale; }
 #pragma endregion
 
 

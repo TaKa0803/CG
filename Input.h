@@ -8,7 +8,19 @@
 #include"Vector2.h"
 #include"WinApp.h"
 
+enum kPadButton {
+	kButtonA,
+	kButtonB,
+	kButtonX,
+	kButtonY,
+	kLeftTrigger,
+	kRightTrigger,
 
+	kUp,
+	kDown,
+	kLeft,
+	kRight
+};
 
 class Input {
 public:
@@ -33,6 +45,10 @@ public:
 
 	Vector2 GetjoyStickL();
 
+	bool IsPushButton(kPadButton kButton);
+
+	bool IsTriggerButton(kPadButton kButton);
+
 	void SetDeadLine(float deadLine) { deadLine_ = deadLine; }
 private:
 
@@ -44,6 +60,8 @@ private:
 	BYTE preKey[256] = {};
 
 	XINPUT_STATE joyState;
+
+	XINPUT_STATE preJoyState_;
 	//デッドライン
 	float deadLine_ = 0.1f;
 };

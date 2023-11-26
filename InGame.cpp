@@ -56,19 +56,52 @@ void InGame::Initialize() {
 
 	goalT_.translate_.y = 2;
 
+
+#pragma region 敵生成
 	WorldTransform world;
 	world.translate_.x = -2;
-
-	Enemy* enemy_ =new Enemy();
+	Enemy* enemy_ = new Enemy();
 	enemy_->Initialize(world);
 	enemy_->SetParent(&planeTrans2_);
-
 	enemies_.push_back(enemy_);
+
+	WorldTransform world2;
+	world2.translate_.x = -8;
+	Enemy* enem2_ = new Enemy();
+	enem2_->Initialize(world2);
+	enem2_->SetParent(&planeTrans2_);
+	enemies_.push_back(enem2_);
+
+	WorldTransform world3;
+	world3.translate_.x = 4;
+	Enemy* enem3_ = new Enemy();
+	enem3_->Initialize(world3);
+	enem3_->SetParent(&planeTrans2_);
+	enemies_.push_back(enem3_);
+
+	WorldTransform world4;
+	world4.translate_.x = -8;
+	Enemy* enemy4_ = new Enemy();
+	enemy4_->Initialize(world4);
+	enemy4_->SetParent(&planeTrans3_);
+	enemies_.push_back(enemy4_);
+
+	WorldTransform world5;
+	world5.translate_.x = 4;
+	Enemy* enemy5_ = new Enemy();
+	enemy5_->Initialize(world5);
+	enemy5_->SetParent(&planeTrans3_);
+	enemies_.push_back(enemy5_);
+
+#pragma endregion
+
+	
 
 
 	lockOn_ = new LockOn();
 	lockOn_->Initialize();
 	lockOn_->SetBase(&player_->GetWorld());
+	player_->SetLockOn(lockOn_);
 }
 
 void InGame::Update() {
@@ -110,10 +143,23 @@ void InGame::Update() {
 		enemy->Update();
 	}
 
+	camera.DrawDebugWindow("Camera");
+	if (input_->IsControllerActive()) {
+		Vector2 nyu = input_->GetjoyStickR();
+
+		nyu = Normalize(nyu);
+
+		nyu.x = nyu.x * (1.0f / 60.0f) * (float)std::numbers::pi;
+
+		float c = camera.GetPCameraR_Y();
+		camera.SetCameraR_Y(c + nyu.x);
+
+	}
+	camera.Update();
+
 	player_->Update();
 
-	camera.DrawDebugWindow("Camera");
-	camera.Update();
+	
 
 	player_->DashCameraUpdate(camera);
 
@@ -130,11 +176,11 @@ void InGame::Update() {
 	goalT_.UpdateMatrix();
 #pragma endregion
 
-	if (input_->TriggerKey(DIK_V) ){
+	if (/*input_->TriggerKey(DIK_V) */input_->IsTriggerButton(kRightTrigger)){
 		lockOn_->LockOnEnemy(enemies_, &camera);
 	}
 
-	lockOn_->Update(&camera);
+	lockOn_->Update(enemies_,&camera);
 
 	Collision();
 
@@ -267,6 +313,9 @@ void InGame::Collision() {
 			player_->SetStartPosition();
 
 			enemy->SetDead(false);
+
+			lockOn_->Reset();
+			camera.SetCameraR_Y(0);
 		}
 
 		if (player_->IsStateATK()) {
@@ -282,6 +331,8 @@ void InGame::Collision() {
 		for (Enemy* enemy : enemies_) {
 			enemy->SetDead(false);
 		}
+		lockOn_->Reset();
+		camera.SetCameraR_Y(0);
 	}
 
 	//武器とのコリジョン
@@ -313,6 +364,8 @@ void InGame::Collision() {
 		for (Enemy* enemy : enemies_) {
 			enemy->SetDead(false);
 		}
+		lockOn_->Reset();
+		camera.SetCameraR_Y(0);
 	}
 
 }
