@@ -145,13 +145,17 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 		Vector3 Bpos = base_->GetMatWorldTranslate();
 
 		//向きベクトル取得
-		Vector3 muki = pos - Bpos;
+		Vector3 muki = tpos - Bpos;
 		//長さ計算
 		float length = Length(muki);
 
 		//範囲外に移動したときキャンセル
-		if (length <= minDistance_ && length >= maxDistance_) {
+		if (length >= minDistance_ && length <= maxDistance_) {
+			//範囲内にあるとき
+		}
+		else {
 			target_ = nullptr;
+			return;
 		}
 
 		//死んだらキャンセル

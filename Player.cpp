@@ -168,7 +168,22 @@ void Player::Draw() {
 		weaponM_->Draw(weaponW_.matWorld_, camera_->GetViewProjectionMatrix(), weaponTex_);
 	}
 
-	collider_->Draw(camera_->GetViewProjectionMatrix());
+	//collider_->Draw(camera_->GetViewProjectionMatrix());
+}
+
+bool Player::SetHitEnemy(int enemy) {
+	
+	//すでに当たっていたらfalse
+	for (int ene : hitenemies_) {
+		if (ene == enemy) {
+			return false;
+		}
+	}
+
+	//当たっていなかったのでいれてtrue
+	hitenemies_.push_back(enemy);
+	return true;
+
 }
 
 void Player::OnCollision(int hitparent, const WorldTransform* parent) {
@@ -301,6 +316,9 @@ void Player::DashInitialize() {
 }
 
 void Player::ATKInitialize() {
+
+	hitenemies_.clear();
+
 	workATK_ = { 0,0,0,false };
 
 	if (lockOn_->GetTarget() != nullptr) {
@@ -453,7 +471,7 @@ void Player::StayUpdate() {
 		stateRequest_ = PlayerState::kDash;
 	}
 
-	if (/*input_->TriggerKey(DIK_TAB) ||*/ input_->IsTriggerButton(kButtonB)) {
+	if (input_->TriggerKey(DIK_V) || input_->IsTriggerButton(kButtonB)) {
 		stateRequest_ = PlayerState::kATK;
 	}
 	if (/*input_->TriggerKey(DIK_SPACE) || */input_->IsTriggerButton(kButtonA)) {
@@ -483,6 +501,7 @@ void Player::NextATK() {
 
 		workATK_.attackParameter = 0;
 		workATK_.inComboPhase = 0;
+		hitenemies_.clear();
 	}
 	else {
 		workATK_.comboIndex = maxComboNum_;
@@ -564,6 +583,7 @@ void Player::ATKUpdate() {
 			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].anicipationTime) {
 				workATK_.inComboPhase++;
 				workATK_.attackParameter = 0;
+				
 			}
 			break;
 
@@ -571,6 +591,7 @@ void Player::ATKUpdate() {
 			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].chargeTime) {
 				workATK_.inComboPhase++;
 				workATK_.attackParameter = 0;
+				
 			}
 			break;
 
@@ -578,6 +599,7 @@ void Player::ATKUpdate() {
 			if (++workATK_.attackParameter >= kConstATKs_[workATK_.comboIndex].swingTime) {
 				workATK_.inComboPhase++;
 				workATK_.attackParameter = 0;
+				
 			}
 			break;
 

@@ -81,6 +81,15 @@ IDxcBlob* CompileShader(
 
 
 
+GraphicsSystem::~GraphicsSystem() {
+	for (int i = 0; i < static_cast<int>(FillMode::kCountOfFillMode); i++) {
+
+		for (int h = 0; h < static_cast<int>(BlendMode::kCountOfBlendMode); h++) {
+			graphicsPipelineState[i][h]->Release();
+		}
+	}
+}
+
 void GraphicsSystem::Initialize(ID3D12Device* device)
 {
 
@@ -347,7 +356,7 @@ void GraphicsSystem::PreDraw(ID3D12GraphicsCommandList* commandList)
 	
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
-	commandList->SetPipelineState(graphicsPipelineState[static_cast<int>(fillMode_)][static_cast<int>(blendMode_)].Get());
+	commandList->SetPipelineState(graphicsPipelineState[static_cast<int>(fillMode_)][static_cast<int>(blendMode_)]);
 }
 
 void GraphicsSystem::SetBlendMode(BlendMode blend) {

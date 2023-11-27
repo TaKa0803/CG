@@ -102,6 +102,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="BoxColider.cpp" />
     <ClCompile Include="DebugScene.cpp" />
     <ClCompile Include="DirectXFunc.cpp" />
+    <ClCompile Include="EffectHit.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="externals\Imgui\imgui.cpp" />
     <ClCompile Include="externals\Imgui\imgui_demo.cpp" />
@@ -161,6 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="BoxColider.h" />
     <ClInclude Include="DebugScene.h" />
     <ClInclude Include="DirectXFunc.h" />
+    <ClInclude Include="EffectHit.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="externals\Imgui\imconfig.h" />
     <ClInclude Include="externals\Imgui\imgui.h" />

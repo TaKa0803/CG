@@ -36,6 +36,7 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 float CheckR_F_Y(const Vector2& v) { return std::atan2(v.x, v.y); }
 
 
+
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
 	return {
 		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0],

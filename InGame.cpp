@@ -21,6 +21,8 @@ bool InCollision(const AABB& a, const AABB& b) {
 
 void InGame::Initialize() {
 
+	input_ = Input::GetInstance();
+
 	player_ = new Player();
 	player_->Initialize();
 
@@ -61,36 +63,41 @@ void InGame::Initialize() {
 	WorldTransform world;
 	world.translate_.x = -2;
 	Enemy* enemy_ = new Enemy();
-	enemy_->Initialize(world);
+	enemy_->Initialize(0,world);
 	enemy_->SetParent(&planeTrans2_);
+	enemy_->SetStartData();
 	enemies_.push_back(enemy_);
 
 	WorldTransform world2;
 	world2.translate_.x = -8;
 	Enemy* enem2_ = new Enemy();
-	enem2_->Initialize(world2);
+	enem2_->Initialize(1,world2);
 	enem2_->SetParent(&planeTrans2_);
+	enem2_->SetStartData();
 	enemies_.push_back(enem2_);
 
 	WorldTransform world3;
 	world3.translate_.x = 4;
 	Enemy* enem3_ = new Enemy();
-	enem3_->Initialize(world3);
+	enem3_->Initialize(2,world3);
 	enem3_->SetParent(&planeTrans2_);
+	enem3_->SetStartData();
 	enemies_.push_back(enem3_);
 
 	WorldTransform world4;
 	world4.translate_.x = -8;
 	Enemy* enemy4_ = new Enemy();
-	enemy4_->Initialize(world4);
+	enemy4_->Initialize(3,world4);
 	enemy4_->SetParent(&planeTrans3_);
+	enemy4_->SetStartData();
 	enemies_.push_back(enemy4_);
 
 	WorldTransform world5;
 	world5.translate_.x = 4;
 	Enemy* enemy5_ = new Enemy();
-	enemy5_->Initialize(world5);
+	enemy5_->Initialize(4,world5);
 	enemy5_->SetParent(&planeTrans3_);
+	enemy5_->SetStartData();
 	enemies_.push_back(enemy5_);
 
 #pragma endregion
@@ -102,10 +109,16 @@ void InGame::Initialize() {
 	lockOn_->Initialize();
 	lockOn_->SetBase(&player_->GetWorld());
 	player_->SetLockOn(lockOn_);
+
+	effcts_ = EffectHit::GetInstance();
+
+	effcts_->Initialize(&camera);
+
+
 }
 
 void InGame::Update() {
-
+	effcts_->Update();
 
 #ifdef _DEBUG
 	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
@@ -140,6 +153,7 @@ void InGame::Update() {
 #pragma endregion
 
 	for (Enemy* enemy : enemies_) {
+		enemy->DeadAnimation(player_->GetWorld());
 		enemy->Update();
 	}
 
@@ -175,7 +189,7 @@ void InGame::Update() {
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
-
+	
 	if (/*input_->TriggerKey(DIK_V) */input_->IsTriggerButton(kRightTrigger)){
 		lockOn_->LockOnEnemy(enemies_, &camera);
 	}
@@ -191,6 +205,8 @@ void InGame::Update() {
 }
 
 void InGame::Draw() {
+
+	effcts_->Draw();
 
 	player_->Draw();
 
@@ -208,6 +224,8 @@ void InGame::Draw() {
 	lockOn_->Draw();
 }
 void InGame::Finalize() {
+
+	effcts_->Finalize();
 
 	delete player_;
 
@@ -306,22 +324,29 @@ void InGame::Collision() {
 			.maxV{enemy->GetWorld().GetMatWorldTranslate().x + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z + enemy->GetSize()}
 		};
 
-		
+		if (!enemy->GetDead()) {
 
-		//敵
-		if (InCollision(pAABB, ene) && !enemy->GetDead()) {
-			player_->SetStartPosition();
+			//敵
+			if (InCollision(pAABB, ene)) {
+				player_->SetStartPosition();
 
-			enemy->SetDead(false);
+				for (Enemy* e : enemies_) {
+					e->SetStart();
+				}
 
-			lockOn_->Reset();
-			camera.SetCameraR_Y(0);
-		}
-
-		if (player_->IsStateATK()) {
-			if (InCollision(player_->GetWeaponAABB(), ene)) {
-				enemy->SetDead(true);
+				lockOn_->Reset();
+				camera.SetCameraR_Y(0);
 			}
+
+			if (player_->IsStateATK()) {
+				if (InCollision(player_->GetWeaponAABB(), ene)) {
+					if (player_->SetHitEnemy(enemy->GetSikibetuNum())) {
+						enemy->CollisionATK();
+						effcts_->SpawnE(enemy->GetWorld(), 3);
+					}
+				}
+			}
+
 		}
 	}
 
@@ -329,7 +354,7 @@ void InGame::Collision() {
 	if (InCollision(pAABB, goa)) {
 		player_->SetStartPosition();
 		for (Enemy* enemy : enemies_) {
-			enemy->SetDead(false);
+			enemy->SetStart();
 		}
 		lockOn_->Reset();
 		camera.SetCameraR_Y(0);
@@ -362,7 +387,7 @@ void InGame::Collision() {
 
 	if (player_->FallingCheck()) {
 		for (Enemy* enemy : enemies_) {
-			enemy->SetDead(false);
+			enemy->SetStart();
 		}
 		lockOn_->Reset();
 		camera.SetCameraR_Y(0);

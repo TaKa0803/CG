@@ -13,6 +13,7 @@
 
 #include"LockOn.h"
 
+#include"EffectHit.h"
 
 class InGame {
 public:
@@ -128,4 +129,6 @@ private:
 
 
 	LockOn* lockOn_ = nullptr;
+
+	EffectHit* effcts_;
 };

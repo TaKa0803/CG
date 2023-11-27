@@ -52,7 +52,7 @@ void Input::Update()
 
 	DWORD res= XInputGetState(0, &joyState);
 	if (res != ERROR_SUCCESS) {
-		assert(false);
+		//assert(false);
 	}
 }
 

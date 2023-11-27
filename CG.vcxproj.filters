@@ -83,6 +83,9 @@
     <Filter Include="LockOn">
       <UniqueIdentifier>{ff0087b2-f60c-405a-ae48-3647c4cb644a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Effect">
+      <UniqueIdentifier>{fad6fc26-10a2-48cb-a91d-fcaf78b7a498}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -178,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="Vector2.cpp">
       <Filter>Engine\math</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectHit.cpp">
+      <Filter>Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="LockOn.h">
       <Filter>LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectHit.h">
+      <Filter>Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

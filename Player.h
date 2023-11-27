@@ -4,11 +4,13 @@
 #include"Input.h"
 #include"Camera.h"
 #include"BoxColider.h"
-
 #include"LockOn.h"
+#include"Enemy.h"
 
 #include<optional>
 #include<array>
+
+
 class Player {
 
 public:
@@ -46,6 +48,7 @@ public:
 		return pAABB;
 	};
 
+	bool SetHitEnemy(int enemy);
 
 	void OnCollision(int hitparent, const WorldTransform* parent);
 
@@ -226,7 +229,7 @@ private:
 
 #pragma endregion
 
-
+	std::vector<int>hitenemies_;
 	
 
 	const char* name = "Player";

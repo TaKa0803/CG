@@ -29,6 +29,14 @@ public:
 
 	static Input* GetInstance();
 
+private:
+	Input() = default;
+	~Input() = default;
+	Input(const Input& o) = delete;
+	const Input& operator=(const Input& o) = delete;
+
+public:
+
 	void Initialize(WinApp*winApp);
 
 	void Update();
@@ -55,13 +63,20 @@ private:
 	//キーボードデバイス
 	ComPtr<IDirectInputDevice8>keyboad;
 
+	//キー入力
 	BYTE key[256] = {};
 
+	//1フレーム前キー入力
 	BYTE preKey[256] = {};
 
+	//
+
+	//コントローラー入力
 	XINPUT_STATE joyState;
 
+	//1フレーム前コントローラー入力
 	XINPUT_STATE preJoyState_;
+
 	//デッドライン
 	float deadLine_ = 0.1f;
 };

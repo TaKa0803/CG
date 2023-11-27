@@ -16,10 +16,13 @@ public:
 
 	const Vector3& GetFeaturedPos()const { return CameraMotionSupport_.translate_; }
 
+	const WorldTransform& GetMainCamera()const { return mainCamera_; }
+
 	const Matrix4x4& GetViewProjectionMatrix() const { return viewProjection_; }
 
 	const Matrix4x4& GetCameraDirectionToFace()const { return mainCamera_.matWorld_; }
 
+	
 	float GetPCameraR_Y() { return CameraMotionSupport_.rotate_.y; }
 public:
 	void SetTarget(const WorldTransform* parent);

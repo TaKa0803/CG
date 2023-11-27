@@ -38,6 +38,8 @@ class GraphicsSystem
 public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	~GraphicsSystem();
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -68,7 +70,7 @@ private:
 	ComPtr<ID3D12RootSignature> rootSignature = nullptr;
 
 	//グラフィックパイプライン
-	ComPtr<ID3D12PipelineState> graphicsPipelineState[static_cast<int>(FillMode::kCountOfFillMode)][static_cast<int>(BlendMode::kCountOfBlendMode)] = { nullptr };
+	ID3D12PipelineState* graphicsPipelineState[static_cast<int>(FillMode::kCountOfFillMode)][static_cast<int>(BlendMode::kCountOfBlendMode)] = { nullptr };
 
 	//blendMode1
 	BlendMode blendMode_ = BlendMode::kNormal;
