@@ -225,8 +225,7 @@ private:
 	//上がる速度が0になる時間
 	float zeroSecond = 0.2f;
 
-
-
+	
 #pragma endregion
 
 	std::vector<int>hitenemies_;

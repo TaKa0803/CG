@@ -20,3 +20,7 @@ Vector2 Normalize(const Vector2& v) {
 	}
 	return{ 0,0 };
 }
+
+float Dot(const Vector2& v1, const Vector2& v2) {
+	return v1.x * v2.x + v1.y * v2.y;
+}

@@ -23,5 +23,5 @@ float Length(const Vector2& v);
 
 Vector2 Normalize(const Vector2& v);
 
-
+float Dot(const Vector2& v1, const Vector2& v2);
 

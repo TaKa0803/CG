@@ -26,6 +26,9 @@ public:
 	void Reset();
 
 	const Enemy* GetTarget()const { return target_; }
+
+	void SetAutoLockOn(bool set) { isAutoLockOn_ = set; }
+	const bool GetAutoLockOn()const { return isAutoLockOn_; }
 private:
 	
 	Input* input_ = nullptr;
@@ -47,6 +50,7 @@ private:
 
 	float angleRange_ = 45.0f * kDigreeToRadian;
 
+	bool isAutoLockOn_ = false;
 
 	
 };

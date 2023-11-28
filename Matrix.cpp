@@ -1,9 +1,30 @@
 #include"Matrix.h"
 #include<assert.h>
 #include<cmath>
+#include<numbers>
+
+// クロス積
+Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	return { v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x };
+}
 
 
 
+float GetYRotate(const Vector2& v) {
+	Vector2 offset = { 0,1 };
+
+	float dot = Dot(offset, v);
+
+	float leng =Length(offset)* Length(v);
+
+	float angle= std::acos(dot / leng);
+
+	if (v.x < 0) {
+		angle*=-1;
+	}
+	return angle;
+
+}
 
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 

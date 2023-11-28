@@ -98,6 +98,12 @@ void Enemy::SetStart() {
 	isFlying_ = false;
 	isDraw_ = true;
 
+	futtobiCount = 0;
+
+	ehead_->SetAlpha(1);
+	eLA_->SetAlpha(1);
+	eRA_->SetAlpha(1);
+
 	hp_ = 3;
 }
 

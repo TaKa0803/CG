@@ -329,7 +329,7 @@ void Player::ATKInitialize() {
 
 		Vector3 velo = epos - pPos;
 
-		float yrotate = CheckR_F_Y(Vector2(velo.x, velo.z));
+		float yrotate = GetYRotate(Vector2(velo.x, velo.z));
 
 		world_.rotate_.y = yrotate;
 
@@ -391,7 +391,7 @@ void Player::FallUpdate() {
 		moveVelo.y = 0;
 
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		world_.rotate_.y = CheckR_F_Y(newR);
+		world_.rotate_.y = GetYRotate(newR);
 	}
 
 	moveVelo.y += gravity;
@@ -457,9 +457,21 @@ void Player::StayUpdate() {
 
 		//プレイヤー回転
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		world_.rotate_.y = CheckR_F_Y(newR);
 
+		
+
+		world_.rotate_.y = GetYRotate(newR);
+
+		Vector2 offset = { 0,1 };
+
+		float dot = Dot(offset, newR);
+		ImGui::Begin("a");
+		ImGui::Text("%f", dot);
+		ImGui::End();
 	}
+
+
+
 	world_.translate_ += moveVelo;
 
 
@@ -519,7 +531,7 @@ void Player::ATKUpdate() {
 
 		Vector3 velo = epos - pPos;
 
-		float yrotate = CheckR_F_Y(Vector2(velo.x, velo.z));
+		float yrotate = GetYRotate(Vector2(velo.x, velo.z));
 
 		world_.rotate_.y = yrotate;
 	}
@@ -679,7 +691,7 @@ void Player::JumpUpdate() {
 
 		//プレイヤー回転
 		Vector2 newR = { moveVelo.x,moveVelo.z };
-		world_.rotate_.y = CheckR_F_Y(newR);
+		world_.rotate_.y = GetYRotate(newR);
 
 	}
 	world_.translate_ += moveVelo;

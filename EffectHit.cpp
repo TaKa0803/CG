@@ -65,11 +65,11 @@ void EffectHit::Update() {
 			
 			float xzleng = sqrtf(veloE2C.x * veloE2C.x + veloE2C.y * veloE2C.y);
 
-			float RX = CheckR_F_Y(Vector2(xzleng, veloE2C.y));
+			float RX = GetYRotate(Vector2(xzleng, veloE2C.y));
 			
 			effect.second.world_.rotate_.x = RX;
 
-			float RY = CheckR_F_Y(Vector2(veloE2C.x, veloE2C.z));
+			float RY = GetYRotate(Vector2(veloE2C.x, veloE2C.z));
 			effect.second.world_.rotate_.y = RY;
 
 #pragma endregion

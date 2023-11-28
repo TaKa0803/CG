@@ -190,6 +190,15 @@ void InGame::Update() {
 	goalT_.UpdateMatrix();
 #pragma endregion
 	
+	if (input_->IsTriggerButton(kButtonY)) {
+		if (lockOn_->GetAutoLockOn()) {
+			lockOn_->SetAutoLockOn(false);
+		}
+		else {
+			lockOn_->SetAutoLockOn(true);
+		}
+	}
+
 	if (/*input_->TriggerKey(DIK_V) */input_->IsTriggerButton(kRightTrigger)){
 		lockOn_->LockOnEnemy(enemies_, &camera);
 	}

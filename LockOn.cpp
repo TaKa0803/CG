@@ -15,6 +15,55 @@ void LockOn::Initialize() {
 
 void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
+	//オートロックオン状態の時
+	if (isAutoLockOn_) {
+		//ターゲットがないとき
+		if (!target_) {
+			std::list<std::pair<float, Enemy*>>targetE_;
+
+			//ロックオンする
+			for (Enemy* enemy : enemies) {
+				//座標取得
+				Vector3 pos = enemy->GetWorld().GetMatWorldTranslate();
+
+				//ベース位置取得
+				Vector3 Bpos = base_->GetMatWorldTranslate();
+
+				//向きベクトル取得
+				Vector3 muki = pos - Bpos;
+				//長さ計算
+				float length = Length(muki);
+
+				//プレイヤーの向きベクトル計算
+				Vector3 offset = { 0,0,1.0f };
+				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = Normalize(offset);
+				//回転量計算
+				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
+
+				muki = Normalize(muki);
+				float erotate = GetYRotate(Vector2(muki.x, muki.z));
+
+				if (erotate <= yrotate + angleRange_ && erotate >= yrotate - angleRange_) {
+					if (length >= minDistance_ && length <= maxDistance_) {
+						if (!enemy->GetDead()) {
+							std::pair<float, Enemy*>ans = std::make_pair(length, enemy);
+							targetE_.push_back(ans);
+						}
+					}
+				}
+			}
+
+			if (targetE_.size() != 0) {
+				targetE_.sort([](auto& pair1, auto& pair2) {return pair1.first < pair2.first; });
+				target_ = targetE_.front().second;
+
+			}
+		}
+	}
+
+
+
 	//マークの処理
 	if (target_) {
 
@@ -41,10 +90,10 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
 				offset = Normalize(offset);
 				//回転量計算
-				float yrotate = CheckR_F_Y(Vector2(offset.x, offset.z));
+				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
 
 				muki = Normalize(muki);
-				float erotate = CheckR_F_Y(Vector2(muki.x, muki.z));
+				float erotate = GetYRotate(Vector2(muki.x, muki.z));
 
 				if (erotate <= yrotate && erotate >= yrotate - angleRange_) {
 					if (length >= minDistance_ && length <= maxDistance_) {
@@ -84,10 +133,10 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
 				offset = Normalize(offset);
 				//回転量計算
-				float yrotate = CheckR_F_Y(Vector2(offset.x, offset.z));
+				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
 
 				muki = Normalize(muki);
-				float erotate = CheckR_F_Y(Vector2(muki.x, muki.z));
+				float erotate = GetYRotate(Vector2(muki.x, muki.z));
 
 				if (erotate <= yrotate + angleRange_ && erotate >= yrotate) {
 					if (length >= minDistance_ && length <= maxDistance_) {
@@ -133,7 +182,7 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 		Vector3 offset = tpos - Basepos;
 		offset = Normalize(offset);
 		//回転量計算
-		float yrotate = CheckR_F_Y(Vector2(offset.x, offset.z));
+		float yrotate = GetYRotate(Vector2(offset.x, offset.z));
 
 		camera->SetCameraR_Y(yrotate);
 #pragma endregion
@@ -204,10 +253,10 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 			offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
 			offset = Normalize(offset);
 			//回転量計算
-			float yrotate = CheckR_F_Y(Vector2(offset.x,offset.z));
+			float yrotate = GetYRotate(Vector2(offset.x,offset.z));
 
 			muki = Normalize(muki);
-			float erotate = CheckR_F_Y(Vector2(muki.x, muki.z));
+			float erotate = GetYRotate(Vector2(muki.x, muki.z));
 
 			if (erotate <= yrotate + angleRange_ && erotate >= yrotate - angleRange_) {
 				if (length >= minDistance_ && length <= maxDistance_) {

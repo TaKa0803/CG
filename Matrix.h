@@ -87,7 +87,10 @@ struct Matrix4x4 {
 
 };
 
-float CheckR_F_Y(const Vector2& v);
+// クロス積
+Vector3 Cross(const Vector3& v1, const Vector3& v2);
+
+float GetYRotate(const Vector2& v);
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
