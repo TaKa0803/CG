@@ -462,12 +462,8 @@ void Player::StayUpdate() {
 
 		world_.rotate_.y = GetYRotate(newR);
 
-		Vector2 offset = { 0,1 };
 
-		float dot = Dot(offset, newR);
-		ImGui::Begin("a");
-		ImGui::Text("%f", dot);
-		ImGui::End();
+
 	}
 
 
