@@ -6,10 +6,18 @@ SamplerState gSampler : register(s0);
 
 struct Material {
 	float32_t4 color;
+   
     int32_t enableLighting;
+    
     float32_t4x4 uvTransform;
+    
     int32_t enableTexture;
-    float32_t enableHalfLambert;
+    
+    int32_t enableHalfLambert;
+    
+    float32_t discardNum;
+    
+    
 };
 ConstantBuffer<Material> gMaterial : register(b1);
 
@@ -32,6 +40,10 @@ PixelShaderOutput main(VertexShaderOutput input){
     float4 transformedUV = mul(float32_t4(input.texcoord,0.0f, 1.0f), gMaterial.uvTransform);
     float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
    
+    //textureのα値が0の時Pixelを棄却
+    if (textureColor.a <= gMaterial.discardNum) {
+        discard;
+    }
     
     if (gMaterial.enableTexture != 0)
     {
@@ -55,7 +67,10 @@ PixelShaderOutput main(VertexShaderOutput input){
             //cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
         
         //計算
-        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+        //output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+    
+        output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+        output.color.a = gMaterial.color.a * textureColor.a;
     }
     else
     {

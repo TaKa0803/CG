@@ -4,9 +4,8 @@
 #include<d3d12.h>
 #include<dxgi1_6.h>
 #include<stdint.h>
-
 #include<wrl.h>
-
+#include<chrono>
 
 class DirectXFunc {
 public://シングルトンパターン
@@ -49,7 +48,9 @@ public:
 	/// </summary>
 	void KickCommand();
 
-
+	/// <summary>
+	/// 終了処理
+	/// </summary>
 	void Finalize();
 
 #pragma region ゲッター
@@ -65,8 +66,17 @@ public:
 	uint32_t GetSRVSize()const { return descriptorSizeSRV; }
 #pragma endregion
 
+private://メンバ関数
 
+	/// <summary>
+	/// FPS固定初期化
+	/// </summary>
+	void FixFPSInitialize();
 
+	/// <summary>
+	/// FPS固定更新
+	/// </summary>
+	void UpdateFixFPS();
 
 #pragma region クラス内関数
 	void D3D12Devicenitialize();
@@ -84,6 +94,7 @@ public:
 	void FenceInitialize();
 #pragma endregion
 
+private://メンバ変数
 
 	ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
 
@@ -137,6 +148,11 @@ public:
 	//バリア
 	D3D12_RESOURCE_BARRIER barrier_{};
 
+
+	//fps固定用
+	std::chrono::steady_clock::time_point reference_;
+
 	//開放チェックエラーで実行を止めるか	
 	const bool isAssertForgetReleasing_ = true;
+
 };

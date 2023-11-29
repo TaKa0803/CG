@@ -1,13 +1,19 @@
 #pragma once
 #include"Input.h"
+#include"Model.h"
 #include"struct.h"
-
+#include"WorldTransform.h"
 #include<iostream>
-#include"Matrix.h"
-#include"Vector3.h"
 
+#include"Camera.h"
 
+#include"Player.h"
 
+#include"Enemy.h"
+
+#include"LockOn.h"
+
+#include"EffectHit.h"
 
 class InGame {
 public:
@@ -19,7 +25,10 @@ public:
 
 	void Finalize();
 private:
-	
+
+
+	Input* input_ = Input::GetInstance();
+
 	Vector3 from0 = Normalize(Vector3{ 1.0f,0.7f,0.5f });
 	Vector3 to0 = -from0;
 
@@ -30,5 +39,6 @@ private:
 
 	Matrix4x4 rotateM2 = DirectionToDirection(from0, to0);
 	Matrix4x4 rotateM3 = DirectionToDirection(from1, to1);
+
 
 };

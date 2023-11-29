@@ -46,9 +46,10 @@ public:
 	void Draw(const Matrix4x4& WVP,const Matrix4x4& viewProjection, int texture);
 
 	/// <summary>
-	/// デバッグ用ImGuiの表示
+	/// Debug用ImGui表示
 	/// </summary>
-	void DebugParameter();
+	/// <param name="name"></param>
+	void DebugParameter(const char* name);
 
 	/// <summary>
 	/// シェーダー処理の切り替え
@@ -74,6 +75,11 @@ public:
 	/// </summary>
 	/// <param name="color">色</param>
 	void SetColor(Vector4 color) { materialData_->color = color; }
+
+	void SetAlpha(float alpha) { materialData_->color.w = alpha; }
+
+	void SetFillMode(FillMode fillmode) { grarphics_->SetFillMode(fillmode); }
+
 #pragma endregion
 
 	/// <summary>

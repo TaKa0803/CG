@@ -14,7 +14,7 @@
 #include<fstream>
 
 
-
+#pragma region 
 struct MaterialData {
 	std::string textureFilePath;
 };
@@ -137,6 +137,10 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 #pragma endregion
 }
 
+#pragma endregion
+
+
+
 void Model::Initialize(
 	std::string name_,
 	int point, 
@@ -150,7 +154,7 @@ void Model::Initialize(
 {
 
 	DXF_ = DirectXFunc::GetInstance();
-
+	
 	grarphics_ = new GraphicsSystem();
 	grarphics_->Initialize(DXF_->GetDevice());
 
@@ -169,6 +173,9 @@ void Model::Initialize(
 }
 
 Model::~Model() {
+
+	delete grarphics_;
+
 	vertexRtea_->Release();
 	wvpResource_->Release();
 	materialResource_->Release();
@@ -271,6 +278,7 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableTexture = true;
 	materialData->enableHalfLambert = true;
+	materialData->discardNum = 0;
 #pragma endregion
 #pragma region ライト
 	//ディレクションライトのマテリアルリソース
@@ -336,6 +344,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 	materialData->uvTransform = MakeIdentity4x4();
 	materialData->enableTexture = true;
 	materialData->enableHalfLambert = true;
+	materialData->discardNum = 0.0f;
 #pragma endregion
 #pragma region ライト
 	//ディレクションライトのマテリアルリソース
@@ -360,7 +369,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 
 void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
-	
+	grarphics_->PreDraw(DXF_->GetCMDList());
 	Matrix4x4 WVP = worldMatrix* viewProjection;
 
 	wvpData_->WVP = WVP;
@@ -381,16 +390,41 @@ void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,in
 	DXF_->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
 }
 
-void Model::DebugParameter()
+void Model::DebugParameter(const char* name)
 {
+#ifdef _DEBUG
 	bool useTexture = materialData_->enableTexture;
 	bool useShader = materialData_->enableLighting;
+	bool useHalf = materialData_->enableHalfLambert;
 	Vector4 color = materialData_->color;
 
+	BlendMode blend = grarphics_->GetBlendMode();
+	const char* items[] = { "None","Normal","Add","Subtract","Multiply","Screen" };
+	int currentItem = static_cast<int>(blend);
+
+	float discardnum = materialData_->discardNum;
+
+	
 	ImGui::Begin("status");
 	ImGui::Checkbox("Texture", &useTexture);
 	ImGui::Checkbox("Shader", &useShader);
+	ImGui::Checkbox("HalfLambert", &useHalf);
+	ImGui::ColorEdit4("color", &color.x);
+	if (ImGui::Combo("blendmode", &currentItem, items, IM_ARRAYSIZE(items))) {
+		blend = static_cast<BlendMode>(currentItem);
+	}
+	ImGui::DragFloat("discardNum", &discardnum, 0.01f);
 	ImGui::End();
+
+	materialData_->enableTexture = useTexture;
+	materialData_->enableLighting = useShader;
+	materialData_->enableHalfLambert = useHalf;
+	materialData_->color = color;
+	grarphics_->SetBlendMode(blend);
+	materialData_->discardNum= discardnum;
+	
+#endif // _DEBUG
+	
 }
 
 

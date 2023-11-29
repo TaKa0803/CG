@@ -3,9 +3,9 @@
 class Vector3 {
 
 public:
-	float x;
-	float y;
-	float z;
+	float x=0;
+	float y=0;
+	float z=0;
 
 #pragma region 演算子オーバーロード
 	friend Vector3 operator-(const Vector3& v) { return { -v.x,-v.y,-v.z }; }
@@ -50,8 +50,5 @@ Vector3 Normalize(const Vector3& v);
 //二点間の距離
 float Distance(const Vector3& v1,const Vector3& v2);
 
-
-//a-bの向きベクトルのnormalize
-Vector3 FacingVectorNormalize(const Vector3& a, const Vector3& b);
 
 

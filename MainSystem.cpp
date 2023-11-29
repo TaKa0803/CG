@@ -1,5 +1,6 @@
 #include "MainSystem.h"
 #include"InGame.h"
+#include"DebugScene.h"
 #include"GlobalVariables.h"
 
 MainSystem* MainSystem::GetInstance() {
@@ -54,6 +55,9 @@ void MainSystem::Update() {
 	InGame* ingame = new InGame();
 	ingame->Initialize();
 
+	//DebugScene* dScene = new DebugScene();
+	//dScene->Initialize();
+
 #pragma region 更新
 	while (winApp->ProcessMessage()) {
 #pragma region 状態更新
@@ -68,7 +72,7 @@ void MainSystem::Update() {
 		GlobalVariables::GetInstance()->Update();
 
 		ingame->Update();
-
+		//dScene->Update();
 
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
@@ -90,7 +94,7 @@ void MainSystem::Update() {
 
 
 		ingame->Draw();
-
+		//dScene->Draw();
 
 		//==描画終わり==//
 
@@ -104,6 +108,7 @@ void MainSystem::Update() {
 #pragma endregion
 
 	ingame->Finalize();
+	//dScene->Finalize();
 }
 
 void MainSystem::Finalize() {
