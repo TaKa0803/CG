@@ -86,6 +86,7 @@ struct Matrix4x4 {
 
 };
 
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 

@@ -3,7 +3,11 @@
 #include<cmath>
 
 
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 
+	
+
+}
 
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 
