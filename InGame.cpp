@@ -33,6 +33,12 @@ void InGame::Initialize() {
 }
 
 void InGame::Update() {
+	Matrix4x4 rotateM0 = DirectionToDirection(Normalize(Vector3{ 1.0f,0.0f,0.0f }), Normalize(Vector3{ -1.0f,0.0f,0.0f }));
+
+	Matrix4x4 rotateM1 = DirectionToDirection(from0, to0);
+	Matrix4x4 rotateM2 = DirectionToDirection(from1, to1);
+
+
 	Matrix4x4Debug(rotateM0,"ro0");
 	Matrix4x4Debug(rotateM1, "ro1");
 	Matrix4x4Debug(rotateM2, "ro2");

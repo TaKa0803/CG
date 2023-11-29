@@ -11,7 +11,7 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 
 
 
-void Matrix4x4Debug(const Matrix4x4& m,const char*name) {
+void Matrix4x4Debug(const Matrix4x4& m, const char* name) {
 	ImGui::Begin(name);
 	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3]);
 	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3]);
@@ -42,6 +42,11 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 	//回転軸
 	Vector3 n = Normalize(Cross(from, to));
 
+	if (from == -to) {
+		n = Normalize(Vector3{ from.y,-from.x,0 });
+		//n = Normalize(Vector3{from.z,0,-from.x });
+	}
+
 	//
 	float cost = (from * to);
 
@@ -49,11 +54,11 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 
 	return {
 
-		(n.x * n.x) * (1 - cost) + cost,(n.x * n.y) * (1 - cost) + n.z * sint,(n.x * n.z) * (1 - cost) - n.y * sint,0,
+		(n.x * n.x) * (1 - cost) + cost,      (n.x * n.y) * (1 - cost) + n.z * sint,(n.x * n.z) * (1 - cost) - n.y * sint,0,
 
-		(n.x * n.y) * (1 - cost) - n.z * sint,(n.y * n.y) * (1 - cost) + cost,(n.y * n.z) * (1 - cost) + n.x * sint,0,
+		(n.x * n.y) * (1 - cost) - n.z * sint,(n.y * n.y) * (1 - cost) + cost,      (n.y * n.z) * (1 - cost) + n.x * sint,0,
 
-		(n.x * n.z) * (1 - cost) + n.y * sint,(n.y * n.z) * (1 - cost) - n.x * sint,(n.z * n.z) * (1 - cost) + cost,0,
+		(n.x * n.z) * (1 - cost) + n.y * sint,(n.y * n.z) * (1 - cost) - n.x * sint,(n.z * n.z) * (1 - cost) + cost,      0,
 
 	0,0,0,1
 	};
