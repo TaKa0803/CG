@@ -13,6 +13,7 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 float GetYRotate(const Vector2& v) {
 	Vector2 offset = { 0,1 };
 
+
 	float dot = Dot(offset, v);
 
 	float leng =Length(offset)* Length(v);
@@ -25,6 +26,13 @@ float GetYRotate(const Vector2& v) {
 	return angle;
 
 }
+
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
+
+	
+
+}
+
 
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 

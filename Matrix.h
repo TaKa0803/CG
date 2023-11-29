@@ -87,10 +87,14 @@ struct Matrix4x4 {
 
 };
 
+
 // クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
 float GetYRotate(const Vector2& v);
+
+Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
+
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
