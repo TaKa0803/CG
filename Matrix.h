@@ -87,6 +87,7 @@ struct Matrix4x4 {
 
 };
 
+void Matrix4x4Debug(const Matrix4x4& m, const char* name);
 
 // クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
