@@ -35,13 +35,18 @@ float Length(const Vector3& v) {
 // 正規化
 Vector3 Normalize(const Vector3& v) {
 	float length = Length(v);
-	Vector3 Answer = {
-		.x = (v.x / length),
-		.y = (v.y / length),
-		.z = (v.z / length),
-	};
-	return Answer;
+
+	if (length != 0) {
+		Vector3 Answer = {
+			.x = (v.x / length),
+			.y = (v.y / length),
+			.z = (v.z / length),
+		};
+		return Answer;
+	}
+	return v;
 }
+
 
 
 

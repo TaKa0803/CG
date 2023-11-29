@@ -3,9 +3,9 @@
 class Vector3 {
 
 public:
-	float x;
-	float y;
-	float z;
+	float x=0;
+	float y=0;
+	float z=0;
 
 #pragma region 演算子オーバーロード
 	friend Vector3 operator-(const Vector3& v) { return { -v.x,-v.y,-v.z }; }

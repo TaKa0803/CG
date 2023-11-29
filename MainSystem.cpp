@@ -52,11 +52,11 @@ void MainSystem::Update() {
 
 	GlobalVariables::GetInstance()->LoadFiles();
 
-	//InGame* ingame = new InGame();
-	//ingame->Initialize();
+	InGame* ingame = new InGame();
+	ingame->Initialize();
 
-	DebugScene* dScene = new DebugScene();
-	dScene->Initialize();
+	//DebugScene* dScene = new DebugScene();
+	//dScene->Initialize();
 
 #pragma region 更新
 	while (winApp->ProcessMessage()) {
@@ -71,8 +71,8 @@ void MainSystem::Update() {
 
 		GlobalVariables::GetInstance()->Update();
 
-		//ingame->Update();
-		dScene->Update();
+		ingame->Update();
+		//dScene->Update();
 
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
@@ -93,8 +93,8 @@ void MainSystem::Update() {
 		//==以下描画==//
 
 
-		//ingame->Draw();
-		dScene->Draw();
+		ingame->Draw();
+		//dScene->Draw();
 
 		//==描画終わり==//
 
@@ -107,8 +107,8 @@ void MainSystem::Update() {
 	}
 #pragma endregion
 
-	//ingame->Finalize();
-	dScene->Finalize();
+	ingame->Finalize();
+	//dScene->Finalize();
 }
 
 void MainSystem::Finalize() {

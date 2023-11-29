@@ -14,7 +14,7 @@
 #include<fstream>
 
 
-
+#pragma region 
 struct MaterialData {
 	std::string textureFilePath;
 };
@@ -136,6 +136,10 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 	return modeldata;
 #pragma endregion
 }
+
+#pragma endregion
+
+
 
 void Model::Initialize(
 	std::string name_,

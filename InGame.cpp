@@ -21,6 +21,8 @@ bool InCollision(const AABB& a, const AABB& b) {
 
 void InGame::Initialize() {
 
+	input_ = Input::GetInstance();
+
 	player_ = new Player();
 	player_->Initialize();
 
@@ -48,39 +50,76 @@ void InGame::Initialize() {
 	planeTrans3_.translate_ = { 0.0f,-2.0f,planeSize * 4.0f };
 
 
-	eh = TextureManager::LoadTex("resources/head.png");
-	eWeapon = TextureManager::LoadTex("resources/Eweapon.png");
-
-	ehead_ = Model::CreateFromOBJ("head");
-	eLA_ = Model::CreateFromOBJ("Eweapon");
-	eRA_ = Model::CreateFromOBJ("Eweapon");
-
-	ehead_->IsEnableShader(false);
-	eLA_->IsEnableShader(false);
-	eRA_->IsEnableShader(false);
 
 	goalTex = TextureManager::LoadTex("resources/goal.png");
 	goal_ = Model::CreateSphere(128 ,true);
-	goal_->IsEnableShader(false);
 	goalT_.SetParent(&planeTrans3_);
 
 
 	goalT_.translate_.y = 2;
 
-	eWorld_.translate_.y = 2;
 
-	eWorld_.SetParent(&planeTrans2_);
-	ehT_.SetParent(&eWorld_);
-	eLT_.SetParent(&ehT_);
-	eRT_.SetParent(&ehT_);
+#pragma region 敵生成
+	WorldTransform world;
+	world.translate_.x = -2;
+	Enemy* enemy_ = new Enemy();
+	enemy_->Initialize(0,world);
+	enemy_->SetParent(&planeTrans2_);
+	enemy_->SetStartData();
+	enemies_.push_back(enemy_);
 
-	eLT_.translate_ = { -2.0f, 0, 0 };
-	eRT_.translate_ = { 2.0f, 0, 0 };
-	eRT_.rotate_.x = 3.14f / 2.0f;
+	WorldTransform world2;
+	world2.translate_.x = -8;
+	Enemy* enem2_ = new Enemy();
+	enem2_->Initialize(1,world2);
+	enem2_->SetParent(&planeTrans2_);
+	enem2_->SetStartData();
+	enemies_.push_back(enem2_);
+
+	WorldTransform world3;
+	world3.translate_.x = 4;
+	Enemy* enem3_ = new Enemy();
+	enem3_->Initialize(2,world3);
+	enem3_->SetParent(&planeTrans2_);
+	enem3_->SetStartData();
+	enemies_.push_back(enem3_);
+
+	WorldTransform world4;
+	world4.translate_.x = -8;
+	Enemy* enemy4_ = new Enemy();
+	enemy4_->Initialize(3,world4);
+	enemy4_->SetParent(&planeTrans3_);
+	enemy4_->SetStartData();
+	enemies_.push_back(enemy4_);
+
+	WorldTransform world5;
+	world5.translate_.x = 4;
+	Enemy* enemy5_ = new Enemy();
+	enemy5_->Initialize(4,world5);
+	enemy5_->SetParent(&planeTrans3_);
+	enemy5_->SetStartData();
+	enemies_.push_back(enemy5_);
+
+#pragma endregion
+
+	
+
+
+	lockOn_ = new LockOn();
+	lockOn_->Initialize();
+	lockOn_->SetBase(&player_->GetWorld());
+	player_->SetLockOn(lockOn_);
+
+	effcts_ = EffectHit::GetInstance();
+
+	effcts_->Initialize(&camera);
+
 
 }
 
 void InGame::Update() {
+	effcts_->Update();
+
 #ifdef _DEBUG
 	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
 	ImGui::BeginMenuBar();
@@ -113,11 +152,28 @@ void InGame::Update() {
 
 #pragma endregion
 
+	for (Enemy* enemy : enemies_) {
+		enemy->DeadAnimation(player_->GetWorld());
+		enemy->Update();
+	}
+
+	camera.DrawDebugWindow("Camera");
+	if (input_->IsControllerActive()) {
+		Vector2 nyu = input_->GetjoyStickR();
+
+		nyu = Normalize(nyu);
+
+		nyu.x = nyu.x * (1.0f / 60.0f) * (float)std::numbers::pi;
+
+		float c = camera.GetPCameraR_Y();
+		camera.SetCameraR_Y(c + nyu.x);
+
+	}
+	camera.Update();
 
 	player_->Update();
 
-	camera.DrawDebugWindow("Camera");
-	camera.Update();
+	
 
 	player_->DashCameraUpdate(camera);
 
@@ -129,44 +185,25 @@ void InGame::Update() {
 	skydomeTrans_.scale_ = { (float)scaleNum,(float)scaleNum,(float)scaleNum };
 	skydomeTrans_.UpdateMatrix();
 #pragma endregion
-#pragma region 敵
-
-	if (ImGui::BeginMenu("enemy")) {
-		ImGui::DragFloat3("pos", &eWorld_.translate_.x, 0.01f);
-		ImGui::EndMenu();
-	}
-	float mtheta = 1.0f / 60.0f * 3.14f;
-	eWorld_.rotate_.y += mtheta;
-
-	Vector3 move = { 0, 0, 0.1f };
-
-	move = TransformNormal(move, eWorld_.matWorld_);
-	// 光度さけす
-	move.y = 0;
-
-	eWorld_.translate_ +=  move;
-
-
-
-	float theta = (1.0f / 60.0f) * 3.14f;
-
-
-
-	eLT_.rotate_.x += theta;
-	eRT_.rotate_.x += theta;
-
-
-	eWorld_.UpdateMatrix();
-	ehT_.UpdateMatrix();
-	eLT_.UpdateMatrix();
-	eRT_.UpdateMatrix();
-#pragma endregion
 
 #pragma region ゴール
 	goalT_.UpdateMatrix();
 #pragma endregion
+	
+	if (input_->IsTriggerButton(kButtonY)) {
+		if (lockOn_->GetAutoLockOn()) {
+			lockOn_->SetAutoLockOn(false);
+		}
+		else {
+			lockOn_->SetAutoLockOn(true);
+		}
+	}
 
+	if (/*input_->TriggerKey(DIK_V) */input_->IsTriggerButton(kRightTrigger)){
+		lockOn_->LockOnEnemy(enemies_, &camera);
+	}
 
+	lockOn_->Update(enemies_,&camera);
 
 	Collision();
 
@@ -178,6 +215,8 @@ void InGame::Update() {
 
 void InGame::Draw() {
 
+	effcts_->Draw();
+
 	player_->Draw();
 
 	plane1->Draw(planeTrans1_.matWorld_, camera.GetViewProjectionMatrix(), planeTex_);
@@ -186,18 +225,23 @@ void InGame::Draw() {
 
 	skydome_->Draw(skydomeTrans_.matWorld_, camera.GetViewProjectionMatrix(), skydomeTex);
 
-	if (!isEDead_) {
-		ehead_->Draw(ehT_.matWorld_, camera.GetViewProjectionMatrix(), eh);
-		eLA_->Draw(eLT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
-		eRA_->Draw(eRT_.matWorld_, camera.GetViewProjectionMatrix(), eWeapon);
+	for (Enemy* enemy : enemies_) {
+		enemy->Draw(camera.GetViewProjectionMatrix());
 	}
-
 	goal_->Draw(goalT_.matWorld_, camera.GetViewProjectionMatrix(), goalTex);
 
+	lockOn_->Draw();
 }
 void InGame::Finalize() {
 
+	effcts_->Finalize();
+
 	delete player_;
+
+	for (Enemy* enemy : enemies_) {
+		delete enemy;
+		enemy = nullptr;
+	}
 
 	delete plane1;
 	delete plane2;
@@ -205,11 +249,10 @@ void InGame::Finalize() {
 
 	delete skydome_;
 
-	delete ehead_;
-	delete eLA_;
-	delete eRA_;
-
+	
 	delete goal_;
+
+	delete lockOn_;
 }
 
 void InGame::PlaneUpdate() {
@@ -262,11 +305,7 @@ void InGame::Collision() {
 		.maxV{GetgoalMat().x + gSize_,GetgoalMat().y + gSize_,GetgoalMat().z + gSize_}
 	};
 
-	AABB ene = {
-		.minV{GetEmat().x - eSize_,GetEmat().y - eSize_,GetEmat().z - eSize_},
-		.maxV{GetEmat().x + eSize_,GetEmat().y + eSize_,GetEmat().z + eSize_}
-	};
-
+	
 	bool ishit = false;
 
 
@@ -287,29 +326,80 @@ void InGame::Collision() {
 		player_->NoCollision();
 	}
 
+
+	for (Enemy* enemy : enemies_) {
+		AABB ene = {
+			.minV{enemy->GetWorld().GetMatWorldTranslate().x - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z - enemy->GetSize()},
+			.maxV{enemy->GetWorld().GetMatWorldTranslate().x + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z + enemy->GetSize()}
+		};
+
+		if (!enemy->GetDead()) {
+
+			//敵
+			if (InCollision(pAABB, ene)) {
+				player_->SetStartPosition();
+
+				for (Enemy* e : enemies_) {
+					e->SetStart();
+				}
+
+				lockOn_->Reset();
+				camera.SetCameraR_Y(0);
+			}
+
+			if (player_->IsStateATK()) {
+				if (InCollision(player_->GetWeaponAABB(), ene)) {
+					if (player_->SetHitEnemy(enemy->GetSikibetuNum())) {
+						enemy->CollisionATK();
+						effcts_->SpawnE(enemy->GetWorld(), 3);
+					}
+				}
+			}
+
+		}
+	}
+
 	//ゴール
 	if (InCollision(pAABB, goa)) {
 		player_->SetStartPosition();
-		isEDead_ = false;
+		for (Enemy* enemy : enemies_) {
+			enemy->SetStart();
+		}
+		lockOn_->Reset();
+		camera.SetCameraR_Y(0);
 	}
-
-	//敵
-	if (InCollision(pAABB, ene) && !isEDead_) {
-		player_->SetStartPosition();
-		isEDead_ = false;
-	}
-
 
 	//武器とのコリジョン
 	if (player_->IsStateATK()) {
 		Vector3 weaponPos = player_->GetWeaponWorld().GetMatWorldTranslate();
-		Vector3 ePos = eWorld_.GetMatWorldTranslate();
+		
+		for (Enemy* enemy : enemies_) {
 
-		float hlong = Length(weaponPos- ePos);
+			/*
+			Vector3 ePos = enemy->GetWorld().GetMatWorldTranslate();
 
-		if (hlong <= player_->GetWeaponRadius() + eSize_) {
-			isEDead_ = true;
+			float hlong = Length(weaponPos - ePos);
+
+			if (hlong <= player_->GetWeaponRadius() + enemy->GetSize()) {
+				enemy->SetDead(true);
+			}
+			*/
+
+			AABB ene = {
+			.minV{enemy->GetWorld().GetMatWorldTranslate().x - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y - enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z - enemy->GetSize()},
+			.maxV{enemy->GetWorld().GetMatWorldTranslate().x + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().y + enemy->GetSize(),enemy->GetWorld().GetMatWorldTranslate().z + enemy->GetSize()}
+			};
+			
+
 		}
+	}
+
+	if (player_->FallingCheck()) {
+		for (Enemy* enemy : enemies_) {
+			enemy->SetStart();
+		}
+		lockOn_->Reset();
+		camera.SetCameraR_Y(0);
 	}
 
 }

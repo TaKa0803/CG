@@ -1,9 +1,30 @@
 #include"Matrix.h"
 #include<assert.h>
 #include<cmath>
+#include<numbers>
+
+// クロス積
+Vector3 Cross(const Vector3& v1, const Vector3& v2) {
+	return { v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x };
+}
 
 
 
+float GetYRotate(const Vector2& v) {
+	Vector2 offset = { 0,1 };
+
+	float dot = Dot(offset, v);
+
+	float leng =Length(offset)* Length(v);
+
+	float angle= std::acos(dot / leng);
+
+	if (v.x < 0) {
+		angle*=-1;
+	}
+	return angle;
+
+}
 
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 
@@ -31,6 +52,10 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, const float angle) {
 	};
 
 }
+
+
+float CheckR_F_Y(const Vector2& v) { return std::atan2(v.x, v.y); }
+
 
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m) {
@@ -71,6 +96,29 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 		0,0,maxDepth - minDepth,0,
 		left + (width / 2.0f),top + (height / 2.0f),minDepth,1
 	};
+}
+
+
+//座標変換
+Vector3 Transform(const Vector3& v, const Matrix4x4& m) {
+	Vector3 result = {
+		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + 1.0f * m.m[3][0],
+		v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + 1.0f * m.m[3][1],
+		v.x * m.m[0][2] + v.y * m.m[1][1] + v.z * m.m[2][2] + 1.0f * m.m[3][2],
+	};
+	float w = v.x * m.m[0][3] + v.y * m.m[1][3] + v.z * m.m[2][3] + 1.0f * m.m[3][3];
+
+	assert(w != 0);
+	if (w != 0) {
+		return {
+			result.x / w,
+			result.y / w,
+			result.z / w,
+		};
+	}
+	else {
+		return result;
+	}
 }
 
 

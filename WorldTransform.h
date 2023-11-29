@@ -52,6 +52,7 @@ public://Getter
 		return matTranslation;
 	}
 
+	const WorldTransform& GetParent()const { return *parent_; }
 #pragma endregion
 
 #pragma region セッター

@@ -3,7 +3,13 @@
 #include"WorldTransform.h"
 #include"Input.h"
 #include"Camera.h"
+#include"BoxColider.h"
+#include"LockOn.h"
+#include"Enemy.h"
+
 #include<optional>
+#include<array>
+
 
 class Player {
 
@@ -20,13 +26,16 @@ public:
 
 	void Draw();
 
-	const WorldTransform& GetWorld() { return playerW_; }
+	const WorldTransform& GetWorld() { return world_; }
 
 	const WorldTransform& GetWeaponWorld() { return weaponW_; }
 
 	const float GetWeaponRadius() { return WRadius_; }
 
 	int GetNowParent() { return nowParent; }
+
+
+	void SetLockOn(const LockOn* lockOn) { lockOn_ = lockOn; }
 
 	void SetCamera(const Camera& camera) { camera_ = &camera; }
 
@@ -39,6 +48,7 @@ public:
 		return pAABB;
 	};
 
+	bool SetHitEnemy(int enemy);
 
 	void OnCollision(int hitparent, const WorldTransform* parent);
 
@@ -48,9 +58,14 @@ public:
 
 
 	bool IsStateATK() { if (pState_ == PlayerState::kATK) { return true; } else { return false; } }
+
+	bool FallingCheck();
+
+	const AABB& GetWeaponAABB() { return collider_->GetAABB(); }
+
 private:
 
-#pragma region 
+#pragma region 状態
 
 	void StayInitialize();
 
@@ -60,6 +75,8 @@ private:
 
 	void ATKInitialize();
 
+	void JumpInitialize();
+
 	void FallUpdate();
 
 	void StayUpdate();
@@ -68,6 +85,7 @@ private:
 
 	void ATKUpdate();
 
+	void JumpUpdate();
 #pragma endregion
 
 
@@ -77,11 +95,14 @@ private:
 
 	Input* input_ = nullptr;
 
+	const LockOn* lockOn_;
+
 	enum class PlayerState {
 		kStay,
 		kFalling,
 		kATK,
-		kDash
+		kDash,
+		kjump
 	};
 
 
@@ -91,15 +112,16 @@ private:
 
 	float gravity = -0.1f;
 
+	BoxColider *collider_;
 
 	//プレイヤー
-	Model* playerM_ = nullptr;
+	Model* model_ = nullptr;
 	int playertexture;
 
-	WorldTransform playerW_;
+	WorldTransform world_;
 
 	const float pSize_ = 1;
-	Vector3 GetmatT() { return { playerW_.matWorld_.m[3][0],playerW_.matWorld_.m[3][1],playerW_.matWorld_.m[3][2] }; }
+	Vector3 GetmatT() { return { world_.matWorld_.m[3][0],world_.matWorld_.m[3][1],world_.matWorld_.m[3][2] }; }
 	
 	int nowParent = 0;
 
@@ -137,6 +159,46 @@ private:
 	bool isCameraDelay_ = false;
 	
 #pragma region 攻撃
+
+	void NextATK();
+
+	//攻撃用定数
+	struct ConstATK {
+		//振りかぶりの時間
+		uint32_t anicipationTime;
+		//ための時間
+		uint32_t chargeTime;
+		//攻撃振りの時間
+		uint32_t swingTime;
+		//硬直時間
+		uint32_t recoveryTime;
+		//振りかぶりの移動速さ
+		float anticipationSpeed;
+		//ための移動速さ
+		float chargeSpeed;
+		//攻撃振りの移動速さ
+		float swingSpeed;
+	};
+	//コンボ最大数
+	static const int maxComboNum_ = 3;
+
+	//コンボ構造体テーブル
+	static const std::array<ConstATK, maxComboNum_>kConstATKs_;
+
+	//攻撃用ワーク
+	struct WorkATK {
+		//攻撃ギミックの媒介変数
+		uint32_t attackParameter = 0;
+		//コンボ番号
+		int32_t comboIndex=0;
+		//コンボのフェーズ取得
+		int32_t inComboPhase = 0;
+		//トンボが次に進むか
+		bool comboNext = false;;
+	};
+
+	WorkATK workATK_{};
+
 	//武器のワールド座標
 	WorldTransform weaponW_;
 	//モデル
@@ -146,15 +208,27 @@ private:
 
 	float WRadius_ = 4;
 
-	Vector3 weaponStR = { 0.0f,0.0f,0.0f };
-	Vector3 weaponEndR = { 1.5f,0.0f,0.0f };
 
-	//アニメーションにかける時間
-	float MovingSecond_ = 1.0f;
+	Vector3 weaponStR[maxComboNum_] = { {0.0f,0.0f,0.0f},{1.5f,-1.5f,0.0f},{1.5f,1.5f,0.0f} };
+	Vector3 weaponEndR[maxComboNum_] = { { 1.9f,0.0f,0.0f },{1.5f,1.5f,0.0f},{1.5f,-1.5f,0.0f} };
 
-	//アニメーション変数
-	float animationT_;
+	
+	
 #pragma endregion
+
+#pragma region ジャンプ
+
+	Vector3 velo_ = { 0.0f,0.0f,0.0f };
+
+	const float jumpPower_ = 1.0f;
+
+	//上がる速度が0になる時間
+	float zeroSecond = 0.2f;
+
+	
+#pragma endregion
+
+	std::vector<int>hitenemies_;
 	
 
 	const char* name = "Player";

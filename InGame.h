@@ -9,9 +9,11 @@
 
 #include"Player.h"
 
+#include"Enemy.h"
 
+#include"LockOn.h"
 
-
+#include"EffectHit.h"
 
 class InGame {
 public:
@@ -23,6 +25,9 @@ public:
 
 	void Finalize();
 private:
+
+
+	Input* input_ = Input::GetInstance();
 
 	Player* player_;
 
@@ -74,6 +79,11 @@ private:
 	void Collision();
 
 
+	
+
+	std::list<Enemy*>enemies_;
+
+	/*
 	int eh;
 	int eWeapon;
 
@@ -89,7 +99,7 @@ private:
 	WorldTransform eRT_;
 
 	bool isEDead_ = false;
-
+	
 	Vector3 GetEmat() {
 		return{
 			eWorld_.matWorld_.m[3][0],
@@ -97,6 +107,7 @@ private:
 			eWorld_.matWorld_.m[3][2],
 		};
 	}
+	*/
 
 
 
@@ -115,4 +126,9 @@ private:
 	}
 
 	Camera camera;
+
+
+	LockOn* lockOn_ = nullptr;
+
+	EffectHit* effcts_;
 };
