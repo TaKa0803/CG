@@ -12,57 +12,41 @@ struct Material
     int32_t enableTexture;
     float32_t enableHalfLambert;
 };
-ConstantBuffer<Material> gMaterial : register(b1);
+ConstantBuffer<Material> gMaterial : register(b0);
 
 struct PixelShaderOutput
 {
     float32_t4 color : SV_TARGET0;
 };
 
-struct DirectionalLight
-{
-    float32_t4 color;
-    float32_t3 direction;
-    float intensity;
-};
-
-ConstantBuffer<DirectionalLight> gDirectionalLight : register(b2);
 
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
-    //float32_t4 textureColor = gTexture.Sample(gSampler, input.texcoord);
+    PixelShaderOutput output;
     float4 transformedUV = mul(float32_t4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
-    float32_t4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
-   
     
+    
+    //テクスチャ関係の処理
+    float32_t4 textureColor;   
     if (gMaterial.enableTexture != 0)
     {
+        textureColor = gTexture.Sample(gSampler, transformedUV.xy);
     }
     else
     {
         textureColor = gMaterial.color;
     }
     
-    PixelShaderOutput output;
-    if (gMaterial.enableLighting != 0)
-    {
-        float cos;
-        
-        
-             //Half Lambert
-        float NdotL = dot(normalize(input.normal), -gDirectionalLight.direction);
-        cos = pow(NdotL * 0.5f + 0.5f, 1.0f);
-              
-            //Lambertian Reflectance
-            //cos = saturate(dot(normalize(input.normal), -gDirectionalLight.direction));
-        
-        //計算
-        output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
+    
+ 
+    output.color = gMaterial.color * textureColor;
+    //α値が0なら棄却
+    if (output.color.a == 0.0) {
+        discard;
     }
-    else
-    {
-        output.color = gMaterial.color * textureColor;
-    }
+    output.color = gMaterial.color * textureColor;
+    
+    
     return output;
 }

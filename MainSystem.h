@@ -33,7 +33,7 @@ private:
 private:
 #pragma region 基板初期化
 	//windowsアプリケーション
-	WinApp* winApp;
+	WindowApp* winApp;
 
 	//DirectX
 	DirectXFunc* DXF;

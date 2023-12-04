@@ -1,6 +1,7 @@
 #include"function.h"
 #include<cassert>
 
+
 ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
 
 #pragma region VertexResourceを生成する
@@ -90,3 +91,4 @@ D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(ID3D12DescriptorHeap* descrip
 	handleGPU.ptr += (descriptorSize * index);
 	return handleGPU;
 }
+

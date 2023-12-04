@@ -4,10 +4,16 @@
 
 void DebugScene::Initialize() {
 	model_ = Model::CreateFromOBJ("fence/fence");
-	texture = TextureManager::LoadTex("resources/fence/fence.png");
+	//texture = TextureManager::LoadTex("resources/fence/fence.png");
+	
+	//model_ = Model::CreateFromOBJ("ALPlayer");
+	texture = TextureManager::LoadTex("resources/uvChecker.png");
 
 	camera_.Initialize();
 	camera_.SetTarget(&world_);
+
+	sprite_ = new Sprite();
+	sprite_=Sprite::
 }
 
 void DebugScene::Update() {

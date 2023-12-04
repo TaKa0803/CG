@@ -13,13 +13,40 @@ DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
 	assert(SUCCEEDED(hr));
 
-	//みっぷマップ作成
+	/**/
 	DirectX::ScratchImage mipImages{};
 	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
 	assert(SUCCEEDED(hr));
+	
+
+	/*
+	// 新しい画像の幅と高さを計算
+	size_t newWidth = image.GetMetadata().width + 6;  // 左右に3ピクセルずつ
+	size_t newHeight = image.GetMetadata().height + 6;  // 上下に3ピクセルずつ
+
+	// 新しい画像を作成
+	DirectX::ScratchImage newImage;
+	newImage.Initialize2D(image.GetMetadata().format, newWidth, newHeight, 1, 1);
+
+	// 新しい画像に元の画像をコピー
+	for (size_t y = 0; y < image.GetMetadata().height; ++y) {
+		for (size_t x = 0; x < image.GetMetadata().width; ++x) {
+			const DirectX::Image* srcImage = image.GetImage(0, 0, 0);
+			const DirectX::Image* destImage = newImage.GetImage(0, 0, 0);
+
+			destImage->pixels[y * newWidth + x + 3] = srcImage->pixels[y * image.GetMetadata().width + x];
+		}
+	}
+	
+	//みっぷマップ作成
+	DirectX::ScratchImage mipImages{};
+	hr = DirectX::GenerateMipMaps(newImage.GetImages(), newImage.GetImageCount(), newImage.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+	assert(SUCCEEDED(hr));
+	*/
 
 	//みっぷマップ月のデータを返す
 	return mipImages;
+
 }
 
 ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata) {

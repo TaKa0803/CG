@@ -17,7 +17,7 @@ DirectXFunc* DirectXFunc::GetInstance()
 
 #pragma region Initializeまとめ
 
-void DirectXFunc::Initialize(WinApp* winApp)
+void DirectXFunc::Initialize(WindowApp* winApp)
 {
 	assert(winApp);
 	winApp_ = winApp;
@@ -162,8 +162,8 @@ void DirectXFunc::SwapChainInitialize()
 {
 #pragma region SwapChainを生成する
 	//スワップチェーンを生成する	
-	swapChainDesc.Width = WinApp::kClientWidth;
-	swapChainDesc.Height = WinApp::kClientHeight;
+	swapChainDesc.Width = WindowApp::kClientWidth;
+	swapChainDesc.Height = WindowApp::kClientHeight;
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.SampleDesc.Count = 1;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -218,7 +218,7 @@ void DirectXFunc::DSVInitialize()
 	descriptorSizeDSV = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 #pragma region DSV
 	//DepthStencilTextureをウィンドウサイズで作成
-	depthStencilResource = CreateDepthStencilTextureResource(device.Get(), WinApp::kClientWidth, WinApp::kClientHeight);
+	depthStencilResource = CreateDepthStencilTextureResource(device.Get(), WindowApp::kClientWidth, WindowApp::kClientHeight);
 	//DSVの設定
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;	//Format基本的にはResourceに合わせる
@@ -278,8 +278,8 @@ void DirectXFunc::PreDraw()
 	//ビューポート
 	D3D12_VIEWPORT viewport{};
 	//クライアント領域のサイズと一緒にして画面全体に表示
-	viewport.Width = (FLOAT)WinApp::kClientWidth;
-	viewport.Height = (FLOAT)WinApp::kClientHeight;
+	viewport.Width = (FLOAT)WindowApp::kClientWidth;
+	viewport.Height = (FLOAT)WindowApp::kClientHeight;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
 	viewport.MinDepth = 0.0f;
@@ -289,9 +289,9 @@ void DirectXFunc::PreDraw()
 	D3D12_RECT scissorRect{};
 	//基本的にビューポートと同じ短形が構成されるようにする
 	scissorRect.left = 0;
-	scissorRect.right = WinApp::kClientWidth;
+	scissorRect.right = WindowApp::kClientWidth;
 	scissorRect.top = 0;
-	scissorRect.bottom = WinApp::kClientHeight;
+	scissorRect.bottom = WindowApp::kClientHeight;
 #pragma endregion
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);

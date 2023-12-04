@@ -161,7 +161,7 @@ void Sprite::Draw(int texture)
 
 	//スプライト用データ
 	
-	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WinApp::kClientWidth), float(WinApp::kClientHeight), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
 	Matrix4x4 VPSprite = viewMatrixSprite* projectionMatrixSprite;
 
 	Matrix4x4 WVP = World* VPSprite;

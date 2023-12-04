@@ -2,6 +2,7 @@
 #include"Model.h"
 #include"WorldTransform.h"
 #include"Camera.h"
+#include"Sprite.h"
 
 class DebugScene {
 public:
@@ -20,5 +21,8 @@ private:
 	Model* model_;
 	WorldTransform world_;
 	int texture;
+
+	Sprite* sprite_;
+
 };
 

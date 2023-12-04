@@ -13,7 +13,7 @@ ImGuiManager* ImGuiManager::GetInstance()
 	return &Instance;
 }
 
-void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
+void ImGuiManager::Initialize(WindowApp* winApp,DirectXFunc *DXF)
 {
 	assert(winApp);
 	winApp_ = winApp;

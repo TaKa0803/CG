@@ -405,6 +405,8 @@ void Model::DebugParameter(const char* name)
 	float discardnum = materialData_->discardNum;
 
 	
+
+
 	ImGui::Begin("status");
 	ImGui::Checkbox("Texture", &useTexture);
 	ImGui::Checkbox("Shader", &useShader);
@@ -414,7 +416,14 @@ void Model::DebugParameter(const char* name)
 		blend = static_cast<BlendMode>(currentItem);
 	}
 	ImGui::DragFloat("discardNum", &discardnum, 0.01f);
+
+	ImGui::Text("UV");
+	ImGui::DragFloat3("uv pos", &uvpos.x, 0.01f);
+	ImGui::DragFloat3("uv rotate", &uvrotate.x, 0.01f);
+	ImGui::DragFloat3("uv scale", &uvscale.x, 0.01f);
 	ImGui::End();
+
+	materialData_->uvTransform = MakeAffineMatrix(uvscale,uvrotate,uvpos);
 
 	materialData_->enableTexture = useTexture;
 	materialData_->enableLighting = useShader;

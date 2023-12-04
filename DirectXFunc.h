@@ -31,7 +31,7 @@ public:
 	/// イニシャライズ
 	/// </summary>
 	/// <param name="winApp"></param>
-	void Initialize(WinApp* winApp);
+	void Initialize(WindowApp* winApp);
 
 	/// <summary>
 	/// 描画前処理
@@ -99,7 +99,7 @@ private://メンバ変数
 	ComPtr<ID3D12InfoQueue> infoQueue = nullptr;
 
 	//ポインタ
-	WinApp* winApp_ = nullptr;
+	WindowApp* winApp_ = nullptr;
 
 	ComPtr<IDXGIAdapter4> useAdapter = nullptr;
 
