@@ -2,6 +2,7 @@
 #include<assert.h>
 #include<cmath>
 #include<numbers>
+#include<imgui.h>
 
 // クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
@@ -10,18 +11,27 @@ Vector3 Cross(const Vector3& v1, const Vector3& v2) {
 
 
 
+void Matrix4x4Debug(const Matrix4x4& m, const char* name) {
+	ImGui::Begin(name);
+	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[0][0], m.m[0][1], m.m[0][2], m.m[0][3]);
+	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[1][0], m.m[1][1], m.m[1][2], m.m[1][3]);
+	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[2][0], m.m[2][1], m.m[2][2], m.m[2][3]);
+	ImGui::Text("%4.3f ,%4.3f ,%4.3f ,%4.3f ", m.m[3][0], m.m[3][1], m.m[3][2], m.m[3][3]);
+	ImGui::End();
+}
+
 float GetYRotate(const Vector2& v) {
 	Vector2 offset = { 0,1 };
 
 
 	float dot = Dot(offset, v);
 
-	float leng =Length(offset)* Length(v);
+	float leng = Length(offset) * Length(v);
 
-	float angle= std::acos(dot / leng);
+	float angle = std::acos(dot / leng);
 
 	if (v.x < 0) {
-		angle*=-1;
+		angle *= -1;
 	}
 	return angle;
 
@@ -29,7 +39,29 @@ float GetYRotate(const Vector2& v) {
 
 Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to) {
 
-	
+	//回転軸
+	Vector3 n = Normalize(Cross(from, to));
+
+	if (from == -to) {
+		n = Normalize(Vector3{ from.y,-from.x,0 });
+		//n = Normalize(Vector3{from.z,0,-from.x });
+	}
+
+	//
+	float cost = (from * to);
+
+	float sint = +Length(Cross(from, to));
+
+	return {
+
+		(n.x * n.x) * (1 - cost) + cost,      (n.x * n.y) * (1 - cost) + n.z * sint,(n.x * n.z) * (1 - cost) - n.y * sint,0,
+
+		(n.x * n.y) * (1 - cost) - n.z * sint,(n.y * n.y) * (1 - cost) + cost,      (n.y * n.z) * (1 - cost) + n.x * sint,0,
+
+		(n.x * n.z) * (1 - cost) + n.y * sint,(n.y * n.z) * (1 - cost) - n.x * sint,(n.z * n.z) * (1 - cost) + cost,      0,
+
+	0,0,0,1
+	};
 
 }
 
@@ -310,7 +342,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
 	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
 	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
-	Matrix4x4 R = rotateXMatrix*(rotateYMatrix* rotateZMatrix);
+	Matrix4x4 R = rotateXMatrix * (rotateYMatrix * rotateZMatrix);
 	// translate
 	Matrix4x4 T = {
 		1, 0, 0, 0,
@@ -318,7 +350,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 		0, 0, 1, 0,
 		translate.x, translate.y, translate.z, 1,
 	};
-	Matrix4x4 NEW = S*(R*T);
+	Matrix4x4 NEW = S * (R * T);
 	return NEW;
 }
 

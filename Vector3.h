@@ -19,7 +19,10 @@ public:
 	friend Vector3 operator/(const float num, const Vector3& v) { return { v.x * (1.0f / num), v.y * (1.0f / num), v.z * (1.0f / num) }; }
 	friend Vector3 operator/(const Vector3& v, const float num) { return { v.x * (1.0f / num), v.y * (1.0f / num), v.z * (1.0f / num) }; }
 
-
+	friend bool operator==(const Vector3& v1, const Vector3& v2) {
+		if (v1.x == v2.x && v1.y == v2.y && v1.z == v2.z) { return true; }
+		return false;
+	}
 	Vector3& operator*=(float s) { x *= s; y *= s; z *= s; return *this; }
 	Vector3& operator/=(float s) { x /= s; y /= s; z /= s; return *this; }
 	Vector3& operator+=(Vector3 v) { x += v.x; y += v.y; z += v.z; return *this; }
