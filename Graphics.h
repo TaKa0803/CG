@@ -40,6 +40,7 @@ class GraphicsSystem
 public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	GraphicsSystem();
 	~GraphicsSystem();
 
 	/// <summary>
@@ -82,12 +83,13 @@ private:
 };
 
 
+class ParticleGraphics {
 
-class ParticleRootSignature {
 public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-	~ParticleRootSignature();
+	ParticleGraphics();
+	~ParticleGraphics();
 
 	/// <summary>
 	/// 初期化
@@ -108,6 +110,8 @@ public:
 	//ブレンドモードを設定
 	void SetBlendMode(BlendMode blend);
 
+private:
+
 
 private:
 
@@ -121,4 +125,5 @@ private:
 	//blendMode1
 	BlendMode blendMode_ = BlendMode::kNormal;
 
+	
 };

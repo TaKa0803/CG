@@ -16,11 +16,12 @@ void DebugScene::Initialize() {
 	camera_.SetTarget(&world_);
 
 	sprite_ = new Sprite();
+	//sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
 	sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
 	sprite_->SetPosition({ 640, 360});
 
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index] = { (float)index * 10.0f,(float)index * 10.0f,0 };
+		insPos[index] = { (float)index * 5.0f,(float)index * 6.0f,(float)index*0.1f};
 	}
 
 	
@@ -34,6 +35,7 @@ void DebugScene::Update() {
 	sprite_->DrawDebugImGui("sprite");
 
 
+
 	world_.UpdateMatrix();
 	camera_.Update();
 
@@ -44,6 +46,7 @@ void DebugScene::Draw() {
 	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 
 	sprite_->DrawInstancing(-1,insPos);
+	//sprite_->Draw();
 }
 
 void DebugScene::Finalize() {

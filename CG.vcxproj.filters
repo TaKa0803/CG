@@ -211,12 +211,6 @@
     <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
       <Filter>Engine\shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Particle.PS.hlsl">
-      <Filter>Engine\shaders\Particle</Filter>
-    </FxCompile>
-    <FxCompile Include="Particle.VS.hlsl">
-      <Filter>Engine\shaders\Particle</Filter>
-    </FxCompile>
     <FxCompile Include="resources\shaders\Particle.PS.hlsl">
       <Filter>Engine\shaders\Particle</Filter>
     </FxCompile>
@@ -339,9 +333,6 @@
   <ItemGroup>
     <None Include="resources\shaders\Object3d.hlsli">
       <Filter>Engine\shaders</Filter>
-    </None>
-    <None Include="Particle.hlsli">
-      <Filter>Engine\shaders\Particle</Filter>
     </None>
     <None Include="resources\shaders\Particle.hlsli">
       <Filter>Engine\shaders\Particle</Filter>

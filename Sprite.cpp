@@ -13,20 +13,21 @@ Sprite::Sprite() {
 
 Sprite::~Sprite() {
 	delete grarphics_;
+	delete particlegraphics_;
 	vertexResource_->Release();
 	indexResource_->Release();
 	transformationMatrixResource_->Release();
 	materialResource_->Release();
 }
 
-void Sprite::DrawDebugImGui(const char*name) {
+void Sprite::DrawDebugImGui(const char* name) {
 
 	Vector4 color = materialData_->color;
-	
+
 
 #ifdef _DEBUG
 	ImGui::Begin(name);
-	ImGui::DragFloat2("pos",&pos_.x,0.1f);
+	ImGui::DragFloat2("pos", &pos_.x, 0.1f);
 	ImGui::DragFloat("rotate", &rotate_.z);
 	ImGui::DragFloat2("scale", &scale_.x, 0.01f);
 
@@ -39,9 +40,10 @@ void Sprite::DrawDebugImGui(const char*name) {
 
 }
 
-Sprite* Sprite::Create(int texture,const Vector2&size,const Vector2& anchor) {
 
-	DirectXFunc *DXF = DirectXFunc::GetInstance();
+Sprite* Sprite::Create(int texture, const Vector2& size, const Vector2& anchor) {
+
+	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 #pragma region Sprite
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
@@ -78,13 +80,13 @@ Sprite* Sprite::Create(int texture,const Vector2&size,const Vector2& anchor) {
 
 	Vector2 minv = { size.x * (-anchor.x),size.y * (-anchor.y) };
 
-	Vector3 maxV = { size.x *(1- anchor.x),size.y *(1- anchor.y) };
+	Vector3 maxV = { size.x * (1 - anchor.x),size.y * (1 - anchor.y) };
 
 	vertexDataSprite[0].position = { minv.x,maxV.y,0.0f,1.0f };
 	vertexDataSprite[0].texcoord = { 0.0f,1.0f };
 	vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };
 
-	vertexDataSprite[1].position = {minv.x,minv.y,0.0f,1.0f };
+	vertexDataSprite[1].position = { minv.x,minv.y,0.0f,1.0f };
 	vertexDataSprite[1].texcoord = { 0.0f,0.0f };
 	vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
 
@@ -141,7 +143,7 @@ Sprite* Sprite::Create(int texture,const Vector2&size,const Vector2& anchor) {
 
 
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(texture,vertexResourceSprite,indexResourceSprite,vertexBufferViewSprite,indexBufferViewSprite, transformationMatrixResourceSprite,transformationMatrixDataSprite,materialSpriteData,materialSpriteResource);
+	sprite->Initialize(texture, vertexResourceSprite, indexResourceSprite, vertexBufferViewSprite, indexBufferViewSprite, transformationMatrixResourceSprite, transformationMatrixDataSprite, materialSpriteData, materialSpriteResource);
 
 	return sprite;
 
@@ -225,17 +227,17 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 
 #pragma endregion
 #pragma region Transform周りを作る
-	transformationMatrixResource = CreateBufferResource(DXF->GetDevice(), sizeof(WorldTransformation)*num);
+	transformationMatrixResource = CreateBufferResource(DXF->GetDevice(), sizeof(WorldTransformation) * num);
 	//データを書き込む
 
 	//書き込むためのアドレスを取得
 	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&instancingData));
-	
+
 	for (uint32_t index = 0; index < (uint32_t)num; ++index) {
 		instancingData[index].WVP = MakeIdentity4x4();
 		instancingData[index].World = MakeIdentity4x4();
 	}
-	
+
 #pragma endregion
 
 	//Sprite用のマテリアルリソース
@@ -261,10 +263,10 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 	instancingDesc.Buffer.StructureByteStride = sizeof(WorldTransformation);
 
 	SRVManager* SRVM = SRVManager::GetInstance();
-	int insSRVHandle =SRVM->CreateSRV(transformationMatrixResource, nullptr,instancingDesc);
+	int insSRVHandle = SRVM->CreateSRV(transformationMatrixResource, nullptr, instancingDesc);
 
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(texture, vertexResourceSprite, indexResourceSprite, vertexBufferView, indexBufferView, transformationMatrixResource, instancingData, materialData, materialResource,insSRVHandle,num);
+	sprite->Initialize(texture, vertexResourceSprite, indexResourceSprite, vertexBufferView, indexBufferView, transformationMatrixResource, instancingData, materialData, materialResource, insSRVHandle, num);
 
 	return sprite;
 
@@ -282,12 +284,10 @@ void Sprite::Initialize(int texture,
 	Material* materialData,
 	ID3D12Resource* materialResource,
 	int instancingHandle, int instancingCount
-)
-{	
+) {
 	DXF = DirectXFunc::GetInstance();
 
-	grarphics_ = new ParticleRootSignature();
-	grarphics_->Initialize(DXF->GetDevice());
+
 
 	//データコピー
 
@@ -305,13 +305,22 @@ void Sprite::Initialize(int texture,
 	if (instancingHandle != -1) {
 		instancingHandleNum = instancingHandle;
 		isntancingCount_ = instancingCount;
+		particlegraphics_ = new ParticleGraphics();
+		particlegraphics_->Initialize(DXF->GetDevice());
+	}
+	else {
+		grarphics_ = new GraphicsSystem();
+		grarphics_->Initialize(DXF->GetDevice());
+
 	}
 
 	Log("Sprite is Created!\n");
 }
 
-void Sprite::Draw(int texture)
-{
+void Sprite::Draw(int texture) {
+
+	grarphics_->PreDraw(DXF->GetCMDList());
+
 	//uvTransform更新
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
@@ -321,8 +330,8 @@ void Sprite::Draw(int texture)
 
 	//スプライト用データ
 	Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
-	Matrix4x4 VPSprite = viewMatrixSprite* projectionMatrixSprite;
-	Matrix4x4 WVP = World* VPSprite;
+	Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
+	Matrix4x4 WVP = World * VPSprite;
 	//データ代入
 	transformationMatrixData_->WVP = WVP;
 	transformationMatrixData_->World = World;
@@ -348,13 +357,18 @@ void Sprite::Draw(int texture)
 }
 
 void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
+	
+	particlegraphics_->PreDraw(DXF->GetCMDList());
+	
+
 	//uvTransform更新
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
-	
-	for (uint32_t index = 0; index < (uint32_t)isntancingCount_; ++index) {
-		Matrix4x4 World;
-		World = MakeAffineMatrix(scale_, rotate_, pos[index]);
+
+	for (uint32_t index = 0;index < (uint32_t)isntancingCount_; ++index) {
+		//ワールド更新
+		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, pos[index]+pos_);
+
 
 		//スプライト用データ
 		Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
@@ -364,12 +378,6 @@ void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
 		transformationMatrixData_[index].WVP = WVP;
 		transformationMatrixData_[index].World = World;
 	}
-
-	
-	
-
-	
-
 	//Spriteの描画
 	DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定			
 	DXF->GetCMDList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
@@ -378,7 +386,10 @@ void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
 	//マテリアルCBufferの場所を設定
 	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
-	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	//DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+	
+	//インスタンシング座標設定
+	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->GetTextureDescriptorHandle(instancingHandleNum));
 	//
 	if (texture != -1) {
 		DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
@@ -386,8 +397,6 @@ void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
 	else {
 		DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture_));
 	}
-
-	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->GetTextureDescriptorHandle(instancingHandleNum));
 	//描画！！（DrawCall
 	DXF->GetCMDList()->DrawIndexedInstanced(6, isntancingCount_, 0, 0, 0);
 

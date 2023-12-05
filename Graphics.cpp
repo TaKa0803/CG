@@ -83,6 +83,8 @@ IDxcBlob* CompileShader(
 
 
 #pragma region モデル用
+GraphicsSystem::GraphicsSystem() {
+}
 GraphicsSystem::~GraphicsSystem() {
 	for (int i = 0; i < static_cast<int>(FillMode::kCountOfFillMode); i++) {
 
@@ -368,19 +370,17 @@ void GraphicsSystem::SetBlendMode(BlendMode blend) {
 
 #pragma endregion
 
-#pragma region パーティクル用
+#pragma region パーティクル用Graphics
+ParticleGraphics::ParticleGraphics() {
+}
 
-ParticleRootSignature::~ParticleRootSignature() {
-
+ParticleGraphics::~ParticleGraphics() {
 	for (int h = 0; h < static_cast<int>(BlendMode::kCountOfBlendMode); h++) {
 		graphicsPipelineState[h]->Release();
 	}
-
 }
 
-void ParticleRootSignature::Initialize(ID3D12Device* device) {
-
-
+void ParticleGraphics::Initialize(ID3D12Device* device) {
 	for (int32_t blendNum = 0; blendNum < (int)BlendMode::kCountOfBlendMode; blendNum++) {
 #pragma region PSO群
 #pragma region DXCの初期化
@@ -404,16 +404,26 @@ void ParticleRootSignature::Initialize(ID3D12Device* device) {
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 #pragma region RootParameter 
 		//RootParameter作成。PixelShaderのMAterialとVertexShaderのTransform
-		D3D12_ROOT_PARAMETER rootParameters[3] = {};
+		D3D12_ROOT_PARAMETER rootParameters[4] = {};
 		rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
 		rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;		//PixelShaderで使う
 		rootParameters[0].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
 
-		rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;		//CBVを使う
-		rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//VertexShaderで使う
-		rootParameters[1].Descriptor.ShaderRegister = 0;						//レジスタ番号０とバインド
+		D3D12_DESCRIPTOR_RANGE descriptorRangeInstancing[1] = {};
+		descriptorRangeInstancing[0].BaseShaderRegister = 0;
+		descriptorRangeInstancing[0].NumDescriptors = 1;
+		descriptorRangeInstancing[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+		descriptorRangeInstancing[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-		
+
+		rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;		//CBVを使う
+		rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;	//PixelShaderで使う
+		rootParameters[1].DescriptorTable.pDescriptorRanges=descriptorRangeInstancing;						//レジスタ番号０とバインド
+		rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeInstancing);
+
+		rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+		rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		rootParameters[3].Descriptor.ShaderRegister = 1;
 
 #pragma region ディスクリプタレンジ
 		D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
@@ -426,7 +436,7 @@ void ParticleRootSignature::Initialize(ID3D12Device* device) {
 #pragma region ディスクリプタテーブル
 		//DescriptorTable
 		rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;;		//DescriptorHeapを使う
-		rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;				//PixelShaderで使う 
+		rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;					//PixelShaderで使う 
 		rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;				//tableの中身の配列を指定
 		rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);	//tableで利用する
 #pragma endregion
@@ -458,6 +468,7 @@ void ParticleRootSignature::Initialize(ID3D12Device* device) {
 			assert(false);
 		}
 		//バイナリをもとに生成
+
 		hr = device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 		assert(SUCCEEDED(hr));
 #pragma endregion
@@ -563,8 +574,9 @@ void ParticleRootSignature::Initialize(ID3D12Device* device) {
 		D3D12_RASTERIZER_DESC rasterizerDesc{};
 		//裏面を表示しない
 		rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
-		//三角形の中を塗りつぶす
+
 		rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+
 #pragma endregion
 #pragma region ShaderをCompileする
 		//Shaderをコンパイルする
@@ -619,18 +631,25 @@ void ParticleRootSignature::Initialize(ID3D12Device* device) {
 	Log("Complete GraphicsSystem Initialize\n");
 }
 
-void ParticleRootSignature::PreDraw(ID3D12GraphicsCommandList* commandList) {
-
-
+void ParticleGraphics::PreDraw(ID3D12GraphicsCommandList* commandList) {
 	//RootSignatureを設定。PSOに設定しているけど別途設定が必要
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(graphicsPipelineState[static_cast<int>(blendMode_)]);
 }
 
-void ParticleRootSignature::SetBlendMode(BlendMode blend) {
-
+void ParticleGraphics::SetBlendMode(BlendMode blend) {
 	if (blendMode_ != blend) {
 		blendMode_ = blend;
 	}
 }
+
+
+
+
+
+
+
+
 #pragma endregion
+
+

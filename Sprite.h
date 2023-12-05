@@ -97,8 +97,9 @@ private:
 
 	DirectXFunc* DXF = nullptr;
 
-	ParticleRootSignature* grarphics_=nullptr;
+	GraphicsSystem* grarphics_=nullptr;
 
+	ParticleGraphics* particlegraphics_ = nullptr;
 
 	int texture_=-1;
 
