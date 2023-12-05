@@ -25,14 +25,6 @@ struct PixelShaderOutput {
     float32_t4 color : SV_TARGET0;
 };
 
-struct DirectionalLight {
-    float32_t4 color;
-    float32_t3 direction;
-    float intensity;
-};
-
-ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
-
 
 PixelShaderOutput main(VertexShaderOutput input) {
     PixelShaderOutput output;
