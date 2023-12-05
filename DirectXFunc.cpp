@@ -1,7 +1,7 @@
 #include"DirectXFunc.h"
 #include"Log.h"
 #include"function.h"
-
+#include"SRVManager.h"
 #include<thread>
 #include<cassert>
 
@@ -26,7 +26,6 @@ void DirectXFunc::Initialize(WindowApp* winApp)
 	CommandInitialize();
 	SwapChainInitialize();
 	RTVInitialize();
-	SRVInitialize();
 	DSVInitialize();
 	FenceInitialize();
 
@@ -204,11 +203,7 @@ void DirectXFunc::RTVInitialize()
 #pragma endregion
 }
 
-void DirectXFunc::SRVInitialize() {
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	srvDescriptorHeap = CreateDescriptorHeap(device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
-	descriptorSizeSRV = device.Get()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-}
+
 
 void DirectXFunc::DSVInitialize()
 {
@@ -228,6 +223,8 @@ void DirectXFunc::DSVInitialize()
 	device->CreateDepthStencilView(depthStencilResource, &dsvDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 #pragma endregion
 }
+
+
 
 void DirectXFunc::FenceInitialize()
 {
@@ -357,7 +354,7 @@ void DirectXFunc::Finalize()
 
 	depthStencilResource->Release();
 	dsvDescriptorHeap->Release();
-	srvDescriptorHeap->Release();
+	
 	rtvDescriptorHeap->Release();
 }
 

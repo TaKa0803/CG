@@ -62,8 +62,7 @@ public:
 
 	D3D12_RENDER_TARGET_VIEW_DESC GetrtvDesc()const { return rtvDesc; }
 
-	ID3D12DescriptorHeap* GetSRV()const { return srvDescriptorHeap; }
-	uint32_t GetSRVSize()const { return descriptorSizeSRV; }
+	
 #pragma endregion
 
 private://メンバ関数
@@ -89,8 +88,7 @@ private://メンバ関数
 
 	void DSVInitialize();
 
-	void SRVInitialize();
-
+	
 	void FenceInitialize();
 #pragma endregion
 
@@ -129,9 +127,7 @@ private://メンバ変数
 	ID3D12DescriptorHeap* rtvDescriptorHeap;
 
 
-	//SRV用のヒープでディスクリプタの数は１２８。SRVはSHADER内で触るものなので、ShaderVisibleはtrue
-	ID3D12DescriptorHeap* srvDescriptorHeap;
-	uint32_t descriptorSizeSRV;
+	
 
 
 	ID3D12Resource* depthStencilResource;

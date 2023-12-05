@@ -6,7 +6,7 @@ SamplerState gSampler : register(s0);
 
 struct Material {
 	float32_t4 color;
-   
+    
     int32_t enableLighting;
     
     float32_t4x4 uvTransform;

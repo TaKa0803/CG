@@ -95,6 +95,9 @@
     <Filter Include="Engine\Graphics\Particle">
       <UniqueIdentifier>{3532b2ff-d06b-41c7-8c1a-eff0a857859a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\SRVManager">
+      <UniqueIdentifier>{8148049b-14c9-41e8-94c4-dcfbb9b7fafc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -197,6 +200,9 @@
     <ClCompile Include="ParticleRootSignature.cpp">
       <Filter>Engine\Graphics\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="SRVManager.cpp">
+      <Filter>Engine\SRVManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -209,6 +215,12 @@
       <Filter>Engine\shaders\Particle</Filter>
     </FxCompile>
     <FxCompile Include="Particle.VS.hlsl">
+      <Filter>Engine\shaders\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Particle.PS.hlsl">
+      <Filter>Engine\shaders\Particle</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Particle.VS.hlsl">
       <Filter>Engine\shaders\Particle</Filter>
     </FxCompile>
   </ItemGroup>
@@ -315,6 +327,9 @@
     <ClInclude Include="ParticleRootSignature.h">
       <Filter>Engine\Graphics\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="SRVManager.h">
+      <Filter>Engine\SRVManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
@@ -326,6 +341,9 @@
       <Filter>Engine\shaders</Filter>
     </None>
     <None Include="Particle.hlsli">
+      <Filter>Engine\shaders\Particle</Filter>
+    </None>
+    <None Include="resources\shaders\Particle.hlsli">
       <Filter>Engine\shaders\Particle</Filter>
     </None>
   </ItemGroup>

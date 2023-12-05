@@ -15,7 +15,7 @@ void MainSystem::Run() {
 	Initializes();
 
 	//更新処理
-	Update();
+	MainRoop();
 
 	//終了処理
 	Finalize();
@@ -35,8 +35,12 @@ void MainSystem::Initializes() {
 
 	//画像関係
 	textureManager= TextureManager::GetInstance();
-	textureManager->InitializeBase(DXF);
-
+	textureManager->Initialize(DXF);
+	
+	//SRV
+	SRVM_ = SRVManager::GetInstance();
+	SRVM_->Initialize(DXF);
+	
 	//imgui
 	imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Initialize(winApp, DXF);
@@ -45,10 +49,11 @@ void MainSystem::Initializes() {
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
+	
 
 }
 
-void MainSystem::Update() {
+void MainSystem::MainRoop() {
 
 	GlobalVariables::GetInstance()->LoadFiles();
 
@@ -113,6 +118,7 @@ void MainSystem::Update() {
 
 void MainSystem::Finalize() {
 	///開放処理
+	SRVM_->Finalize();
 	textureManager->Finalize();
 	imguiManager->Finalize();
 	DXF->Finalize();

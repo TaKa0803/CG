@@ -24,5 +24,8 @@ private:
 
 	Sprite* sprite_;
 
+	static const int kNuminstancing = 10;
+
+	Vector3 insPos[kNuminstancing];
 };
 

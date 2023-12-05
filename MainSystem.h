@@ -6,7 +6,7 @@
 #include"TextureManager.h"
 #include"ImGuiManager.h"
 #include"Input.h"
-
+#include"SRVManager.h"
 
 class MainSystem {
 public://シングルトンパターン
@@ -26,7 +26,7 @@ public:
 private:
 	void Initializes();
 
-	void Update();
+	void MainRoop();
 
 	void Finalize();
 
@@ -38,7 +38,6 @@ private:
 	//DirectX
 	DirectXFunc* DXF;
 
-	
 	//ImGui
 	ImGuiManager* imguiManager;
 
@@ -47,5 +46,8 @@ private:
 
 	//入力
 	Input* input;
+
+	//SRV
+	SRVManager* SRVM_;
 #pragma endregion
 };

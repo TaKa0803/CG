@@ -3,8 +3,9 @@
 #include"WinApp.h"
 #include"DirectXFunc.h"
 #include"TextureManager.h"
+#include"SRVManager.h"
 
-#include"externals/imgui/imgui.h"
+#include"imgui.h"
 
 class ImGuiManager
 {
@@ -59,5 +60,6 @@ private:
 	 WindowApp* winApp_ = nullptr;
 	DirectXFunc* DXF_ = nullptr;
 	TextureManager* textureManager_ = nullptr;
+	SRVManager* SRVM_=nullptr;
 };
 
