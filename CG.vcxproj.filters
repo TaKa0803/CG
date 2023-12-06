@@ -101,6 +101,12 @@
     <Filter Include="Engine\RandomNumber">
       <UniqueIdentifier>{bc883696-06e8-48e9-ad91-c56b421ce6d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\math\Quaternion">
+      <UniqueIdentifier>{8db43f59-6d09-46c3-a68b-79d6020c5751}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\MT4Scene">
+      <UniqueIdentifier>{d4ed701b-5b30-4e8f-bbaa-70dcd029f871}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -208,6 +214,12 @@
     </ClCompile>
     <ClCompile Include="RandomNum.cpp">
       <Filter>Engine\RandomNumber</Filter>
+    </ClCompile>
+    <ClCompile Include="Quaternion.cpp">
+      <Filter>Engine\math\Quaternion</Filter>
+    </ClCompile>
+    <ClCompile Include="MT4Scene.cpp">
+      <Filter>Scene\MT4Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -332,6 +344,12 @@
     </ClInclude>
     <ClInclude Include="RandomNum.h">
       <Filter>Engine\RandomNumber</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Engine\math\Quaternion</Filter>
+    </ClInclude>
+    <ClInclude Include="MT4Scene.h">
+      <Filter>Scene\MT4Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
