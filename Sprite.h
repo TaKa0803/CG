@@ -40,14 +40,14 @@ public:
 	/// <param name="texture">画像の要素番号（無くてもいい）</param>
 	void Draw(int texture=-1);
 
-	void DrawInstancing(int texture = -1, const Vector3 pos[]=nullptr);
+	void DrawInstancing(int texture = -1);
 public:///セッター
 
 	/// <summary>
 	/// 座標代入
 	/// </summary>
 	/// <param name="pos">代入座標</param>
-	void SetPosition(const Vector2 pos) { pos_.x = pos.x; pos_.y = pos.y; }
+	void SetPosition(Vector3* pos) { poses_.emplace_back(pos); }
 	
 	
 	/// <summary>
@@ -126,9 +126,11 @@ private:
 
 	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
 
+	std::vector<Vector3*>poses_;
 
-	Vector3 pos_;
-	Vector3 rotate_;
+
+	Vector3 pos_{};
+	Vector3 rotate_{};
 	Vector3 scale_ = {1.0f,1.0f,1.0f};
 
 

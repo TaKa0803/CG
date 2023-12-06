@@ -356,7 +356,7 @@ void Sprite::Draw(int texture) {
 	DXF->GetCMDList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
-void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
+void Sprite::DrawInstancing(int texture) {
 	
 	particlegraphics_->PreDraw(DXF->GetCMDList());
 	
@@ -365,6 +365,23 @@ void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
 
+	int index = 0;
+	for (auto pos : poses_) {
+		//ワールド更新
+		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_,*pos);
+
+
+		//スプライト用データ
+		Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
+		Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
+		Matrix4x4 WVP = World * VPSprite;
+		//データ代入
+		transformationMatrixData_[index].WVP = WVP;
+		transformationMatrixData_[index].World = World;
+		index++;
+	}
+	poses_.clear();
+	/*
 	for (uint32_t index = 0;index < (uint32_t)isntancingCount_; ++index) {
 		//ワールド更新
 		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, pos[index]+pos_);
@@ -378,6 +395,7 @@ void Sprite::DrawInstancing(int texture, const Vector3 pos[]) {
 		transformationMatrixData_[index].WVP = WVP;
 		transformationMatrixData_[index].World = World;
 	}
+	*/
 	//Spriteの描画
 	DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定			
 	DXF->GetCMDList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定

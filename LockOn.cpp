@@ -168,8 +168,8 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 		pos = Transform(pos, matVPV);
 
 		//V2に変換
-		Vector2 newp = { pos.x,pos.y };
-		lockOn_->SetPosition(newp);
+		
+		lockOn_->SetPosition(&pos);
 
 
 #pragma region カメラ処理

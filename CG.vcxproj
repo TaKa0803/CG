@@ -128,6 +128,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ParticleRootSignature.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RandomNum.cpp" />
     <ClCompile Include="SpCommon.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SRVManager.cpp" />
@@ -186,6 +187,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Model.h" />
     <ClInclude Include="ParticleRootSignature.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="RandomNum.h" />
     <ClInclude Include="SpCommon.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SRVManager.h" />

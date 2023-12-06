@@ -2,6 +2,7 @@
 #include"InGame.h"
 #include"DebugScene.h"
 #include"GlobalVariables.h"
+#include"RandomNum.h"
 
 MainSystem* MainSystem::GetInstance() {
 	static MainSystem instance;
@@ -49,8 +50,8 @@ void MainSystem::Initializes() {
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
+	RandomNumber::RandomNumberProcessInitialize();
 	
-
 }
 
 void MainSystem::MainRoop() {

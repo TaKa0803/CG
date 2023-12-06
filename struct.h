@@ -10,6 +10,11 @@
 
 #pragma region 構造体
 
+struct Particle {
+	Vector3 position;
+	Vector3 velocity;
+};
+
 struct AABB {
 	Vector3 minV;
 	Vector3 maxV;
@@ -51,7 +56,9 @@ struct Material {
 struct DirectionalLight {
 	Vector4 color;
 	Vector3 direction;
+	float padding;
 	float intensity;
+	float padding2[3];
 };
 
 

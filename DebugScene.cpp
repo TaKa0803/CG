@@ -5,6 +5,21 @@
 #include"DirectXFunc.h"
 #include"function.h"
 
+#include"RandomNum.h"
+
+Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo) {
+	Particle ans;
+
+	ans.position = spawnPos + RandomNumber::GetRandomNum(-emiterSize / 2,emiterSize / 2);
+	
+
+	ans.velocity = RandomNumber::GetRandomNum(minVelo, maxVelo);
+
+	return ans;
+}
+
+
+
 void DebugScene::Initialize() {
 	model_ = Model::CreateFromOBJ("fence/fence");
 	//texture = TextureManager::LoadTex("resources/fence/fence.png");
@@ -17,11 +32,13 @@ void DebugScene::Initialize() {
 
 	sprite_ = new Sprite();
 	//sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
-	sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
-	sprite_->SetPosition({ 640, 360});
+	sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
+	Vector3 center={ 640, 360,0};
+
+	Vector3 velo = { 50,50,50 };
 
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index] = { (float)index * 5.0f,(float)index * 6.0f,(float)index*0.1f};
+		insPos[index] = MakeNewParticle(center, { 0,0,0 }, -velo, velo);
 	}
 
 	
@@ -34,7 +51,10 @@ void DebugScene::Update() {
 	model_->DebugParameter("box");
 	sprite_->DrawDebugImGui("sprite");
 
-
+	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
+		insPos[index].position +=insPos[index].velocity*kDeltaTime;
+		sprite_->SetPosition(&insPos[index].position);
+	}
 
 	world_.UpdateMatrix();
 	camera_.Update();
@@ -45,7 +65,7 @@ void DebugScene::Update() {
 void DebugScene::Draw() {
 	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 
-	sprite_->DrawInstancing(-1,insPos);
+	sprite_->DrawInstancing();
 	//sprite_->Draw();
 }
 

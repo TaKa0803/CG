@@ -98,6 +98,9 @@
     <Filter Include="Engine\SRVManager">
       <UniqueIdentifier>{8148049b-14c9-41e8-94c4-dcfbb9b7fafc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\RandomNumber">
+      <UniqueIdentifier>{bc883696-06e8-48e9-ad91-c56b421ce6d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="SRVManager.cpp">
       <Filter>Engine\SRVManager</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomNum.cpp">
+      <Filter>Engine\RandomNumber</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,6 +329,9 @@
     </ClInclude>
     <ClInclude Include="SRVManager.h">
       <Filter>Engine\SRVManager</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomNum.h">
+      <Filter>Engine\RandomNumber</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

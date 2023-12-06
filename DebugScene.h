@@ -4,6 +4,7 @@
 #include"Camera.h"
 #include"Sprite.h"
 
+
 class DebugScene {
 public:
 	void Initialize();
@@ -26,6 +27,10 @@ private:
 
 	static const int kNuminstancing = 10;
 
-	Vector3 insPos[kNuminstancing];
+	
+
+	Particle insPos[kNuminstancing];
+
+	const float kDeltaTime = 1.0f / 60.0f;
 };
 
