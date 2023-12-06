@@ -92,9 +92,6 @@
     <Filter Include="Engine\shaders\Particle">
       <UniqueIdentifier>{3aaaa7a4-0de1-49e9-8fa6-ae5590aea0b3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Graphics\Particle">
-      <UniqueIdentifier>{3532b2ff-d06b-41c7-8c1a-eff0a857859a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\SRVManager">
       <UniqueIdentifier>{8148049b-14c9-41e8-94c4-dcfbb9b7fafc}</UniqueIdentifier>
     </Filter>
@@ -205,9 +202,6 @@
     </ClCompile>
     <ClCompile Include="Vector2.cpp">
       <Filter>Engine\math\Vector2</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleRootSignature.cpp">
-      <Filter>Engine\Graphics\Particle</Filter>
     </ClCompile>
     <ClCompile Include="SRVManager.cpp">
       <Filter>Engine\SRVManager</Filter>
@@ -335,9 +329,6 @@
     </ClInclude>
     <ClInclude Include="Vector2.h">
       <Filter>Engine\math\Vector2</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleRootSignature.h">
-      <Filter>Engine\Graphics\Particle</Filter>
     </ClInclude>
     <ClInclude Include="SRVManager.h">
       <Filter>Engine\SRVManager</Filter>

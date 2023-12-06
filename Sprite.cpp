@@ -159,7 +159,7 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 
 	ID3D12Resource* transformationMatrixResource;
 
-	WorldTransformation* instancingData = nullptr;
+	Particle4GPU* instancingData = nullptr;
 
 	Material* materialData = nullptr;
 
@@ -227,8 +227,9 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 
 #pragma endregion
 #pragma region Transform周りを作る
-	transformationMatrixResource = CreateBufferResource(DXF->GetDevice(), sizeof(WorldTransformation) * num);
+	transformationMatrixResource = CreateBufferResource(DXF->GetDevice(), sizeof(Particle4GPU) * num);
 	//データを書き込む
+
 
 	//書き込むためのアドレスを取得
 	transformationMatrixResource->Map(0, nullptr, reinterpret_cast<void**>(&instancingData));
@@ -236,6 +237,7 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 	for (uint32_t index = 0; index < (uint32_t)num; ++index) {
 		instancingData[index].WVP = MakeIdentity4x4();
 		instancingData[index].World = MakeIdentity4x4();
+		instancingData[index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 #pragma endregion
@@ -260,13 +262,13 @@ Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num
 	instancingDesc.Buffer.FirstElement = 0;
 	instancingDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	instancingDesc.Buffer.NumElements = num;
-	instancingDesc.Buffer.StructureByteStride = sizeof(WorldTransformation);
+	instancingDesc.Buffer.StructureByteStride = sizeof(Particle4GPU);
 
 	SRVManager* SRVM = SRVManager::GetInstance();
 	int insSRVHandle = SRVM->CreateSRV(transformationMatrixResource, nullptr, instancingDesc);
 
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(texture, vertexResourceSprite, indexResourceSprite, vertexBufferView, indexBufferView, transformationMatrixResource, instancingData, materialData, materialResource, insSRVHandle, num);
+	sprite->InitializeInstancing(texture, vertexResourceSprite, indexResourceSprite, vertexBufferView, indexBufferView, transformationMatrixResource, instancingData, materialData, materialResource, insSRVHandle, num);
 
 	return sprite;
 
@@ -301,20 +303,41 @@ void Sprite::Initialize(int texture,
 	materialData_ = materialData;
 	materialResource_ = materialResource;
 
-	//インスタンシング初期化の場合の処理
-	if (instancingHandle != -1) {
-		instancingHandleNum = instancingHandle;
-		isntancingCount_ = instancingCount;
-		particlegraphics_ = new ParticleGraphics();
-		particlegraphics_->Initialize(DXF->GetDevice());
-	}
-	else {
-		grarphics_ = new GraphicsSystem();
-		grarphics_->Initialize(DXF->GetDevice());
 
-	}
+
+	grarphics_ = new GraphicsSystem();
+	grarphics_->Initialize(DXF->GetDevice());
+
+
 
 	Log("Sprite is Created!\n");
+}
+
+void Sprite::InitializeInstancing(int texture, ID3D12Resource* vertexResourceSprite, ID3D12Resource* indexResourceSprite, D3D12_VERTEX_BUFFER_VIEW& vertexBufferView, D3D12_INDEX_BUFFER_VIEW& indexBufferView, ID3D12Resource* transformationMatrixResource, Particle4GPU* transformationMatrixData, Material* materialData, ID3D12Resource* materialResource, int instancingHandle, int instancingCount) {
+	DXF = DirectXFunc::GetInstance();
+
+
+
+	//データコピー
+
+	texture_ = texture;
+	vertexResource_ = vertexResourceSprite;
+	indexResource_ = indexResourceSprite;
+	vertexBufferView_ = vertexBufferView;
+	indexBufferView_ = indexBufferView;
+	particle4GPUData_ = transformationMatrixData;
+	transformationMatrixResource_ = transformationMatrixResource;
+	materialData_ = materialData;
+	materialResource_ = materialResource;
+
+
+	instancingHandleNum = instancingHandle;
+	isntancingCount_ = instancingCount;
+	particlegraphics_ = new ParticleGraphics();
+	particlegraphics_->Initialize(DXF->GetDevice());
+
+
+	Log("Instancing Sprite is Created!\n");
 }
 
 void Sprite::Draw(int texture) {
@@ -357,18 +380,18 @@ void Sprite::Draw(int texture) {
 }
 
 void Sprite::DrawInstancing(int texture) {
-	
+
 	particlegraphics_->PreDraw(DXF->GetCMDList());
-	
+
 
 	//uvTransform更新
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
-
+	/*
 	int index = 0;
 	for (auto pos : poses_) {
 		//ワールド更新
-		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_,*pos);
+		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, *pos);
 
 
 		//スプライト用データ
@@ -376,11 +399,31 @@ void Sprite::DrawInstancing(int texture) {
 		Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
 		Matrix4x4 WVP = World * VPSprite;
 		//データ代入
-		transformationMatrixData_[index].WVP = WVP;
-		transformationMatrixData_[index].World = World;
+		particle4GPUData_[index].WVP = WVP;
+		particle4GPUData_[index].World = World;
+		particle4GPUData_[index].color;
 		index++;
 	}
 	poses_.clear();
+	*/
+
+	int index = 0;
+	for (auto& particle : particles_) {
+		//ワールド更新
+		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, particle->position);
+
+
+		//スプライト用データ
+		Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
+		Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
+		Matrix4x4 WVP = World * VPSprite;
+		//データ代入
+		particle4GPUData_[index].WVP = WVP;
+		particle4GPUData_[index].World = World;
+		particle4GPUData_[index].color = particle->color;
+		index++;
+	}
+	particles_.clear();
 	/*
 	for (uint32_t index = 0;index < (uint32_t)isntancingCount_; ++index) {
 		//ワールド更新
@@ -405,7 +448,7 @@ void Sprite::DrawInstancing(int texture) {
 	DXF->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//TransformationMatrixCBufferの場所を設定
 	//DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
-	
+
 	//インスタンシング座標設定
 	DXF->GetCMDList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->GetTextureDescriptorHandle(instancingHandleNum));
 	//

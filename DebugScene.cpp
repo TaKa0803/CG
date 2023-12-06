@@ -41,7 +41,7 @@ void DebugScene::Initialize() {
 	Vector3 velo = { 50,50,50 };
 
 	Vector4 color = { 1,1,1,1 };
-	Vector4 colormin = { 0,0,0,0 };
+	Vector4 colormin = { 0,0,0,1 };
 
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		insPos[index] = MakeNewParticle(center, { 0,0,0 }, -velo, velo,colormin,color);
@@ -57,15 +57,27 @@ void DebugScene::Update() {
 	model_->DebugParameter("box");
 	sprite_->DrawDebugImGui("sprite");
 
+	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
+	ImGui::BeginMenuBar();
+
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		insPos[index].position +=insPos[index].velocity*kDeltaTime;
-		sprite_->SetPosition(&insPos[index].position);
+		
+
+
+		if (ImGui::BeginMenu("aho")) {
+			ImGui::ColorEdit4("set color",&insPos[index].color.x);
+			ImGui::EndMenu();
+		}
+
+		sprite_->SetParticle(&insPos[index]);
 	}
 
 	world_.UpdateMatrix();
 	camera_.Update();
 
-	
+	ImGui::EndMenuBar();
+	ImGui::End();
 }
 
 void DebugScene::Draw() {

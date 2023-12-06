@@ -49,6 +49,7 @@ public:///セッター
 	/// <param name="pos">代入座標</param>
 	void SetPosition(Vector3* pos) { poses_.emplace_back(pos); }
 	
+	void SetParticle(Particle* particle) { particles_.emplace_back(particle); }
 	
 	/// <summary>
 	/// uvの平行移動代入
@@ -82,6 +83,12 @@ private:
 		Matrix4x4 World;
 	};
 
+	struct Particle4GPU {
+		Matrix4x4 WVP;
+		Matrix4x4 World;
+		Vector4 color;
+	};
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
@@ -92,6 +99,12 @@ private:
 		Material* materialData,
 		ID3D12Resource* materialResource, int instancingHandle=-1,int instancingCount=0);
 
+	void InitializeInstancing(int texture, ID3D12Resource* vertexResourceSprite, ID3D12Resource* indexResourceSprite, D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
+		D3D12_INDEX_BUFFER_VIEW& indexBufferView,
+		ID3D12Resource* transformationMatrixResource,
+		Particle4GPU* transformationMatrixData,
+		Material* materialData,
+		ID3D12Resource* materialResource, int instancingHandle, int instancingCount);
 private:
 
 
@@ -118,6 +131,8 @@ private:
 	//
 	WorldTransformation* transformationMatrixData_ = nullptr;
 
+	Particle4GPU* particle4GPUData_ = nullptr;
+
 	Material* materialData_ = nullptr;;
 	//
 	ID3D12Resource* materialResource_=nullptr;
@@ -128,6 +143,7 @@ private:
 
 	std::vector<Vector3*>poses_;
 
+	std::vector<Particle*>particles_;
 
 	Vector3 pos_{};
 	Vector3 rotate_{};
