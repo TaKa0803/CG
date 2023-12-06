@@ -35,6 +35,31 @@ void Sprite::DrawDebugImGui(const char* name) {
 	ImGui::DragFloat2("uv pos", &uvpos.x, 0.1f);
 	ImGui::DragFloat("uv rotate", &uvrotate.z, 0.1f);
 	ImGui::DragFloat2("uv scale", &uvscale.x, 0.1f);
+
+	
+	if (instancingHandleNum == -1) {
+		BlendMode blend = grarphics_->GetBlendMode();
+		const char* items[] = { "None","Normal","Add","Subtract","Multiply","Screen" };
+		int currentItem = static_cast<int>(blend);
+
+		if (ImGui::Combo("blendmode", &currentItem, items, IM_ARRAYSIZE(items))) {
+			blend = static_cast<BlendMode>(currentItem);
+		}
+
+		grarphics_->SetBlendMode(blend);
+	}
+	else {
+		BlendMode blend = particlegraphics_->GetBlendMode();
+		const char* items[] = { "None","Normal","Add","Subtract","Multiply","Screen" };
+		int currentItem = static_cast<int>(blend);
+
+		if (ImGui::Combo("blendmode", &currentItem, items, IM_ARRAYSIZE(items))) {
+			blend = static_cast<BlendMode>(currentItem);
+		}
+
+		particlegraphics_->SetBlendMode(blend);
+	}
+
 	ImGui::End();
 #endif // _DEBUG
 
@@ -407,8 +432,12 @@ void Sprite::DrawInstancing(int texture) {
 	poses_.clear();
 	*/
 
+	//生きている数と番号チェック
 	int index = 0;
 	for (auto& particle : particles_) {
+
+
+		
 		//ワールド更新
 		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, particle->position);
 
@@ -421,6 +450,7 @@ void Sprite::DrawInstancing(int texture) {
 		particle4GPUData_[index].WVP = WVP;
 		particle4GPUData_[index].World = World;
 		particle4GPUData_[index].color = particle->color;
+
 		index++;
 	}
 	particles_.clear();
@@ -459,7 +489,7 @@ void Sprite::DrawInstancing(int texture) {
 		DXF->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture_));
 	}
 	//描画！！（DrawCall
-	DXF->GetCMDList()->DrawIndexedInstanced(6, isntancingCount_, 0, 0, 0);
+	DXF->GetCMDList()->DrawIndexedInstanced(6, index, 0, 0, 0);
 
 }
 

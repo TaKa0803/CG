@@ -590,7 +590,7 @@ void ParticleGraphics::Initialize(ID3D12Device* device) {
 		//Depthの機能を有効化する
 		depthStencilDesc.DepthEnable = true;
 		//書き込みします
-		depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		//比較関数はLessEqualつまりちかければ描画される
 		depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 #pragma endregion

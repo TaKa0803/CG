@@ -42,7 +42,8 @@ PixelShaderOutput main(VertexShaderOutput input) {
     
     
    
-    output.color = gMaterial.color * textureColor*input.color;
+    output.color.rgb = gMaterial.color.rgb * textureColor.rgb * input.color.rgb;
+    output.color.a = gMaterial.color.a * textureColor.a * input.color.a;
     
     
     //textureのα値が0の時Pixelを棄却
