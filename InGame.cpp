@@ -367,6 +367,7 @@ void InGame::Collision() {
 		}
 		lockOn_->Reset();
 		camera.SetCameraR_Y(0);
+
 	}
 
 	//武器とのコリジョン

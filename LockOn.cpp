@@ -229,7 +229,7 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 	if (target_) {
 		//ターゲット存在時に呼び出されたら処理キャンセル
 		target_ = nullptr;
-		
+		SetAutoLockOn(false);
 	}
 	else {
 
@@ -280,4 +280,5 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 
 void LockOn::Reset() {
 	target_ = nullptr;
+	SetAutoLockOn(false);
 }
