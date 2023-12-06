@@ -161,15 +161,15 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 		Vector3 pos = target_->GetWorld().GetMatWorldTranslate();
 
-		Matrix4x4 matviewport = MakeViewPortMatrix(0, 0, (float)WinApp::kClientWidth, (float)WinApp::kClientHeight, 0, 1);
+		Matrix4x4 matviewport = MakeViewPortMatrix(0, 0, (float)WindowApp::kClientWidth, (float)WindowApp::kClientHeight, 0, 1);
 
 		Matrix4x4 matVPV = camera->GetViewProjectionMatrix() * matviewport;
 
 		pos = Transform(pos, matVPV);
 
 		//V2に変換
-		Vector2 newp = { pos.x,pos.y };
-		lockOn_->SetPosition(newp);
+		
+		lockOn_->SetPosition(&pos);
 
 
 #pragma region カメラ処理

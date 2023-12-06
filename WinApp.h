@@ -3,16 +3,16 @@
 #include<Windows.h>
 
 
-class WinApp {
+class WindowApp {
 public://シングルトンパターン
-	static WinApp* GetInstance();
+	static WindowApp* GetInstance();
 
 private://シングルトンパターン
 
-	WinApp() = default;
-	~WinApp() = default;
-	WinApp(const WinApp& o) = delete;
-	const WinApp& operator=(const WinApp& o) = delete;
+	WindowApp() = default;
+	~WindowApp() = default;
+	WindowApp(const WindowApp& o) = delete;
+	const WindowApp& operator=(const WindowApp& o) = delete;
 
 
 public://静的メンバ変数

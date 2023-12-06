@@ -6,6 +6,7 @@
 #include"Log.h"
 
 #include"ImGuiManager.h"
+#include"SRVManager.h"
 
 #define _USE_MATH_DEFINES
 #include<math.h>
@@ -370,6 +371,9 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
 {
 	grarphics_->PreDraw(DXF_->GetCMDList());
+
+	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
+
 	Matrix4x4 WVP = worldMatrix* viewProjection;
 
 	wvpData_->WVP = WVP;
@@ -385,7 +389,7 @@ void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,in
 	//
 	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
 	//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
 	//描画！		
 	DXF_->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
 }
@@ -405,6 +409,8 @@ void Model::DebugParameter(const char* name)
 	float discardnum = materialData_->discardNum;
 
 	
+
+
 	ImGui::Begin("status");
 	ImGui::Checkbox("Texture", &useTexture);
 	ImGui::Checkbox("Shader", &useShader);
@@ -414,8 +420,14 @@ void Model::DebugParameter(const char* name)
 		blend = static_cast<BlendMode>(currentItem);
 	}
 	ImGui::DragFloat("discardNum", &discardnum, 0.01f);
+
+	ImGui::Text("UV");
+	ImGui::DragFloat2("uv pos", &uvpos.x, 0.1f);
+	ImGui::DragFloat("uv rotate", &uvrotate.z, 0.1f);
+	ImGui::DragFloat2("uv scale", &uvscale.x, 0.1f);
 	ImGui::End();
 
+	
 	materialData_->enableTexture = useTexture;
 	materialData_->enableLighting = useShader;
 	materialData_->enableHalfLambert = useHalf;

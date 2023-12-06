@@ -37,7 +37,7 @@ private:
 
 public:
 
-	void Initialize(WinApp*winApp);
+	void Initialize(WindowApp*winApp);
 
 	void Update();
 

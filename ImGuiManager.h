@@ -3,8 +3,9 @@
 #include"WinApp.h"
 #include"DirectXFunc.h"
 #include"TextureManager.h"
+#include"SRVManager.h"
 
-#include"externals/imgui/imgui.h"
+#include"imgui.h"
 
 class ImGuiManager
 {
@@ -27,7 +28,7 @@ public:
 	/// 初期化
 	/// </summary>
 	/// <param name="winApp"></param>
-	void Initialize(WinApp* winApp, DirectXFunc* DXF);
+	void Initialize(WindowApp* winApp, DirectXFunc* DXF);
 
 	/// <summary>
 	/// 更新最初に処理
@@ -56,8 +57,9 @@ public:
 
 private:
 	//ポインタ
-	 WinApp* winApp_ = nullptr;
+	 WindowApp* winApp_ = nullptr;
 	DirectXFunc* DXF_ = nullptr;
 	TextureManager* textureManager_ = nullptr;
+	SRVManager* SRVM_=nullptr;
 };
 

@@ -5,6 +5,8 @@
 #include"externals/Imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 #pragma endregion
+
+
 #include<cassert>
 
 ImGuiManager* ImGuiManager::GetInstance()
@@ -13,13 +15,15 @@ ImGuiManager* ImGuiManager::GetInstance()
 	return &Instance;
 }
 
-void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
+void ImGuiManager::Initialize(WindowApp* winApp,DirectXFunc *DXF)
 {
 	assert(winApp);
 	winApp_ = winApp;
 
 	assert(DXF);
 	DXF_ = DXF;
+
+	SRVM_ = SRVManager::GetInstance();
 	
 #pragma region ImGuiの初期化
 	//ImGuiの初期化。詳細はさして重要ではないので解説は省略
@@ -31,9 +35,9 @@ void ImGuiManager::Initialize(WinApp* winApp,DirectXFunc *DXF)
 	ImGui_ImplDX12_Init(DXF_->GetDevice(),
 		DXF_->GetswapChainDesc().BufferCount,
 		DXF_->GetrtvDesc().Format,
-		DXF_->GetSRV(),
-		DXF_->GetSRV()->GetCPUDescriptorHandleForHeapStart(),
-		DXF_->GetSRV()->GetGPUDescriptorHandleForHeapStart());
+		SRVM_->GetSRV(),
+		SRVM_->GetSRV()->GetCPUDescriptorHandleForHeapStart(),
+		SRVM_->GetSRV()->GetGPUDescriptorHandleForHeapStart());
 #pragma endregion
 
 }
@@ -57,7 +61,7 @@ void ImGuiManager::PreDraw()
 {
 #pragma region ImGuiの処理
 	//描画用のDescriptorHeapの設定
-	ID3D12DescriptorHeap* descriptorHeaps[] = { DXF_->GetSRV() };
+	ID3D12DescriptorHeap* descriptorHeaps[] = { SRVM_->GetSRV() };
 	DXF_->GetCMDList()->SetDescriptorHeaps(1, descriptorHeaps);
 #pragma endregion
 }

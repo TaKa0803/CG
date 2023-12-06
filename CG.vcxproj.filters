@@ -86,6 +86,21 @@
     <Filter Include="Effect">
       <UniqueIdentifier>{fad6fc26-10a2-48cb-a91d-fcaf78b7a498}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\math\Vector2">
+      <UniqueIdentifier>{3ddbc9cd-ecaa-4763-84b6-e84ce1371cce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\shaders\Particle">
+      <UniqueIdentifier>{3aaaa7a4-0de1-49e9-8fa6-ae5590aea0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\Particle">
+      <UniqueIdentifier>{3532b2ff-d06b-41c7-8c1a-eff0a857859a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\SRVManager">
+      <UniqueIdentifier>{8148049b-14c9-41e8-94c4-dcfbb9b7fafc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\RandomNumber">
+      <UniqueIdentifier>{bc883696-06e8-48e9-ad91-c56b421ce6d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -179,11 +194,20 @@
     <ClCompile Include="LockOn.cpp">
       <Filter>LockOn</Filter>
     </ClCompile>
-    <ClCompile Include="Vector2.cpp">
-      <Filter>Engine\math</Filter>
-    </ClCompile>
     <ClCompile Include="EffectHit.cpp">
       <Filter>Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>Engine\math\Vector2</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleRootSignature.cpp">
+      <Filter>Engine\Graphics\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="SRVManager.cpp">
+      <Filter>Engine\SRVManager</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomNum.cpp">
+      <Filter>Engine\RandomNumber</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -193,11 +217,11 @@
     <FxCompile Include="resources\shaders\Object3d.VS.hlsl">
       <Filter>Engine\shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Particle.VS.hlsl">
-      <Filter>Engine\shaders</Filter>
+    <FxCompile Include="resources\shaders\Particle.PS.hlsl">
+      <Filter>Engine\shaders\Particle</Filter>
     </FxCompile>
-    <FxCompile Include="Particle.PS.hlsl">
-      <Filter>Engine\shaders</Filter>
+    <FxCompile Include="resources\shaders\Particle.VS.hlsl">
+      <Filter>Engine\shaders\Particle</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -279,9 +303,6 @@
     <ClInclude Include="Player.h">
       <Filter>Player</Filter>
     </ClInclude>
-    <ClInclude Include="Vector2.h">
-      <Filter>Engine\math</Filter>
-    </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>Engine\math\Vector3</Filter>
     </ClInclude>
@@ -300,6 +321,18 @@
     <ClInclude Include="EffectHit.h">
       <Filter>Effect</Filter>
     </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Engine\math\Vector2</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleRootSignature.h">
+      <Filter>Engine\Graphics\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="SRVManager.h">
+      <Filter>Engine\SRVManager</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomNum.h">
+      <Filter>Engine\RandomNumber</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
@@ -310,8 +343,8 @@
     <None Include="resources\shaders\Object3d.hlsli">
       <Filter>Engine\shaders</Filter>
     </None>
-    <None Include="Particle.hlsli">
-      <Filter>Engine\shaders</Filter>
+    <None Include="resources\shaders\Particle.hlsli">
+      <Filter>Engine\shaders\Particle</Filter>
     </None>
   </ItemGroup>
 </Project>

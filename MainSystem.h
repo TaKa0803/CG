@@ -6,7 +6,8 @@
 #include"TextureManager.h"
 #include"ImGuiManager.h"
 #include"Input.h"
-
+#include"SRVManager.h"
+#include"RandomNum.h"
 
 class MainSystem {
 public://シングルトンパターン
@@ -26,19 +27,18 @@ public:
 private:
 	void Initializes();
 
-	void Update();
+	void MainRoop();
 
 	void Finalize();
 
 private:
 #pragma region 基板初期化
 	//windowsアプリケーション
-	WinApp* winApp;
+	WindowApp* winApp;
 
 	//DirectX
 	DirectXFunc* DXF;
 
-	
 	//ImGui
 	ImGuiManager* imguiManager;
 
@@ -47,5 +47,10 @@ private:
 
 	//入力
 	Input* input;
+
+	//SRV
+	SRVManager* SRVM_;
+
+	RandomNumber* randomNumClass_;
 #pragma endregion
 };

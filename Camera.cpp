@@ -19,7 +19,7 @@ void Camera::Initialize() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
 	viewProjection_ = view_ * projection_;
 }
 
@@ -46,7 +46,7 @@ void Camera::Update() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
 	viewProjection_ = view_* projection_;
 }
 
@@ -94,7 +94,7 @@ void Camera::UpdateMatrixes() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WinApp::kClientWidth / (float)WinApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
 	viewProjection_ = view_* projection_;
 }
 

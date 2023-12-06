@@ -1,7 +1,7 @@
 #include "TextureManager.h"
 #include"function.h"
 #include"Log.h"
-
+#include"SRVManager.h"
 
 #pragma region 関数
 //Textureデータを読む
@@ -13,13 +13,40 @@ DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
 	assert(SUCCEEDED(hr));
 
-	//みっぷマップ作成
+	/**/
 	DirectX::ScratchImage mipImages{};
 	hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
 	assert(SUCCEEDED(hr));
+	
+
+	/*
+	// 新しい画像の幅と高さを計算
+	size_t newWidth = image.GetMetadata().width + 6;  // 左右に3ピクセルずつ
+	size_t newHeight = image.GetMetadata().height + 6;  // 上下に3ピクセルずつ
+
+	// 新しい画像を作成
+	DirectX::ScratchImage newImage;
+	newImage.Initialize2D(image.GetMetadata().format, newWidth, newHeight, 1, 1);
+
+	// 新しい画像に元の画像をコピー
+	for (size_t y = 0; y < image.GetMetadata().height; ++y) {
+		for (size_t x = 0; x < image.GetMetadata().width; ++x) {
+			const DirectX::Image* srcImage = image.GetImage(0, 0, 0);
+			const DirectX::Image* destImage = newImage.GetImage(0, 0, 0);
+
+			destImage->pixels[y * newWidth + x + 3] = srcImage->pixels[y * image.GetMetadata().width + x];
+		}
+	}
+	
+	//みっぷマップ作成
+	DirectX::ScratchImage mipImages{};
+	hr = DirectX::GenerateMipMaps(newImage.GetImages(), newImage.GetImageCount(), newImage.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+	assert(SUCCEEDED(hr));
+	*/
 
 	//みっぷマップ月のデータを返す
 	return mipImages;
+
 }
 
 ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata) {
@@ -87,7 +114,7 @@ TextureManager* TextureManager::GetInstance()
 	static TextureManager instance;
 	return &instance;
 }
-void TextureManager::InitializeBase(DirectXFunc* DXF_)
+void TextureManager::Initialize(DirectXFunc* DXF_)
 {
 	DXF = DXF_;
 
@@ -96,10 +123,7 @@ void TextureManager::InitializeBase(DirectXFunc* DXF_)
 }
 
 void TextureManager::Finalize() {
-	for (ID3D12Resource* texRsource : textureResources_) {
-		texRsource->Release();
-		texRsource = nullptr;
-	}
+	
 }
 
 
@@ -118,13 +142,15 @@ int TextureManager::LoadTex(const std::string& filePath)
 	DirectX::ScratchImage mipImages = LoadTexture(filePath);
 	
 	//入れた画像の管理番号を返す
-	return TextureManager::GetInstance()->Initialize(mipImages);
+	return TextureManager::GetInstance()->CreateData(mipImages);
 	//return 0;
 
 }
 
 
-int TextureManager::Initialize(DirectX::ScratchImage& mipImages) {
+int TextureManager::CreateData(const DirectX::ScratchImage& mipImages) {
+
+	SRVManager* SRVM = SRVManager::GetInstance();
 
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
 	ID3D12Resource* textureResource = CreateTextureResource(DXF->GetDevice(), metadata);
@@ -137,47 +163,18 @@ int TextureManager::Initialize(DirectX::ScratchImage& mipImages) {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	//SRVを作成するDescriptorHeapの場所を決める
-	D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU = TextureManager::GetInstance()->GetCPU_DES_HANDLE();
-	D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU = TextureManager::GetInstance()->GetGPU_DES_HANDLE();
-
-	//srvの生成
-	DXF->GetDevice()->CreateShaderResourceView(PushTextureResource(textureResource), &srvDesc, textureSrvHandleCPU);
-
-	DXF->KickCommand();
-	//GPUに送ったので殺す
-	//textureResource->Release();
-	intermediateResource->Release();
-
-	return AddtextureNum(textureSrvHandleGPU);
-
+	return SRVM->CreateSRV(textureResource, intermediateResource, srvDesc);
 }
 
 
-int TextureManager::AddtextureNum(D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU)
-{
-	textureData_.push_back(textureSrvHandleGPU);
-	return (int)textureData_.size()-1;
-}
-
-ID3D12Resource* TextureManager::PushTextureResource(ID3D12Resource* resource) {
-	textureResources_.push_back(resource);
-	size_t num = textureResources_.size() - 1;
-	return textureResources_[num];
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE TextureManager::GetCPU_DES_HANDLE() {
-	return GetCPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVSize(), GetDataSize() + 1);
-}
-D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetGPU_DES_HANDLE() {
-	return  GetGPUDescriptorHandle(DXF->GetSRV(), DXF->GetSRVSize(), GetDataSize() + 1);
-}
 
 
-D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetTextureDescriptorHandle(int num)
-{
-	return textureData_[num];
-}
+
+
+
+
+
+
 
 
 

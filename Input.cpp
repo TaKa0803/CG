@@ -13,7 +13,7 @@ Input* Input::GetInstance() {
 	return &instance;
 }
 
-void Input::Initialize(WinApp*winApp)
+void Input::Initialize(WindowApp*winApp)
 {
 
 	

@@ -130,4 +130,9 @@ private:
 	Material* materialData_ = nullptr;
 
 	ID3D12Resource* directionalLightResource_;
+
+
+	Vector3 uvpos{};
+	Vector3 uvscale{1.0f,1.0f,1.0f};
+	Vector3 uvrotate{};
 };

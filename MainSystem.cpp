@@ -2,6 +2,7 @@
 #include"InGame.h"
 #include"DebugScene.h"
 #include"GlobalVariables.h"
+#include"RandomNum.h"
 
 MainSystem* MainSystem::GetInstance() {
 	static MainSystem instance;
@@ -15,7 +16,7 @@ void MainSystem::Run() {
 	Initializes();
 
 	//更新処理
-	Update();
+	MainRoop();
 
 	//終了処理
 	Finalize();
@@ -26,7 +27,7 @@ void MainSystem::Run() {
 
 void MainSystem::Initializes() {
 	//windowsアプリケーション
-	winApp = WinApp::GetInstance();
+	winApp = WindowApp::GetInstance();
 	winApp->Initialize();
 
 	//DirectX
@@ -35,8 +36,12 @@ void MainSystem::Initializes() {
 
 	//画像関係
 	textureManager= TextureManager::GetInstance();
-	textureManager->InitializeBase(DXF);
-
+	textureManager->Initialize(DXF);
+	
+	//SRV
+	SRVM_ = SRVManager::GetInstance();
+	SRVM_->Initialize(DXF);
+	
 	//imgui
 	imguiManager = ImGuiManager::GetInstance();
 	imguiManager->Initialize(winApp, DXF);
@@ -45,18 +50,20 @@ void MainSystem::Initializes() {
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
-
+	randomNumClass_ = RandomNumber::GetInstance();
+	randomNumClass_->RandomNumberProcessInitialize();
+	
 }
 
-void MainSystem::Update() {
+void MainSystem::MainRoop() {
 
 	GlobalVariables::GetInstance()->LoadFiles();
 
-	InGame* ingame = new InGame();
-	ingame->Initialize();
+	//InGame* ingame = new InGame();
+	//ingame->Initialize();
 
-	//DebugScene* dScene = new DebugScene();
-	//dScene->Initialize();
+	DebugScene* dScene = new DebugScene();
+	dScene->Initialize();
 
 #pragma region 更新
 	while (winApp->ProcessMessage()) {
@@ -71,8 +78,8 @@ void MainSystem::Update() {
 
 		GlobalVariables::GetInstance()->Update();
 
-		ingame->Update();
-		//dScene->Update();
+		//ingame->Update();
+		dScene->Update();
 
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
@@ -93,8 +100,8 @@ void MainSystem::Update() {
 		//==以下描画==//
 
 
-		ingame->Draw();
-		//dScene->Draw();
+		//ingame->Draw();
+		dScene->Draw();
 
 		//==描画終わり==//
 
@@ -107,12 +114,13 @@ void MainSystem::Update() {
 	}
 #pragma endregion
 
-	ingame->Finalize();
-	//dScene->Finalize();
+	//ingame->Finalize();
+	dScene->Finalize();
 }
 
 void MainSystem::Finalize() {
 	///開放処理
+	SRVM_->Finalize();
 	textureManager->Finalize();
 	imguiManager->Finalize();
 	DXF->Finalize();

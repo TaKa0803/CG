@@ -10,17 +10,17 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg
 #pragma endregion
 
 
-int WinApp::kClientWidth = 1280;
-int WinApp::kClientHeight = 720;
+int WindowApp::kClientWidth = 1280;
+int WindowApp::kClientHeight = 720;
 
-WinApp* WinApp::GetInstance()
+WindowApp* WindowApp::GetInstance()
 {
-	static WinApp instance;
+	static WindowApp instance;
 	return &instance;
 }
 
 //ウィンドウプロシーシャ
-LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT CALLBACK WindowApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}
@@ -33,7 +33,7 @@ LRESULT CALLBACK WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM l
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-void WinApp::Initialize()
+void WindowApp::Initialize()
 {
 #pragma region ウィンドウ生成 
 	
@@ -80,12 +80,12 @@ void WinApp::Initialize()
 	Log("Complete WinAppInitialize\n");
 }
 
-void WinApp::Finalize()
+void WindowApp::Finalize()
 {
 	CloseWindow(hwnd_);
 }
 
-bool WinApp::ProcessMessage()
+bool WindowApp::ProcessMessage()
 {
 	MSG msg{};
 	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {

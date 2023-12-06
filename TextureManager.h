@@ -13,51 +13,37 @@
 
 
 class TextureManager {
-public:
+public://シングルトンパターン
 	static TextureManager *GetInstance();
 
-private://シングルトンパターン
-
+private:
 	TextureManager() = default;
 	~TextureManager() = default;
 	TextureManager(const TextureManager& o) = delete;
 	const TextureManager& operator=(const TextureManager& o) = delete;
 
-
-
 public:
-
 
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+	/// <summary>
+	/// 画像の読み込み処理
+	/// </summary>
+	/// <param name="filePath"></param>
+	/// <returns></returns>
 	static int LoadTex(const std::string& filePath);
 
-	void InitializeBase(DirectXFunc* DXF_);
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="DXF_"></param>
+	void Initialize(DirectXFunc* DXF_);
 	
 	void Finalize();
-
-
-	int AddtextureNum(D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU);
-
-
-	D3D12_GPU_DESCRIPTOR_HANDLE GetTextureDescriptorHandle(int num);
-
-	int GetDataSize() { return (int)textureData_.size(); }
-
-	
+		
 private://メンバ関数
 	
-
-
-	ID3D12Resource* PushTextureResource(ID3D12Resource*resource);
-	
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPU_DES_HANDLE();
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPU_DES_HANDLE();
-
-
-	
-	
-	int Initialize(DirectX::ScratchImage& mipImages);
+	int CreateData(const DirectX::ScratchImage& mipImages);
 
 private://メンバ変数
 
@@ -71,8 +57,6 @@ private://メンバ変数
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
 	};
 
-	std::vector<ID3D12Resource*>textureResources_;
-
-	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> textureData_;
+	
 	
 };
