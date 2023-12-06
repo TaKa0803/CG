@@ -7,13 +7,15 @@
 
 #include"RandomNum.h"
 
-Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo) {
+Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo,const Vector4& colorMin, const Vector4& colorMax) {
 	Particle ans;
 
-	ans.position = spawnPos + RandomNumber::GetRandomNum(-emiterSize / 2,emiterSize / 2);
+	ans.position = spawnPos + RandomNumber::Get(-emiterSize / 2,emiterSize / 2);
 	
 
-	ans.velocity = RandomNumber::GetRandomNum(minVelo, maxVelo);
+	ans.velocity = RandomNumber::Get(minVelo, maxVelo);
+
+	ans.color = RandomNumber::Get(colorMin, colorMax);
 
 	return ans;
 }
@@ -37,8 +39,11 @@ void DebugScene::Initialize() {
 
 	Vector3 velo = { 50,50,50 };
 
+	Vector4 color = { 1,1,1,1 };
+	Vector4 colormin = { 0,0,0,0 };
+
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index] = MakeNewParticle(center, { 0,0,0 }, -velo, velo);
+		insPos[index] = MakeNewParticle(center, { 0,0,0 }, -velo, velo,colormin,color);
 	}
 
 	

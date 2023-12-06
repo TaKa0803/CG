@@ -7,6 +7,7 @@
 #include"ImGuiManager.h"
 #include"Input.h"
 #include"SRVManager.h"
+#include"RandomNum.h"
 
 class MainSystem {
 public://シングルトンパターン
@@ -49,5 +50,7 @@ private:
 
 	//SRV
 	SRVManager* SRVM_;
+
+	RandomNumber* randomNumClass_;
 #pragma endregion
 };

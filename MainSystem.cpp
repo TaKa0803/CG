@@ -50,7 +50,8 @@ void MainSystem::Initializes() {
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
-	RandomNumber::RandomNumberProcessInitialize();
+	randomNumClass_ = RandomNumber::GetInstance();
+	randomNumClass_->RandomNumberProcessInitialize();
 	
 }
 

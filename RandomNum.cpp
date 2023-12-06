@@ -1,41 +1,80 @@
 #include "RandomNum.h"
 
 
-std::mt19937 RandomNumber::randomEngine_;
+
+RandomNumber* RandomNumber::GetInstance() {
+	static RandomNumber instance;
+	return&instance;
+}
 
 void RandomNumber::RandomNumberProcessInitialize() {
 	std::random_device seedGenerator;
-	std::mt19937 randomEngine(seedGenerator());
+	std::mt19937_64 randomEngine(seedGenerator());
 
 	randomEngine_ = randomEngine;
 }
 
-float RandomNumber::GetRandomNum(const float minNum, const float maxNum) {
+float RandomNumber::Get(const float minNum, const float maxNum) {
 	std::uniform_real_distribution<float>distribution(minNum, maxNum);
 
-	return distribution(randomEngine_);
+	RandomNumber* rand = RandomNumber::GetInstance();
+
+	return distribution(rand->GetrandEngine());
 }
 
-Vector2 RandomNumber::GetRandomNum(const Vector2 minNum, const Vector2 maxNum) {
+Vector2 RandomNumber::Get(const Vector2 minNum, const Vector2 maxNum) {
 	std::uniform_real_distribution<float>distributionx(minNum.x, maxNum.x);
 	std::uniform_real_distribution<float>distributiony(minNum.y, maxNum.y);
-	
-	Vector2 ans={
-		distributionx(randomEngine_),
-		distributiony(randomEngine_)
+
+	RandomNumber* rand = RandomNumber::GetInstance();
+
+	Vector2 ans = {
+		distributionx(rand->GetrandEngine()),
+		distributiony(rand->GetrandEngine())
 	};
 
 	return ans;
 }
 
-Vector3 RandomNumber::GetRandomNum(const Vector3& minNum, const Vector3& maxNum) {
-	std::uniform_real_distribution<float>distributionx(minNum.x, maxNum.x);
-	std::uniform_real_distribution<float>distributiony(minNum.y, maxNum.y);
-	std::uniform_real_distribution<float>distributionz(minNum.z, maxNum.z);
+Vector3 RandomNumber::Get(const Vector3& minNum, const Vector3& maxNum) {
+
+	RandomNumber* rand = RandomNumber::GetInstance();
+
+
 
 	return {
-		distributionx(randomEngine_),
-		distributiony(randomEngine_),
-		distributionz(randomEngine_)
+		rand->GetRandomNum(minNum.x,maxNum.x),
+		rand->GetRandomNum(minNum.y,maxNum.y),
+		rand->GetRandomNum(minNum.z,maxNum.z),
 	};
 }
+
+Vector4 RandomNumber::Get(const Vector4& minNum, const Vector4& maxNum) {
+	RandomNumber* rand = RandomNumber::GetInstance();
+
+	return {
+		rand->GetRandomNum(minNum.x,maxNum.x),
+		rand->GetRandomNum(minNum.y,maxNum.y),
+		rand->GetRandomNum(minNum.z,maxNum.z),
+		rand->GetRandomNum(minNum.w,maxNum.w)
+	};
+}
+
+float RandomNumber::GetRandomNum(const float min, const float max) {
+	float newmin;
+	float newmax;
+
+	if (min > max) {
+		newmin = max;
+		newmax = min;
+	}
+	else {
+		newmin = min;
+		newmax = max;
+	}
+
+	std::uniform_real_distribution<float>distribution(newmin, newmax);
+	return distribution(randomEngine_);
+}
+
+
