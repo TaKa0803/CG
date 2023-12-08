@@ -7,6 +7,7 @@
 #include<wrl.h>
 #include"Graphics.h"
 
+#include"ParticleEmiter.h"
 
 class Sprite {
 public:
@@ -24,9 +25,9 @@ public:
 	/// <param name="size">画像サイズ</param>
 	/// <param name="anchor">アンカー</param>
 	/// <returns>データ返却</returns>
-	static Sprite* Create(int texture, const Vector2& size, const Vector2& anchor = { 0.5f,0.5f });
+	static Sprite* Create(int texture, const Vector2 size, const Vector2 anchor = { 0.5f,0.5f });
 
-	static Sprite* CreateInstancing(int texture, const Vector2& size, const int num, const Vector2& anchor = { 0.5f,0.5f });
+	static Sprite* CreateInstancing(int texture, const Vector2 size, const int num, const Vector2 anchor = { 0.5f,0.5f });
 
 	/// <summary>
 	/// デバッグウィンドウ表示
@@ -83,12 +84,7 @@ private:
 		Matrix4x4 World;
 	};
 
-	struct Particle4GPU {
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-		Vector4 color;
-		
-	};
+	
 
 	/// <summary>
 	/// 初期化

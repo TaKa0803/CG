@@ -27,6 +27,12 @@ public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	/// <summary>
+	/// 仮利用の画像
+	/// </summary>
+	static int uvChecker_;
+
+
+	/// <summary>
 	/// 画像の読み込み処理
 	/// </summary>
 	/// <param name="filePath"></param>
@@ -51,7 +57,6 @@ private://メンバ変数
 	DirectXFunc* DXF;
 
 	
-
 	struct Texture{
 		D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;

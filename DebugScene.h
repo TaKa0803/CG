@@ -4,6 +4,10 @@
 #include"Camera.h"
 #include"Sprite.h"
 
+#include"Particle.h"
+#include"ParticleEmiter.h"
+
+#include<memory>
 
 class DebugScene {
 public:
@@ -27,7 +31,7 @@ private:
 
 	static const int kNuminstancing = 10;
 
-	
+	ParticleEmiter*pE_;
 
 	Particle insPos[kNuminstancing];
 

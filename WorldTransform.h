@@ -5,6 +5,21 @@
 
 class WorldTransform {
 
+
+public://変数
+
+	//座標
+	Vector3 translate_ = { 0.0f,0.0f,0.0f };
+
+	//回転
+	Vector3 rotate_ = { 0.0f,0.0f,0.0f };
+
+	//拡縮
+	Vector3 scale_ = { 1.0f,1.0f,1.0f };
+
+	//ワールド行列
+	Matrix4x4 matWorld_ = MakeIdentity4x4();
+
 public:
 
 	/// <summary>
@@ -65,19 +80,6 @@ public://Getter
 #pragma endregion
 
 
-public://変数
-	
-	//座標
-	Vector3 translate_ = { 0.0f,0.0f,0.0f };
-
-	//回転
-	Vector3 rotate_ = { 0.0f,0.0f,0.0f };
-
-	//拡縮
-	Vector3 scale_ = { 1.0f,1.0f,1.0f };
-
-	//ワールド行列
-	Matrix4x4 matWorld_ = MakeIdentity4x4();
 
 
 private:

@@ -5,29 +5,17 @@
 
 #include"Vector2.h"
 #include"Vector3.h"
+#include"Vector4.h"
 #include"Matrix.h"
 
 
 #pragma region 構造体
 
-struct Vector4 {
-	float x;
-	float y;
-	float z;
-	float w;
 
-	Vector3 GetXYZ() { return{ x,y,z }; }
 
-	friend Vector4 operator-(const Vector4& v) { return { -v.x,-v.y,-v.z,-v.w }; }
-};
 
-struct Particle {
-	Vector3 position;
-	Vector3 velocity;
-	Vector4 color;
-	float lifeTime;
-	float currentTime;
-};
+
+
 
 struct AABB {
 	Vector3 minV;

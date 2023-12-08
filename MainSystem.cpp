@@ -36,13 +36,13 @@ void MainSystem::Initializes() {
 	DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
 
-	//画像関係
-	textureManager= TextureManager::GetInstance();
-	textureManager->Initialize(DXF);
-	
 	//SRV
 	SRVM_ = SRVManager::GetInstance();
 	SRVM_->Initialize(DXF);
+	
+	//画像関係
+	textureManager= TextureManager::GetInstance();
+	textureManager->Initialize(DXF);
 	
 	//imgui
 	imguiManager = ImGuiManager::GetInstance();
@@ -52,6 +52,7 @@ void MainSystem::Initializes() {
 	input = Input::GetInstance();
 	input->Initialize(winApp);
 
+	//乱数クラス
 	randomNumClass_ = RandomNumber::GetInstance();
 	randomNumClass_->RandomNumberProcessInitialize();
 	

@@ -23,8 +23,6 @@ Sprite::~Sprite() {
 void Sprite::DrawDebugImGui(const char* name) {
 
 	Vector4 color = materialData_->color;
-
-
 #ifdef _DEBUG
 	ImGui::Begin(name);
 	ImGui::DragFloat2("pos", &pos_.x, 0.1f);
@@ -66,7 +64,7 @@ void Sprite::DrawDebugImGui(const char* name) {
 }
 
 
-Sprite* Sprite::Create(int texture, const Vector2& size, const Vector2& anchor) {
+Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 anchor) {
 
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
@@ -174,7 +172,7 @@ Sprite* Sprite::Create(int texture, const Vector2& size, const Vector2& anchor) 
 
 }
 
-Sprite* Sprite::CreateInstancing(int texture, const Vector2& size, const int num, const Vector2& anchor) {
+Sprite* Sprite::CreateInstancing(int texture, const Vector2 size, const int num, const Vector2 anchor) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 #pragma region Sprite
@@ -412,26 +410,6 @@ void Sprite::DrawInstancing(int texture) {
 	//uvTransform更新
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
-	/*
-	int index = 0;
-	for (auto pos : poses_) {
-		//ワールド更新
-		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, *pos);
-
-
-		//スプライト用データ
-		Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
-		Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
-		Matrix4x4 WVP = World * VPSprite;
-		//データ代入
-		particle4GPUData_[index].WVP = WVP;
-		particle4GPUData_[index].World = World;
-		particle4GPUData_[index].color;
-		index++;
-	}
-	poses_.clear();
-	*/
-
 	//生きている数と番号チェック
 	int index = 0;
 	for (auto& particle : particles_) {
@@ -454,21 +432,7 @@ void Sprite::DrawInstancing(int texture) {
 		index++;
 	}
 	particles_.clear();
-	/*
-	for (uint32_t index = 0;index < (uint32_t)isntancingCount_; ++index) {
-		//ワールド更新
-		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, pos[index]+pos_);
-
-
-		//スプライト用データ
-		Matrix4x4 projectionMatrixSprite = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowApp::kClientWidth), float(WindowApp::kClientHeight), 0.0f, 100.0f);
-		Matrix4x4 VPSprite = viewMatrixSprite * projectionMatrixSprite;
-		Matrix4x4 WVP = World * VPSprite;
-		//データ代入
-		transformationMatrixData_[index].WVP = WVP;
-		transformationMatrixData_[index].World = World;
-	}
-	*/
+	
 	//Spriteの描画
 	DXF->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定			
 	DXF->GetCMDList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定

@@ -9,21 +9,7 @@
 
 #include"Input.h"
 
-Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo,const Vector4& colorMin, const Vector4& colorMax,const Vector2&lifeTimeminXmaxY) {
-	Particle ans;
 
-	ans.position = spawnPos + RandomNumber::Get(-emiterSize / 2,emiterSize / 2);
-	
-
-	ans.velocity = RandomNumber::Get(minVelo, maxVelo);
-
-	ans.color = RandomNumber::Get(colorMin, colorMax);
-
-	ans.lifeTime = RandomNumber::Get(lifeTimeminXmaxY.x, lifeTimeminXmaxY.y);
-	ans.currentTime = 0;
-
-	return ans;
-}
 
 
 
@@ -32,19 +18,21 @@ void DebugScene::Initialize() {
 	//texture = TextureManager::LoadTex("resources/fence/fence.png");
 
 	//model_ = Model::CreateFromOBJ("ALPlayer");
-	texture = TextureManager::LoadTex("resources/uvChecker.png");
+	//texture = TextureManager::LoadTex("resources/circle.png");
+	texture = TextureManager::uvChecker_;
 
 	camera_.Initialize();
-	camera_.SetTarget(&world_);
+	//camera_.SetTarget(&world_);
 
-	sprite_ = new Sprite();
-	//sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
-	sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
+	//sprite_ = new Sprite();
+	//sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
 	
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		insPos[index] = MakeNewParticle(center, { 0,0,0 }, minvelo, velo,colormin,color,{60,180});
 	}
 
+	pE_ = new ParticleEmiter();
+	pE_ = ParticleEmiter::Create(texture, kNuminstancing, { 256,256 }, { 512,512 }, { 512,512 });
 	
 }
 
@@ -52,9 +40,10 @@ void DebugScene::Update() {
 	world_.DrawDebug("box");
 	camera_.DrawDebugWindow("camera");
 
-	model_->DebugParameter("box");
-	sprite_->DrawDebugImGui("sprite");
+	//model_->DebugParameter("box");
+	//sprite_->DrawDebugImGui("sprite");
 
+	
 
 	Input* input = Input::GetInstance();
 
@@ -73,31 +62,27 @@ void DebugScene::Update() {
 
 
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-
-		if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
-
-
-			if (checkUpdate_) {
-				
-
+		if (checkUpdate_) {
+			if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
 				insPos[index].position += insPos[index].velocity * kDeltaTime;
 				float alpha = 1.0f - (insPos[index].currentTime / insPos[index].lifeTime);
-
 				if (alpha <= 0) {
 					alpha = 0;
 				}
-
-				insPos[index].color.w = alpha;
+				insPos[index].color.w = alpha;			
 			}
-
-			if (ImGui::BeginMenu("aho")) {
-				ImGui::ColorEdit4("set color", &insPos[index].color.x);
-				ImGui::EndMenu();
-			}
-
-			sprite_->SetParticle(&insPos[index]);
 		}
+
+
+		if (ImGui::BeginMenu("aho")) {
+			ImGui::ColorEdit4("set color", &insPos[index].color.x);
+			ImGui::EndMenu();
+		}
+		//sprite_->SetParticle(&insPos[index]);
+		pE_->SetParticle(&insPos[index]);
 	}
+
+	pE_->DebugImGui("effects");
 
 	world_.UpdateMatrix();
 	camera_.Update();
@@ -107,13 +92,16 @@ void DebugScene::Update() {
 }
 
 void DebugScene::Draw() {
-	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
+	//model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 
-	sprite_->DrawInstancing();
+	//sprite_->DrawInstancing();
+
+	pE_->Draw2D();
 	//sprite_->Draw();
 }
 
 void DebugScene::Finalize() {
 	delete model_;
 	delete sprite_;
+	delete pE_;
 }

@@ -104,6 +104,9 @@
     <Filter Include="Scene\MT4Scene">
       <UniqueIdentifier>{d4ed701b-5b30-4e8f-bbaa-70dcd029f871}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Particle">
+      <UniqueIdentifier>{4cd3c152-b672-40a4-9178-0455b9bdd6b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -214,6 +217,12 @@
     </ClCompile>
     <ClCompile Include="MT4Scene.cpp">
       <Filter>Scene\MT4Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEmiter.cpp">
+      <Filter>Engine\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Engine\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,6 +350,12 @@
     </ClInclude>
     <ClInclude Include="MT4Scene.h">
       <Filter>Scene\MT4Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmiter.h">
+      <Filter>Engine\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Engine\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

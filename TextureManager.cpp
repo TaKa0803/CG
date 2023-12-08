@@ -108,6 +108,8 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 
 #pragma endregion
 
+int TextureManager::uvChecker_ = -1;
+
 #pragma region インスタンスと初期化
 TextureManager* TextureManager::GetInstance()
 {
@@ -117,6 +119,8 @@ TextureManager* TextureManager::GetInstance()
 void TextureManager::Initialize(DirectXFunc* DXF_)
 {
 	DXF = DXF_;
+
+	uvChecker_ = TextureManager::LoadTex("Engine/TempData/uvChecker.png");
 
 	Log("Complete TextureManager Initialize\n");
 
