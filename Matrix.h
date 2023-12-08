@@ -92,6 +92,8 @@ void Matrix4x4Debug(const Matrix4x4& m, const char* name);
 
 float GetYRotate(const Vector2& v);
 
+float GetXRotate(const Vector2& v);
+
 Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
 
 
@@ -129,6 +131,11 @@ Matrix4x4 MakeRotateXMatrix(float radian);
 Matrix4x4 MakeRotateYMatrix(float radian);
 // z軸回転行列
 Matrix4x4 MakeRotateZMatrix(float radian);
+
+
+Matrix4x4 MakeScaleMatrix(const Vector3& scale);
+
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
 
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
 

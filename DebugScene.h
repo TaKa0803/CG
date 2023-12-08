@@ -29,7 +29,7 @@ private:
 
 	Sprite* sprite_;
 
-	static const int kNuminstancing = 10;
+	static const int kNuminstancing = 30;
 
 	ParticleEmiter*pE_;
 
@@ -40,9 +40,9 @@ private:
 
 	Vector3 center = { 0, 0,0 };
 
-	Vector3 maxvelo = { 0.5f,0.5f,0.5f };
+	Vector3 maxvelo = { 0.5f,0.5f,0 };
 
-	Vector3 minvelo = { -0.5f,-0.5f,-0.5f };
+	Vector3 minvelo = { -0.5f,-0.5f,0 };
 
 	MinMaxDataV3 velo = {
 		.minData{minvelo},

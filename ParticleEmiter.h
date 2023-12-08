@@ -40,6 +40,7 @@ public:
 	/// <returns>設定を行ったスプライトデータ</returns>
 	static  ParticleEmiter* Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor = { 0.5f,0.5f });
 
+	void Update();
 
 	//スプライト
 	void SetParticle(Particle *particle){ particles_.push_back(particle); }

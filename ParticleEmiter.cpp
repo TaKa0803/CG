@@ -123,7 +123,7 @@ ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, cons
 	vertexData[1].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexData[2].position = { maxV.x,0.0f,maxV.y,1.0f };
-	vertexData[2].texcoord = { maxTex.x,0.0f };
+	vertexData[2].texcoord =  { maxTex.x,0.0f };
 	vertexData[2].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexData[3].position = { maxV.x,0.0f,minV.y,1.0f };
@@ -161,6 +161,24 @@ ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, cons
 
 	return particleInstancingData;
 
+}
+
+void ParticleEmiter::Update() {
+	for (auto& particle : particles_) {
+
+		//カメラ
+		Vector3 c_pos = camera_->GetMainCamera().GetMatWorldTranslate();
+		//対象物
+		Vector3 e_pos = particle->world_.GetMatWorldTranslate();
+
+		//対象物からカメラへの方向
+		Vector3 veloE2C = c_pos - e_pos;
+
+		ImGui::Begin("c-e dire");
+		ImGui::DragFloat3("velo", &veloE2C.x);
+		ImGui::End();
+
+	}
 }
 
 
@@ -309,12 +327,36 @@ void ParticleEmiter::Draw3D(int texture) {
 	//生きている数と番号チェック
 	int index = 0;
 	for (auto& particle : particles_) {
+
+
+		//カメラ
+		Vector3 c_pos = camera_->GetMainCamera().GetMatWorldTranslate();
+		//対象物
+		Vector3 e_pos = particle->world_.GetMatWorldTranslate();
+		
+		//対象物からカメラへの方向
+		Vector3 veloE2C = c_pos - e_pos;
+
+
+		
+
+		float xzleng = sqrtf(veloE2C.x * veloE2C.x + veloE2C.z * veloE2C.z);
+
+		float RX = GetYRotate(Vector2(xzleng, veloE2C.y));
+		particle->world_.rotate_.x = RX;
+
+		
+		float RY = GetYRotate(Vector2(veloE2C.x, veloE2C.z));
+		particle->world_.rotate_.y = RY;
+
+
 		particle->world_.UpdateMatrix();
-
-
 		//ワールド更新
 		Matrix4x4 World = particle->world_.matWorld_;
 
+		//Matrix4x4 rotateM = DirectionToDirection(e_pos, c_pos);
+
+		//Matrix4x4 World = MakeScaleMatrix(particle->world_.scale_) * (rotateM * MakeTranslateMatrix(particle->world_.translate_));
 
 		//スプライト用データ
 		Matrix4x4 WVP = World * camera_->GetViewProjectionMatrix();

@@ -63,34 +63,44 @@ void DebugScene::Update() {
 
 	float scale = insPos[0].world_.scale_.x;
 	if (ImGui::BeginMenu("aho")) {
+
 		ImGui::DragFloat("scale", &scale);
 		ImGui::EndMenu();
 	}
-	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		if (checkUpdate_) {
-			if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
-				insPos[index].world_.translate_ += insPos[index].velocity * kDeltaTime;
-				float alpha = 1.0f - (insPos[index].currentTime / insPos[index].lifeTime);
-				if (alpha <= 0) {
-					alpha = 0;
+
+	ImGui::EndMenuBar();
+	ImGui::End();
+
+		for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
+			if (checkUpdate_) {
+				if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
+					insPos[index].world_.translate_ += insPos[index].velocity * kDeltaTime;
+					float alpha = 1.0f - (insPos[index].currentTime / insPos[index].lifeTime);
+					if (alpha <= 0) {
+						alpha = 0;
+					}
+					insPos[index].color.w = alpha;
 				}
-				insPos[index].color.w = alpha;			
 			}
+
+
+			insPos[index].world_.scale_ = { scale,scale,scale };
+			//sprite_->SetParticle(&insPos[index]);
+			pE_->SetParticle(&insPos[index]);
+			
+			ImGui::Begin("R");
+			ImGui::DragFloat3("rotate", &insPos[index].world_.rotate_.x, 0.01f);
+			ImGui::End();
 		}
 
-		
-		insPos[index].world_.scale_ = {scale,scale,scale};
-		//sprite_->SetParticle(&insPos[index]);
-		pE_->SetParticle(&insPos[index]);
-	}
-
+	
 	pE_->DebugImGui("effects");
+	pE_->Update();
 
 	world_.UpdateMatrix();
 	camera_.Update();
 
-	ImGui::EndMenuBar();
-	ImGui::End();
+	
 }
 
 void DebugScene::Draw() {
