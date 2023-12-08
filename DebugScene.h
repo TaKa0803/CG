@@ -38,11 +38,11 @@ private:
 	const float kDeltaTime = 1.0f / 60.0f;
 
 
-	Vector3 center = { 640, 360,0 };
+	Vector3 center = { 0, 0,0 };
 
-	Vector3 velo = { 50,50,50 };
+	Vector3 velo = { 0.5f,0.5f,0.5f };
 
-	Vector3 minvelo = { -50,-50,0 };
+	Vector3 minvelo = { -0.5f,-0.5f,-0.5f };
 
 	Vector4 color = { 1,1,1,1 };
 	Vector4 colormin = { 0,0,0,1 };

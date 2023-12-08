@@ -27,8 +27,7 @@ public:
 	/// <returns>データ返却</returns>
 	static Sprite* Create(int texture, const Vector2 size, const Vector2 anchor = { 0.5f,0.5f });
 
-	static Sprite* CreateInstancing(int texture, const Vector2 size, const int num, const Vector2 anchor = { 0.5f,0.5f });
-
+	
 	/// <summary>
 	/// デバッグウィンドウ表示
 	/// </summary>
@@ -41,7 +40,6 @@ public:
 	/// <param name="texture">画像の要素番号（無くてもいい）</param>
 	void Draw(int texture=-1);
 
-	void DrawInstancing(int texture = -1);
 public:///セッター
 
 	/// <summary>
@@ -50,7 +48,6 @@ public:///セッター
 	/// <param name="pos">代入座標</param>
 	void SetPosition(Vector3* pos) { poses_.emplace_back(pos); }
 	
-	void SetParticle(Particle* particle) { particles_.emplace_back(particle); }
 	
 	/// <summary>
 	/// uvの平行移動代入
@@ -96,12 +93,7 @@ private:
 		Material* materialData,
 		ID3D12Resource* materialResource, int instancingHandle=-1,int instancingCount=0);
 
-	void InitializeInstancing(int texture, ID3D12Resource* vertexResourceSprite, ID3D12Resource* indexResourceSprite, D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-		D3D12_INDEX_BUFFER_VIEW& indexBufferView,
-		ID3D12Resource* transformationMatrixResource,
-		Particle4GPU* transformationMatrixData,
-		Material* materialData,
-		ID3D12Resource* materialResource, int instancingHandle, int instancingCount);
+	
 private:
 
 
@@ -109,14 +101,11 @@ private:
 
 	GraphicsSystem* grarphics_=nullptr;
 
-	ParticleGraphics* particlegraphics_ = nullptr;
 
 	int texture_=-1;
 
-	int instancingHandleNum = -1;
-
-	static int isntancingCount_;
-
+	
+	
 	ID3D12Resource* vertexResource_=nullptr;
 	ID3D12Resource* indexResource_=nullptr;
 	//

@@ -22,7 +22,7 @@ void DebugScene::Initialize() {
 	texture = TextureManager::uvChecker_;
 
 	camera_.Initialize();
-	//camera_.SetTarget(&world_);
+	camera_.SetTarget(&world_);
 
 	//sprite_ = new Sprite();
 	//sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
@@ -32,7 +32,7 @@ void DebugScene::Initialize() {
 	}
 
 	pE_ = new ParticleEmiter();
-	pE_ = ParticleEmiter::Create(texture, kNuminstancing, { 256,256 }, { 512,512 }, { 512,512 });
+	pE_ = ParticleEmiter::Create3D(texture, kNuminstancing, { 1,1 }, { 512,512 }, { 512,512 });
 	
 }
 
@@ -96,7 +96,7 @@ void DebugScene::Draw() {
 
 	//sprite_->DrawInstancing();
 
-	pE_->Draw2D();
+	pE_->Draw3D(camera_.GetViewProjectionMatrix());
 	//sprite_->Draw();
 }
 

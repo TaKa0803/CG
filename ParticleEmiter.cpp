@@ -14,8 +14,8 @@ ParticleEmiter::~ParticleEmiter() {
 	materialResource_->Release();
 }
 
-ParticleEmiter* ParticleEmiter::Create(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
-	
+ParticleEmiter* ParticleEmiter::Create2D(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 
@@ -59,39 +59,19 @@ ParticleEmiter* ParticleEmiter::Create(int texture, const int occurrenceMaxCount
 
 #pragma endregion
 
-	ParticleEmiter* particleInstancingData = new ParticleEmiter();
-	particleInstancingData->Initialize(texture, occurrenceMaxCount, vertexResource,vertexBufferView);
-
-	return particleInstancingData;
-
-}
-
-
-void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView) {
-
-	DXF_ = DirectXFunc::GetInstance();
-
-	particlegraphics_ = new ParticleGraphics();
-	particlegraphics_->Initialize(DXF_->GetDevice());
-
-
-	texture_ = texture;
-
-	vertexResource_ = vertexResource;
-	vertexBufferView_ = vertexBufferView;
-
 #pragma region Indexデータ
-	indexResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(uint32_t) * 6);
+	ID3D12Resource* indexResource = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
+	D3D12_INDEX_BUFFER_VIEW indexBufferView{};
 
 	//リソースの先頭アドレスから使う
-	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズはインデックス６つ分のサイズ
-	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
+	indexBufferView.SizeInBytes = sizeof(uint32_t) * 6;
 	//インデックス
-	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 
 	uint32_t* indexDataSprite = nullptr;
-	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
 	indexDataSprite[0] = 1;
 	indexDataSprite[1] = 3;
 	indexDataSprite[2] = 0;
@@ -101,6 +81,107 @@ void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3
 	indexDataSprite[5] = 0;
 
 #pragma endregion
+
+	ParticleEmiter* particleInstancingData = new ParticleEmiter();
+	particleInstancingData->Initialize(texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView, true);
+
+	return particleInstancingData;
+
+}
+
+ParticleEmiter* ParticleEmiter::Create3D(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+	DirectXFunc* DXF = DirectXFunc::GetInstance();
+
+
+#pragma region VertexResourceとVertexBufferViewを用意
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+	//Sprite用の頂点リソースを作る
+	ID3D12Resource* vertexResource = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * 4);
+	//リソース用の先頭のアドレスから使う
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点6つ分のサイズ
+	vertexBufferView.SizeInBytes = sizeof(VertexData) * 4;
+	//頂点当たりのサイズ
+	vertexBufferView.StrideInBytes = sizeof(VertexData);
+#pragma endregion
+#pragma region 頂点データを設定する
+	VertexData* vertexData = nullptr;
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
+	//一枚目の三角形
+	Vector2 minV = { size.x * (-anchor.x),size.y * (-anchor.y) };
+
+	Vector2 maxV = { size.x * (1 - anchor.x),size.y * (1 - anchor.y) };
+
+	Vector2 maxTex = { Rect.x / spriteSize.x,Rect.y / spriteSize.x };
+
+	vertexData[0].position = { minV.x,0.0f,minV.y,1.0f };
+	vertexData[0].texcoord = { 0.0f,maxTex.y };
+	vertexData[0].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData[1].position = { minV.x,0.0f,maxV.y,1.0f };
+	vertexData[1].texcoord = { 0.0f,0.0f };
+	vertexData[1].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData[2].position = { maxV.x,0.0f,maxV.y,1.0f };
+	vertexData[2].texcoord = { maxTex.x,0.0f };
+	vertexData[2].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexData[3].position = { maxV.x,0.0f,minV.y,1.0f };
+	vertexData[3].texcoord = maxTex;
+	vertexData[3].normal = { 0.0f,0.0f,-1.0f };
+
+
+#pragma endregion
+
+#pragma region Indexデータ
+	ID3D12Resource* indexResource = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
+	D3D12_INDEX_BUFFER_VIEW indexBufferView{};
+
+	//リソースの先頭アドレスから使う
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックス６つ分のサイズ
+	indexBufferView.SizeInBytes = sizeof(uint32_t) * 6;
+	//インデックス
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+
+	uint32_t* indexDataSprite = nullptr;
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+	indexDataSprite[0] = 0;
+	indexDataSprite[1] = 1;
+	indexDataSprite[2] = 2;
+
+	indexDataSprite[3] = 3;
+	indexDataSprite[4] = 0;
+	indexDataSprite[5] = 2;
+
+#pragma endregion
+
+	ParticleEmiter* particleInstancingData = new ParticleEmiter();
+	particleInstancingData->Initialize(texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView);
+
+	return particleInstancingData;
+
+}
+
+
+void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView, ID3D12Resource* indexResource, D3D12_INDEX_BUFFER_VIEW indexBufferView, bool is2D) {
+
+	is2D_ = is2D;
+
+	DXF_ = DirectXFunc::GetInstance();
+
+	particlegraphics_ = new ParticleGraphics();
+	particlegraphics_->Initialize(DXF_->GetDevice());
+
+	texture_ = texture;
+
+	vertexResource_ = vertexResource;
+	vertexBufferView_ = vertexBufferView;
+
+	indexResource_=indexResource;
+
+	indexBufferView_=indexBufferView;
+
 #pragma region Transform周りを作る	
 	transformationMatrixResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(Particle4GPU) * occurrenceMaxCount);
 	//データを書き込む
@@ -138,11 +219,19 @@ void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3
 	instancingHandleNum = SRVM->CreateSRV(transformationMatrixResource_, nullptr, instancingDesc);
 #pragma endregion
 
-	
+
 }
 
+
+
+
 void ParticleEmiter::Draw2D(int texture) {
-	
+
+	//3D用に生成してるときにこれを呼び出しでエラー
+	if (!is2D_) {
+		assert(false);
+	}
+
 	particlegraphics_->PreDraw(DXF_->GetCMDList());
 
 	uvWorld_.UpdateMatrix();
@@ -185,7 +274,7 @@ void ParticleEmiter::Draw2D(int texture) {
 
 	//インスタンシング座標設定
 	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->GetTextureDescriptorHandle(instancingHandleNum));
-	
+
 	//画像が指定されたらそれを表示
 	if (texture != -1) {
 		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
@@ -198,11 +287,75 @@ void ParticleEmiter::Draw2D(int texture) {
 	DXF_->GetCMDList()->DrawIndexedInstanced(6, index, 0, 0, 0);
 }
 
+void ParticleEmiter::Draw3D(const Matrix4x4& viewProjection, int texture) {
+
+	//2D用に生成してるときにこれを呼び出しでエラー
+	if (is2D_) {
+		assert(false);
+	}
+
+	particlegraphics_->PreDraw(DXF_->GetCMDList());
+
+	
+
+	uvWorld_.UpdateMatrix();
+
+	//uvTransform更新
+	materialData_->uvTransform = uvWorld_.matWorld_;
+
+	//生きている数と番号チェック
+	int index = 0;
+	for (auto& particle : particles_) {
+
+
+
+		//ワールド更新
+		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, particle->position);
+
+
+		//スプライト用データ
+		Matrix4x4 WVP = World * viewProjection;
+		//データ代入
+		particle4GPUData_[index].WVP = WVP;
+		particle4GPUData_[index].World = World;
+		particle4GPUData_[index].color = particle->color;
+
+		index++;
+	}
+	particles_.clear();
+
+	//Spriteの描画
+	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);	//VBVを設定			
+	DXF_->GetCMDList()->IASetIndexBuffer(&indexBufferView_);//IBVを設定
+	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//マテリアルCBufferの場所を設定
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	//TransformationMatrixCBufferの場所を設定
+	//DXF->GetCMDList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
+
+	//インスタンシング座標設定
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(1, SRVManager::GetInstance()->GetTextureDescriptorHandle(instancingHandleNum));
+
+	//画像が指定されたらそれを表示
+	if (texture != -1) {
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	}
+	else {
+		//されていないのでそのまま表示
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture_));
+	}
+	//描画！！（DrawCall
+	DXF_->GetCMDList()->DrawIndexedInstanced(6, index, 0, 0, 0);
+
+}
+
 void ParticleEmiter::DebugImGui(const char* name) {
 
 #ifdef _DEBUG
 	ImGui::Begin(name);
 	ImGui::ColorEdit4("color", &materialData_->color.x);
+	ImGui::DragFloat3("rotate", &rotate_.x, 0.01f);
 	//改行
 	ImGui::Text("");
 	ImGui::Text("UV");
@@ -222,7 +375,7 @@ void ParticleEmiter::DebugImGui(const char* name) {
 	ImGui::Text("");
 	ImGui::Text("SetDatas");
 	for (auto& particle : particles_) {
-		ImGui::Text("pos : %4.1f / %4.1f / %4.1f",particle->position.x, particle->position.y, particle->position.z);
+		ImGui::Text("pos : %4.1f / %4.1f / %4.1f", particle->position.x, particle->position.y, particle->position.z);
 		ImGui::Text("color : %4.1f / %4.1f / %4.1f / %4.1f", particle->color.x, particle->color.y, particle->color.z, particle->color.w);
 		ImGui::Text("");
 	}
@@ -232,5 +385,5 @@ void ParticleEmiter::DebugImGui(const char* name) {
 
 #endif // _DEBUG
 
-	
+
 }
