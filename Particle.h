@@ -19,4 +19,15 @@ struct Particle4GPU {
 
 };
 
-Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo, const Vector4& colorMin, const Vector4& colorMax, const Vector2& lifeTimeminXmaxY);
+
+struct MinMaxDataV3 {
+	Vector3 minData;
+	Vector3 maxData;
+};
+
+struct MinMaxDataV4 {
+	Vector4 minData;
+	Vector4 maxData;
+};
+
+Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const MinMaxDataV3&velo, const MinMaxDataV4& color, const Vector2& lifeTimeminXmaxY);

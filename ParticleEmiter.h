@@ -26,7 +26,7 @@ public:
 	/// <param name="Rect">画像をどの範囲描画するか</param>
 	/// <param name="anchor">スプライトの中心点</param>
 	/// <returns>設定を行ったスプライトデータ</returns>
-	static  ParticleEmiter* Create2D(const Camera*camera, int texture,const int occurrenceMaxCount ,const Vector2 size, const Vector2 spriteSize,const Vector2 Rect,const Vector2 anchor={0.5f,0.5f});
+	static  ParticleEmiter* Create2D(const Camera*camera, int texture,const int occurrenceMaxCount , const Vector2 spriteSize,const Vector2 Rect,const Vector2 anchor={0.5f,0.5f});
 
 	/// <summary>
 	/// インスタンシングで3Dトデータを生成
@@ -38,7 +38,7 @@ public:
 	/// <param name="Rect">画像をどの範囲描画するか</param>
 	/// <param name="anchor">スプライトの中心点</param>
 	/// <returns>設定を行ったスプライトデータ</returns>
-	static  ParticleEmiter* Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor = { 0.5f,0.5f });
+	static  ParticleEmiter* Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor = { 0.5f,0.5f });
 
 
 	//スプライト

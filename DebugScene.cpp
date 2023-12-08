@@ -28,11 +28,11 @@ void DebugScene::Initialize() {
 	//sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
 	
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index] = MakeNewParticle(center, { 0,0,0 }, minvelo, velo,colormin,color,{60,180});
+		insPos[index] = MakeNewParticle(center, { 0,0,0 }, velo,color,{60,180});
 	}
 
 	pE_ = new ParticleEmiter();
-	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 1,1 }, { 512,512 }, { 512,512 });
+	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 512,512 }, { 512,512 });
 	
 }
 
@@ -49,7 +49,7 @@ void DebugScene::Update() {
 
 	if (input->TriggerKey(DIK_SPACE)) {
 		for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-			insPos[index] = MakeNewParticle(center, { 0,0,0 }, minvelo, velo, colormin, color, { 60,180 });
+			insPos[index] = MakeNewParticle(center, { 0,0,0 },  velo, color, { 60,180 });
 		}
 		checkUpdate_ = true;
 	}
@@ -61,6 +61,11 @@ void DebugScene::Update() {
 	ImGui::Checkbox("isMove", &checkUpdate_);
 
 
+	float scale = insPos[0].world_.scale_.x;
+	if (ImGui::BeginMenu("aho")) {
+		ImGui::DragFloat("scale", &scale);
+		ImGui::EndMenu();
+	}
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		if (checkUpdate_) {
 			if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
@@ -73,11 +78,8 @@ void DebugScene::Update() {
 			}
 		}
 
-
-		if (ImGui::BeginMenu("aho")) {
-			ImGui::ColorEdit4("set color", &insPos[index].color.x);
-			ImGui::EndMenu();
-		}
+		
+		insPos[index].world_.scale_ = {scale,scale,scale};
 		//sprite_->SetParticle(&insPos[index]);
 		pE_->SetParticle(&insPos[index]);
 	}

@@ -14,7 +14,7 @@ ParticleEmiter::~ParticleEmiter() {
 	materialResource_->Release();
 }
 
-ParticleEmiter* ParticleEmiter::Create2D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+ParticleEmiter* ParticleEmiter::Create2D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
 
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
@@ -34,9 +34,9 @@ ParticleEmiter* ParticleEmiter::Create2D(const Camera* camera, int texture, cons
 	VertexData* vertexData = nullptr;
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	//一枚目の三角形
-	Vector2 minv = { size.x * (-anchor.x),size.y * (-anchor.y) };
+	Vector2 minv = { 1* (-anchor.x),1 * (-anchor.y) };
 
-	Vector2 maxV = { size.x * (1 - anchor.x),size.y * (1 - anchor.y) };
+	Vector2 maxV = { 1 * (1 - anchor.x),1 * (1 - anchor.y) };
 
 	Vector2 maxTex = { Rect.x / spriteSize.x,Rect.y / spriteSize.x };
 
@@ -89,7 +89,7 @@ ParticleEmiter* ParticleEmiter::Create2D(const Camera* camera, int texture, cons
 
 }
 
-ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, const int occurrenceMaxCount,const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 
@@ -108,9 +108,9 @@ ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, cons
 	VertexData* vertexData = nullptr;
 	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData));
 	//一枚目の三角形
-	Vector2 minV = { size.x * (-anchor.x),size.y * (-anchor.y) };
+	Vector2 minV = { 1 * (-anchor.x),1 * (-anchor.y) };
 
-	Vector2 maxV = { size.x * (1 - anchor.x),size.y * (1 - anchor.y) };
+	Vector2 maxV = { 1 * (1 - anchor.x),1 * (1 - anchor.y) };
 
 	Vector2 maxTex = { Rect.x / spriteSize.x,Rect.y / spriteSize.x };
 

@@ -40,12 +40,24 @@ private:
 
 	Vector3 center = { 0, 0,0 };
 
-	Vector3 velo = { 0.5f,0.5f,0.5f };
+	Vector3 maxvelo = { 0.5f,0.5f,0.5f };
 
 	Vector3 minvelo = { -0.5f,-0.5f,-0.5f };
 
-	Vector4 color = { 1,1,1,1 };
+	MinMaxDataV3 velo = {
+		.minData{minvelo},
+		.maxData{maxvelo}
+	};
+
+	Vector4 colormax = { 1,1,1,1 };
 	Vector4 colormin = { 0,0,0,1 };
+
+	MinMaxDataV4 color = {
+		.minData{colormax},
+		.maxData{colormin}
+	};
+
+	
 
 	bool checkUpdate_ = false;
 };
