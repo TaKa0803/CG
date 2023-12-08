@@ -4,8 +4,8 @@
 #include"DirectXFunc.h"
 #include"Graphics.h"
 #include"struct.h"
-
 #include"WorldTransform.h"
+#include"Camera.h"
 
 #include<vector>
 
@@ -26,7 +26,7 @@ public:
 	/// <param name="Rect">画像をどの範囲描画するか</param>
 	/// <param name="anchor">スプライトの中心点</param>
 	/// <returns>設定を行ったスプライトデータ</returns>
-	static  ParticleEmiter* Create2D(int texture,const int occurrenceMaxCount ,const Vector2 size, const Vector2 spriteSize,const Vector2 Rect,const Vector2 anchor={0.5f,0.5f});
+	static  ParticleEmiter* Create2D(const Camera*camera, int texture,const int occurrenceMaxCount ,const Vector2 size, const Vector2 spriteSize,const Vector2 Rect,const Vector2 anchor={0.5f,0.5f});
 
 	/// <summary>
 	/// インスタンシングで3Dトデータを生成
@@ -38,7 +38,7 @@ public:
 	/// <param name="Rect">画像をどの範囲描画するか</param>
 	/// <param name="anchor">スプライトの中心点</param>
 	/// <returns>設定を行ったスプライトデータ</returns>
-	static  ParticleEmiter* Create3D(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor = { 0.5f,0.5f });
+	static  ParticleEmiter* Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor = { 0.5f,0.5f });
 
 
 	//スプライト
@@ -46,12 +46,12 @@ public:
 
 	void Draw2D(int texture = -1);
 
-	void Draw3D(const Matrix4x4& viewProjection,int texture = -1);
+	void Draw3D(int texture = -1);
 
 	void DebugImGui(const char* name);
 private:
 
-	void Initialize(int32_t texture,int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView,ID3D12Resource* indexResource, D3D12_INDEX_BUFFER_VIEW indexBufferView,bool is2D=false);
+	void Initialize(const Camera* camera, int32_t texture,int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView,ID3D12Resource* indexResource, D3D12_INDEX_BUFFER_VIEW indexBufferView,bool is2D=false);
 
 private:
 
@@ -62,6 +62,7 @@ private:
 
 	ParticleGraphics* particlegraphics_ = nullptr;
 
+	const Camera* camera_ = nullptr;
 
 	int texture_ = -1;
 

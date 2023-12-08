@@ -14,7 +14,7 @@ ParticleEmiter::~ParticleEmiter() {
 	materialResource_->Release();
 }
 
-ParticleEmiter* ParticleEmiter::Create2D(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+ParticleEmiter* ParticleEmiter::Create2D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
 
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
@@ -83,13 +83,13 @@ ParticleEmiter* ParticleEmiter::Create2D(int texture, const int occurrenceMaxCou
 #pragma endregion
 
 	ParticleEmiter* particleInstancingData = new ParticleEmiter();
-	particleInstancingData->Initialize(texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView, true);
+	particleInstancingData->Initialize(camera,texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView, true);
 
 	return particleInstancingData;
 
 }
 
-ParticleEmiter* ParticleEmiter::Create3D(int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
+ParticleEmiter* ParticleEmiter::Create3D(const Camera* camera, int texture, const int occurrenceMaxCount, const Vector2 size, const Vector2 spriteSize, const Vector2 Rect, const Vector2 anchor) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 
@@ -157,14 +157,14 @@ ParticleEmiter* ParticleEmiter::Create3D(int texture, const int occurrenceMaxCou
 #pragma endregion
 
 	ParticleEmiter* particleInstancingData = new ParticleEmiter();
-	particleInstancingData->Initialize(texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView);
+	particleInstancingData->Initialize(camera,texture, occurrenceMaxCount, vertexResource, vertexBufferView,indexResource,indexBufferView);
 
 	return particleInstancingData;
 
 }
 
 
-void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView, ID3D12Resource* indexResource, D3D12_INDEX_BUFFER_VIEW indexBufferView, bool is2D) {
+void ParticleEmiter::Initialize(const Camera* camera, int32_t texture, int32_t occurrenceMaxCount, ID3D12Resource* vertexResource, D3D12_VERTEX_BUFFER_VIEW vertexBufferView, ID3D12Resource* indexResource, D3D12_INDEX_BUFFER_VIEW indexBufferView, bool is2D) {
 
 	is2D_ = is2D;
 
@@ -172,6 +172,8 @@ void ParticleEmiter::Initialize(int32_t texture, int32_t occurrenceMaxCount, ID3
 
 	particlegraphics_ = new ParticleGraphics();
 	particlegraphics_->Initialize(DXF_->GetDevice());
+
+	camera_ = camera;
 
 	texture_ = texture;
 
@@ -242,11 +244,12 @@ void ParticleEmiter::Draw2D(int texture) {
 	//生きている数と番号チェック
 	int index = 0;
 	for (auto& particle : particles_) {
+		particle->world_.UpdateMatrix();
 
 
 
 		//ワールド更新
-		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, particle->position);
+		Matrix4x4 World = particle->world_.matWorld_;
 
 
 		//スプライト用データ
@@ -287,7 +290,7 @@ void ParticleEmiter::Draw2D(int texture) {
 	DXF_->GetCMDList()->DrawIndexedInstanced(6, index, 0, 0, 0);
 }
 
-void ParticleEmiter::Draw3D(const Matrix4x4& viewProjection, int texture) {
+void ParticleEmiter::Draw3D(int texture) {
 
 	//2D用に生成してるときにこれを呼び出しでエラー
 	if (is2D_) {
@@ -306,15 +309,15 @@ void ParticleEmiter::Draw3D(const Matrix4x4& viewProjection, int texture) {
 	//生きている数と番号チェック
 	int index = 0;
 	for (auto& particle : particles_) {
-
+		particle->world_.UpdateMatrix();
 
 
 		//ワールド更新
-		Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, particle->position);
+		Matrix4x4 World = particle->world_.matWorld_;
 
 
 		//スプライト用データ
-		Matrix4x4 WVP = World * viewProjection;
+		Matrix4x4 WVP = World * camera_->GetViewProjectionMatrix();
 		//データ代入
 		particle4GPUData_[index].WVP = WVP;
 		particle4GPUData_[index].World = World;
@@ -375,7 +378,7 @@ void ParticleEmiter::DebugImGui(const char* name) {
 	ImGui::Text("");
 	ImGui::Text("SetDatas");
 	for (auto& particle : particles_) {
-		ImGui::Text("pos : %4.1f / %4.1f / %4.1f", particle->position.x, particle->position.y, particle->position.z);
+		ImGui::Text("pos : %4.1f / %4.1f / %4.1f", particle->world_.translate_.x, particle->world_.translate_.y, particle->world_.translate_.z);
 		ImGui::Text("color : %4.1f / %4.1f / %4.1f / %4.1f", particle->color.x, particle->color.y, particle->color.z, particle->color.w);
 		ImGui::Text("");
 	}

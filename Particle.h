@@ -2,9 +2,10 @@
 #include"Vector4.h"
 #include"Vector3.h"
 #include"Matrix.h"
+#include"WorldTransform.h"
 
 struct Particle {
-	Vector3 position;
+	WorldTransform world_;
 	Vector3 velocity;
 	Vector4 color;
 	float lifeTime;

@@ -5,7 +5,7 @@
 Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo, const Vector4& colorMin, const Vector4& colorMax, const Vector2& lifeTimeminXmaxY) {
 	Particle ans;
 
-	ans.position = spawnPos + RandomNumber::Get(-emiterSize / 2, emiterSize / 2);
+	ans.world_.translate_ = spawnPos + RandomNumber::Get(-emiterSize / 2, emiterSize / 2);
 
 
 	ans.velocity = RandomNumber::Get(minVelo, maxVelo);

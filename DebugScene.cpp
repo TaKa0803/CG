@@ -32,7 +32,7 @@ void DebugScene::Initialize() {
 	}
 
 	pE_ = new ParticleEmiter();
-	pE_ = ParticleEmiter::Create3D(texture, kNuminstancing, { 1,1 }, { 512,512 }, { 512,512 });
+	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 1,1 }, { 512,512 }, { 512,512 });
 	
 }
 
@@ -64,7 +64,7 @@ void DebugScene::Update() {
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		if (checkUpdate_) {
 			if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
-				insPos[index].position += insPos[index].velocity * kDeltaTime;
+				insPos[index].world_.translate_ += insPos[index].velocity * kDeltaTime;
 				float alpha = 1.0f - (insPos[index].currentTime / insPos[index].lifeTime);
 				if (alpha <= 0) {
 					alpha = 0;
@@ -96,7 +96,7 @@ void DebugScene::Draw() {
 
 	//sprite_->DrawInstancing();
 
-	pE_->Draw3D(camera_.GetViewProjectionMatrix());
+	pE_->Draw3D();
 	//sprite_->Draw();
 }
 
