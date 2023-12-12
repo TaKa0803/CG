@@ -47,10 +47,14 @@ public:
 	
 	void Finalize();
 		
+
 private://メンバ関数
 	
-	int CreateData(const DirectX::ScratchImage& mipImages);
+	int CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages);
 
+	bool CheckSameData(const std::string& filepath);
+
+	int GetDataFromPath(const std::string& path);
 private://メンバ変数
 
 	//
@@ -58,10 +62,10 @@ private://メンバ変数
 
 	
 	struct Texture{
-		D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU;
-		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
+		int texManagementNumber;
+		std::string filePath;
 	};
 
-	
+	std::vector<Texture*>datas_;
 	
 };

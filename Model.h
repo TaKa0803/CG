@@ -112,6 +112,8 @@ private:
 
 	std::string name;
 
+	D3D12_GPU_DESCRIPTOR_HANDLE texture_;
+
 	bool isDebug = false;
 
 	//頂点数

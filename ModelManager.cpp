@@ -13,7 +13,7 @@ MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const st
 
 	std::string line;
 	//２ファイルを開く
-	std::ifstream file(directoryPath + "/" + filename);
+	std::ifstream file(directoryPath + "/" + filename + "/" + filename + ".mtl");
 	assert(file.is_open());
 	//３実際にファイルを読みまてりあｌDataを構築
 	while (std::getline(file, line)) {
@@ -26,7 +26,7 @@ MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const st
 			std::string textureFilename;
 			s >> textureFilename;
 			//連結してファイルパスにする
-			materialdata.textureFilePath = directoryPath + "/" + textureFilename;
+			materialdata.textureFilePath = directoryPath + "/" + filename + "/" + textureFilename;
 		}
 	}
 	//４MaterialDataを返す
@@ -44,7 +44,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 #pragma endregion
 #pragma region ファイルを開く
 
-	std::ifstream file(directoryPath + "/" + filename + ".obj");
+	std::ifstream file(directoryPath + "/" + filename+"/"+filename + ".obj");
 	assert(file.is_open());//開けなかったら止める
 #pragma endregion
 #pragma region 実際にファイルを読みModelDataを構築していく
@@ -107,7 +107,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 		else if (identifier == "mtllib") {
 			//materialTemplateLibraryファイルの名前を変更する
 			std::string materialFilename;
-			materialFilename = filename + ".mtl";
+			materialFilename = filename;
 			//基本的にobjファイルと同一改装にmtlは存在させるので、ディレクトリ名とファイル名を渡す
 			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
 		}
@@ -126,7 +126,7 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 void ModelManager::LoadAllModels() {
-	
+
 	//読み込むjsonファイル
 	std::string filepath = modelPathFile;
 	//読み込み用ファイルストリーム
@@ -146,7 +146,7 @@ void ModelManager::LoadAllModels() {
 	//json文字列からjsonのデータ構造に展開
 	ifs >> root;
 	//移したのでファイルを閉じる
-	ifs.close();	
+	ifs.close();
 
 	//グループ検索
 	nlohmann::json::iterator itGroup = root.find(groupName);
@@ -162,7 +162,7 @@ void ModelManager::LoadAllModels() {
 		if (itItem->is_string()) {
 			//パスを取得
 			std::string modelPath = itItem->get<std::string>();
-			
+
 			//名前とパスを合わせた構造体
 			NameAndPath nameAndPath = { itemName,modelPath };
 
@@ -170,7 +170,7 @@ void ModelManager::LoadAllModels() {
 			ModelData newmodelData = LoadObjFile("resources", modelPath);
 			std::pair<NameAndPath, ModelData>newData(nameAndPath, newmodelData);
 			modelDatas.emplace_back(newData);
-			
+
 		}
 	}
 
@@ -185,16 +185,16 @@ ModelData ModelManager::GetModelData(const std::string& filename) {
 	//データ型に該当するものを追加
 	for (auto& modeldata : modelDatas) {
 		//名前が同じorパスが同じ場合
-		if (modeldata.first.name == name||modeldata.first.path==name) {
+		if (modeldata.first.name == name || modeldata.first.path == name) {
 			return modeldata.second;
 		}
 	}
 
 	//存在しない場合の処理
-	if(isError){
+	if (isError) {
 		//存在していないのでエラー
 		assert(false);
-		
+
 	}
 	else {
 

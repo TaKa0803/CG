@@ -17,6 +17,7 @@
 #include<fstream>
 
 #include"ModelManager.h"
+#include"SRVManager.h"
 
 #pragma region 
 
@@ -40,6 +41,12 @@ void Model::Initialize(
 	grarphics_->Initialize(DXF_->GetDevice());
 
 	name = name_;
+
+	int texture = TextureManager::LoadTex(name);
+
+	SRVManager* SRVM = SRVManager::GetInstance();
+	texture_ = SRVM->GetTextureDescriptorHandle(texture);
+
 	point_ = point;
 	vertexRtea_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
@@ -241,7 +248,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 #pragma endregion
 
 	Model* model =new Model();
-	model->Initialize(filePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
+	model->Initialize(modeltea.material.textureFilePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
 
 
 	

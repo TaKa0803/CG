@@ -143,16 +143,27 @@ int TextureManager::LoadTex(const std::string& filePath)
 {
 	DirectXFunc*DXF= DirectXFunc::GetInstance();
 
-	DirectX::ScratchImage mipImages = LoadTexture(filePath);
-	
-	//入れた画像の管理番号を返す
-	return TextureManager::GetInstance()->CreateData(mipImages);
-	//return 0;
+	//パスがすでに呼ばれているかチェック
+	if (!TextureManager::GetInstance()->CheckSameData(filePath)) {
+
+		DirectX::ScratchImage mipImages = LoadTexture(filePath);
+
+
+		//入れた画像の管理番号を返す
+		return TextureManager::GetInstance()->CreateData(filePath,mipImages);
+		
+	}
+	else {
+		//呼ばれている場合
+
+		return TextureManager::GetInstance()->GetDataFromPath(filePath);
+
+	}
 
 }
 
 
-int TextureManager::CreateData(const DirectX::ScratchImage& mipImages) {
+int TextureManager::CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages) {
 
 	SRVManager* SRVM = SRVManager::GetInstance();
 
@@ -167,7 +178,37 @@ int TextureManager::CreateData(const DirectX::ScratchImage& mipImages) {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	return SRVM->CreateSRV(textureResource, intermediateResource, srvDesc);
+	int texNum= SRVM->CreateSRV(textureResource, intermediateResource, srvDesc);
+
+	Texture texData = { texNum,filePath };
+
+	//データをプッシュ
+	datas_.emplace_back(&texData);
+
+	return texNum;
+}
+
+bool TextureManager::CheckSameData(const std::string& filepath) {
+	//同じデータか確認
+	for (auto& data : datas_) {
+		if (data->filePath == filepath) {
+			return true;
+		}
+	}
+	//無ければ
+	return false;
+}
+
+int TextureManager::GetDataFromPath(const std::string& path) {
+	for (auto& data : datas_) {
+		if (data->filePath == path) {
+			return data->texManagementNumber;
+		}
+	}
+
+	//見つからないのはおかしいのでエラー
+	assert(false);
+	return-1;
 }
 
 
