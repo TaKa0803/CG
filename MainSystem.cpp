@@ -4,7 +4,7 @@
 #include"MT4Scene.h"
 #include"GlobalVariables.h"
 #include"RandomNum.h"
-
+#include"ModelManager.h"
 
 MainSystem* MainSystem::GetInstance() {
 	static MainSystem instance;
@@ -51,6 +51,12 @@ void MainSystem::Initializes() {
 	//入力
 	input = Input::GetInstance();
 	input->Initialize(winApp);
+
+
+	//モデルデータ関係
+	ModelManager* mManager = ModelManager::GetInstance();
+	mManager->LoadAllModels();
+
 
 	//乱数クラス
 	randomNumClass_ = RandomNumber::GetInstance();

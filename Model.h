@@ -19,7 +19,6 @@ public:
 
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-
 	/// <summary>
 	/// 円の作成
 	/// </summary>

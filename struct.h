@@ -11,7 +11,20 @@
 
 #pragma region 構造体
 
+struct VertexData {
+	Vector4 position;
+	Vector2 texcoord;
+	Vector3 normal;
+};
 
+struct MaterialData {
+	std::string textureFilePath;
+};
+
+struct ModelData {
+	std::vector<VertexData> vertices;
+	MaterialData material;
+};
 
 
 
@@ -24,11 +37,7 @@ struct AABB {
 
 
 
-struct VertexData {
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
-};
+
 
 struct Material {
 	Vector4 color;

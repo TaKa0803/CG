@@ -239,7 +239,7 @@ void GlobalVariables::LoadFile(const std::string& groupName) {
 			Vector3 value = {itItem->at(0), itItem->at(1), itItem->at(2)};
 			SetValue(groupName, itemName, value);
 		}
-
+		
 	}
 }
 

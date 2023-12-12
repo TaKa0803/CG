@@ -169,7 +169,7 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 		//V2に変換
 		
-		lockOn_->SetPosition(&pos);
+		lockOn_->SetPosition(pos);
 
 
 #pragma region カメラ処理

@@ -14,10 +14,12 @@
 
 
 void DebugScene::Initialize() {
-	model_ = Model::CreateFromOBJ("fence/fence");
+	//model_ = Model::CreateFromOBJ("fence/fence");
 	//texture = TextureManager::LoadTex("resources/fence/fence.png");
 
-	//model_ = Model::CreateFromOBJ("ALPlayer");
+	model_ = Model::CreateFromOBJ("ALPlayer");
+
+	model2_ = Model::CreateFromOBJ("ALPlayer");
 	//texture = TextureManager::LoadTex("resources/circle.png");
 	texture = TextureManager::uvChecker_;
 
@@ -25,22 +27,27 @@ void DebugScene::Initialize() {
 	camera_.SetTarget(&world_);
 
 	//sprite_ = new Sprite();
-	//sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
-	
+	//sprite_ = Sprite::Create(texture,{512,512},{256,256});
+	//sprite_->SetPosition({ 640, 360});
+	//sprite_->SetScale({ 512,512,1 });
+
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
 		insPos[index] = MakeNewParticle(center, { 0,0,0 }, velo,color,{60,180});
 	}
 
 	pE_ = new ParticleEmiter();
-	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 512,512 }, { 512,512 });
+	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 512,512 }, { 256,256 });
 	
 }
 
 void DebugScene::Update() {
-	world_.DrawDebug("box");
+	world_.DrawDebug("box1");
+	world2_.DrawDebug("box2");
+
 	camera_.DrawDebugWindow("camera");
 
-	//model_->DebugParameter("box");
+	model_->DebugParameter("box");
+	model2_->DebugParameter("box2");
 	//sprite_->DrawDebugImGui("sprite");
 
 	
@@ -61,12 +68,14 @@ void DebugScene::Update() {
 	ImGui::Checkbox("isMove", &checkUpdate_);
 
 
-	float scale = insPos[0].world_.scale_.x;
-	if (ImGui::BeginMenu("aho")) {
+	////float scale = sprite_->GetScale().x;
+	//if (ImGui::BeginMenu("aho")) {
 
-		ImGui::DragFloat("scale", &scale);
-		ImGui::EndMenu();
-	}
+	////	ImGui::DragFloat("scale", &scale);
+	//	ImGui::EndMenu();
+	//}
+
+	//sprite_->SetScale(scale);
 
 	ImGui::EndMenuBar();
 	ImGui::End();
@@ -84,7 +93,7 @@ void DebugScene::Update() {
 			}
 
 
-			insPos[index].world_.scale_ = { scale,scale,scale };
+			//insPos[index].world_.scale_ = { scale,scale,scale };
 			//sprite_->SetParticle(&insPos[index]);
 			pE_->SetParticle(&insPos[index]);
 			
@@ -98,14 +107,16 @@ void DebugScene::Update() {
 	pE_->Update();
 
 	world_.UpdateMatrix();
+	world2_.UpdateMatrix();
 	camera_.Update();
 
 	
 }
 
 void DebugScene::Draw() {
-	//model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
+	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 
+	model2_->Draw(world2_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 	//sprite_->DrawInstancing();
 
 	pE_->Draw3D();
@@ -114,6 +125,7 @@ void DebugScene::Draw() {
 
 void DebugScene::Finalize() {
 	delete model_;
+	delete model2_;
 	delete sprite_;
 	delete pE_;
 }

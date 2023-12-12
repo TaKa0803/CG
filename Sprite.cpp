@@ -24,9 +24,9 @@ void Sprite::DrawDebugImGui(const char* name) {
 	Vector4 color = materialData_->color;
 #ifdef _DEBUG
 	ImGui::Begin(name);
-	ImGui::DragFloat2("pos", &pos_.x, 0.1f);
-	ImGui::DragFloat("rotate", &rotate_.z);
-	ImGui::DragFloat2("scale", &scale_.x, 0.01f);
+	ImGui::DragFloat2("pos", &world_.translate_.x, 0.1f);
+	ImGui::DragFloat("rotate", &world_.rotate_.z);
+	ImGui::DragFloat2("scale", &world_.scale_.x, 0.01f);
 
 	ImGui::Text("UV");
 	ImGui::DragFloat2("uv pos", &uvpos.x, 0.1f);
@@ -51,50 +51,49 @@ void Sprite::DrawDebugImGui(const char* name) {
 
 }
 
-
-Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 anchor) {
-
+Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 Rect, const Vector2 translate, const float rotate, const Vector2 scale, const Vector2 anchor) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
-
+	
+	WorldTransform newWorld;
+	newWorld.translate_ = { translate.x,translate.y,1 };
+	newWorld.rotate_.z = rotate;
+	newWorld.scale_ = { scale.x,scale.y,1 };
 #pragma region Sprite
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewSprite{};
+	ID3D12Resource* vertexResource;
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+
+	ID3D12Resource* indexResourceSprite;
 
 	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
-
-	ID3D12Resource* transformationMatrixResourceSprite;
-
-	WorldTransformation* transformationMatrixDataSprite = nullptr;
-
-	Material* materialSpriteData = nullptr;
-
-	ID3D12Resource* materialSpriteResource;
 
 
 #pragma region VertexResourceとVertexBufferViewを用意
 	//Sprite用の頂点リソースを作る
-	ID3D12Resource* vertexResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * 4);
+	vertexResource = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * 4);
 
 	//頂点バッファビューを作成する
-
 	//リソース用の先頭のアドレスから使う
-	vertexBufferViewSprite.BufferLocation = vertexResourceSprite->GetGPUVirtualAddress();
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
 	//使用するリソースのサイズは頂点6つ分のサイズ
-	vertexBufferViewSprite.SizeInBytes = sizeof(VertexData) * 4;
+	vertexBufferView.SizeInBytes = sizeof(VertexData) * 4;
 	//頂点当たりのサイズ
-	vertexBufferViewSprite.StrideInBytes = sizeof(VertexData);
+	vertexBufferView.StrideInBytes = sizeof(VertexData);
 #pragma endregion
 
 #pragma region 頂点データを設定する
 	VertexData* vertexDataSprite = nullptr;
-	vertexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
 	//一枚目の三角形
 
-	Vector2 minv = { size.x * (-anchor.x),size.y * (-anchor.y) };
+	Vector2 minv = { 1 * (-anchor.x),1 * (-anchor.y) };
 
-	Vector3 maxV = { size.x * (1 - anchor.x),size.y * (1 - anchor.y) };
+	Vector2 maxV = { 1 * (1 - anchor.x),1 * (1 - anchor.y) };
+
+	Vector2 maxUV = { Rect.x / size.x,Rect.y/size.y };
 
 	vertexDataSprite[0].position = { minv.x,maxV.y,0.0f,1.0f };
-	vertexDataSprite[0].texcoord = { 0.0f,1.0f };
+	vertexDataSprite[0].texcoord = { 0.0f,maxUV.y };
 	vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexDataSprite[1].position = { minv.x,minv.y,0.0f,1.0f };
@@ -102,14 +101,14 @@ Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 anchor) {
 	vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexDataSprite[2].position = { maxV.x,maxV.y,0.0f,1.0f };
-	vertexDataSprite[2].texcoord = { 1.0f,1.0f };
+	vertexDataSprite[2].texcoord = maxUV;
 	vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
 
 	vertexDataSprite[3].position = { maxV.x,minv.y,0.0f,1.0f };
-	vertexDataSprite[3].texcoord = { 1.0f,0.0f };
+	vertexDataSprite[3].texcoord = { maxUV.x,0.0f };
 	vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
 
-	ID3D12Resource* indexResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
+	indexResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
 
 	//リソースの先頭アドレスから使う
 	indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
@@ -130,31 +129,103 @@ Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 anchor) {
 
 
 #pragma endregion
-#pragma region Transform周りを作る
-	transformationMatrixResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(WorldTransformation));
-	//データを書き込む
 
-	//書き込むためのアドレスを取得
-	transformationMatrixResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixDataSprite));
-	transformationMatrixDataSprite->WVP = MakeIdentity4x4();
-	transformationMatrixDataSprite->World = MakeIdentity4x4();
-#pragma endregion
-
-	//Sprite用のマテリアルリソース
-	materialSpriteResource = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
-	//マテリアルにデータを書き込む
-
-	materialSpriteResource->Map(0, nullptr, reinterpret_cast<void**>(&materialSpriteData));
-	materialSpriteData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialSpriteData->enableLighting = false;
-	materialSpriteData->uvTransform = MakeIdentity4x4();
-	materialSpriteData->enableTexture = true;
-	materialSpriteData->enableHalfLambert = false;
-#pragma endregion
 
 
 	Sprite* sprite = new Sprite();
-	sprite->Initialize(texture, vertexResourceSprite, indexResourceSprite, vertexBufferViewSprite, indexBufferViewSprite, transformationMatrixResourceSprite, transformationMatrixDataSprite, materialSpriteData, materialSpriteResource);
+	sprite->Initialize(texture,newWorld, vertexResource, vertexBufferView, indexResourceSprite, indexBufferViewSprite);
+
+	return sprite;
+}
+
+
+
+Sprite* Sprite::Create(int texture, const Vector2 translate, const float rotate, const Vector2 scale, const Vector2 anchor) {
+
+	DirectXFunc* DXF = DirectXFunc::GetInstance();
+
+
+
+
+	WorldTransform newWorld;
+	newWorld.translate_ = { translate.x,translate.y,1 };
+	newWorld.rotate_.z = rotate;
+	newWorld.scale_ = { scale.x,scale.y,1 };
+
+#pragma region Sprite
+	ID3D12Resource* vertexResource;
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+
+	ID3D12Resource* indexResourceSprite;
+
+	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite{};
+
+
+#pragma region VertexResourceとVertexBufferViewを用意
+	//Sprite用の頂点リソースを作る
+	vertexResource = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * 4);
+
+	//頂点バッファビューを作成する
+	//リソース用の先頭のアドレスから使う
+	vertexBufferView.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	//使用するリソースのサイズは頂点6つ分のサイズ
+	vertexBufferView.SizeInBytes = sizeof(VertexData) * 4;
+	//頂点当たりのサイズ
+	vertexBufferView.StrideInBytes = sizeof(VertexData);
+#pragma endregion
+
+#pragma region 頂点データを設定する
+	VertexData* vertexDataSprite = nullptr;
+	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexDataSprite));
+	//一枚目の三角形
+
+	Vector2 minv = { 1 * (-anchor.x),1 * (-anchor.y) };
+
+	Vector3 maxV = { 1 * (1 - anchor.x),1 * (1 - anchor.y) };
+
+	vertexDataSprite[0].position = { minv.x,maxV.y,0.0f,1.0f };
+	vertexDataSprite[0].texcoord = { 0.0f,1.0f };
+	vertexDataSprite[0].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexDataSprite[1].position = { minv.x,minv.y,0.0f,1.0f };
+	vertexDataSprite[1].texcoord = { 0.0f,0.0f };
+	vertexDataSprite[1].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexDataSprite[2].position = { maxV.x,maxV.y,0.0f,1.0f };
+	vertexDataSprite[2].texcoord = { 1.0f,1.0f };
+	vertexDataSprite[2].normal = { 0.0f,0.0f,-1.0f };
+
+	vertexDataSprite[3].position = { maxV.x,minv.y,0.0f,1.0f };
+	vertexDataSprite[3].texcoord = { 1.0f,0.0f };
+	vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
+
+	indexResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
+
+	//リソースの先頭アドレスから使う
+	indexBufferViewSprite.BufferLocation = indexResourceSprite->GetGPUVirtualAddress();
+	//使用するリソースのサイズはインデックス６つ分のサイズ
+	indexBufferViewSprite.SizeInBytes = sizeof(uint32_t) * 6;
+	//インデックス
+	indexBufferViewSprite.Format = DXGI_FORMAT_R32_UINT;
+
+	uint32_t* indexDataSprite = nullptr;
+	indexResourceSprite->Map(0, nullptr, reinterpret_cast<void**>(&indexDataSprite));
+	indexDataSprite[0] = 1;
+	indexDataSprite[1] = 3;
+	indexDataSprite[2] = 0;
+
+	indexDataSprite[3] = 3;
+	indexDataSprite[4] = 2;
+	indexDataSprite[5] = 0;
+
+
+#pragma endregion
+
+
+
+	Sprite* sprite = new Sprite();
+	sprite->Initialize(texture,newWorld, vertexResource, vertexBufferView, indexResourceSprite, indexBufferViewSprite);
 
 	return sprite;
 
@@ -163,37 +234,61 @@ Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 anchor) {
 
 
 void Sprite::Initialize(int texture,
-	ID3D12Resource* vertexResourceSprite,
+
+	WorldTransform world,
+
+	ID3D12Resource* vertexResource,
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+
 	ID3D12Resource* indexResourceSprite,
-	D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-	D3D12_INDEX_BUFFER_VIEW& indexBufferView,
-	ID3D12Resource* transformationMatrixResource,
-	WorldTransformation* transformationMatrixData,
-	Material* materialData,
-	ID3D12Resource* materialResource,
-	int instancingHandle, int instancingCount
+
+	D3D12_INDEX_BUFFER_VIEW indexBufferView
 ) {
 	DXF = DirectXFunc::GetInstance();
 
+	grarphics_ = new GraphicsSystem();
+	grarphics_->Initialize(DXF->GetDevice());
 
 
 	//データコピー
 
 	texture_ = texture;
-	vertexResource_ = vertexResourceSprite;
-	indexResource_ = indexResourceSprite;
+
+	world_ = world;
+
+	vertexResource_ = vertexResource;
+
 	vertexBufferView_ = vertexBufferView;
+
+	indexResource_ = indexResourceSprite;
+
 	indexBufferView_ = indexBufferView;
-	transformationMatrixData_ = transformationMatrixData;
-	transformationMatrixResource_ = transformationMatrixResource;
-	materialData_ = materialData;
-	materialResource_ = materialResource;
 
 
 
-	grarphics_ = new GraphicsSystem();
-	grarphics_->Initialize(DXF->GetDevice());
 
+#pragma region Transform周りを作る
+	transformationMatrixResource_ = CreateBufferResource(DXF->GetDevice(), sizeof(WorldTransformation));
+	//データを書き込む
+
+	//書き込むためのアドレスを取得
+	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+	transformationMatrixData_->WVP = MakeIdentity4x4();
+	transformationMatrixData_->World = MakeIdentity4x4();
+#pragma endregion
+
+	//Sprite用のマテリアルリソース
+	materialResource_ = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
+	//マテリアルにデータを書き込む
+
+	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	materialData_->enableLighting = false;
+	materialData_->uvTransform = MakeIdentity4x4();
+	materialData_->enableTexture = true;
+	materialData_->enableHalfLambert = false;
+#pragma endregion
 
 
 	Log("Sprite is Created!\n");
@@ -207,8 +302,10 @@ void Sprite::Draw(int texture) {
 	//uvTransform更新
 	materialData_->uvTransform = MakeAffineMatrix(uvscale, uvrotate, uvpos);
 
+
 	//ワールド更新
-	Matrix4x4 World = MakeAffineMatrix(scale_, rotate_, pos_);
+	world_.UpdateMatrix();
+	Matrix4x4 World = world_.matWorld_;
 
 
 	//スプライト用データ

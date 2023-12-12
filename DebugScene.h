@@ -24,7 +24,13 @@ private:
 	Camera camera_;
 
 	Model* model_;
+
+	Model* model2_;
+
 	WorldTransform world_;
+
+	WorldTransform world2_;
+
 	int texture;
 
 	Sprite* sprite_;
