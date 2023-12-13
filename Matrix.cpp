@@ -162,23 +162,20 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 //座標変換
 Vector3 Transform(const Vector3& v, const Matrix4x4& m) {
 	Vector3 result = {
-		v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + 1.0f * m.m[3][0],
-		v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + 1.0f * m.m[3][1],
-		v.x * m.m[0][2] + v.y * m.m[1][1] + v.z * m.m[2][2] + 1.0f * m.m[3][2],
+		.x{v.x * m.m[0][0] + v.y * m.m[1][0] + v.z * m.m[2][0] + 1.0f * m.m[3][0]},
+		.y{v.x * m.m[0][1] + v.y * m.m[1][1] + v.z * m.m[2][1] + 1.0f * m.m[3][1]},
+		.z{v.x * m.m[0][2] + v.y * m.m[1][2] + v.z * m.m[2][2] + 1.0f * m.m[3][2] },
 	};
 	float w = v.x * m.m[0][3] + v.y * m.m[1][3] + v.z * m.m[2][3] + 1.0f * m.m[3][3];
 
 	assert(w != 0);
-	if (w != 0) {
+	
 		return {
 			result.x / w,
 			result.y / w,
 			result.z / w,
 		};
-	}
-	else {
-		return result;
-	}
+	
 }
 
 

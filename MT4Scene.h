@@ -13,22 +13,16 @@ public:
 
 private:
 
-	Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
-	Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
+	Quaternion rotation = MakeRotateAxisAngleQuaternion(Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
 
-	Quaternion identity = MakeIdentityQuaternion();
+	Vector3 pointY = { 2.1f,-0.9f,1.3f };
 
-	Quaternion conj = Conjugate(q1);
+	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotation);
 
-	Quaternion inv = Inverse(q1);
+	Vector3 rotateByQuaternion = RotateVector(pointY, rotation);
 
-	Quaternion normal = Normalize(q1);
+	Vector3 rotateByMatrix = Transform(pointY, rotateMatrix);
 
-	Quaternion mul1 = q1 * q2;
-
-	Quaternion mul2 = q2 * q1;
-
-	float norm =Norm(q1);
 
 };
 

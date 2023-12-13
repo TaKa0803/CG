@@ -95,12 +95,6 @@
     <Filter Include="Application\Scene">
       <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Scene\DebugScene">
-      <UniqueIdentifier>{b8bbc1d2-5510-422c-b144-06714b12681d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Scene\MT4Scene">
-      <UniqueIdentifier>{d4ed701b-5b30-4e8f-bbaa-70dcd029f871}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Player">
       <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
     </Filter>
@@ -115,6 +109,15 @@
     </Filter>
     <Filter Include="Engine\ModelManager">
       <UniqueIdentifier>{023ac756-42aa-48b1-82a3-4bfb4d58275d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\AScene">
+      <UniqueIdentifier>{8fcb961d-9c21-4419-899d-313ffa72a720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\AScene\MT4Scene">
+      <UniqueIdentifier>{d4ed701b-5b30-4e8f-bbaa-70dcd029f871}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\AScene\DebugScene">
+      <UniqueIdentifier>{b8bbc1d2-5510-422c-b144-06714b12681d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -197,7 +200,7 @@
       <Filter>Engine\math\Vector3</Filter>
     </ClCompile>
     <ClCompile Include="DebugScene.cpp">
-      <Filter>Application\Scene\DebugScene</Filter>
+      <Filter>Engine\AScene\DebugScene</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
       <Filter>Application\Enemy</Filter>
@@ -225,7 +228,7 @@
       <Filter>Engine\math\Quaternion</Filter>
     </ClCompile>
     <ClCompile Include="MT4Scene.cpp">
-      <Filter>Application\Scene\MT4Scene</Filter>
+      <Filter>Engine\AScene\MT4Scene</Filter>
     </ClCompile>
     <ClCompile Include="ParticleEmiter.cpp">
       <Filter>Engine\Particle</Filter>
@@ -334,7 +337,7 @@
       <Filter>Engine\math\Vector3</Filter>
     </ClInclude>
     <ClInclude Include="DebugScene.h">
-      <Filter>Application\Scene\DebugScene</Filter>
+      <Filter>Engine\AScene\DebugScene</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
       <Filter>Application\Enemy</Filter>
@@ -361,7 +364,7 @@
       <Filter>Engine\math\Quaternion</Filter>
     </ClInclude>
     <ClInclude Include="MT4Scene.h">
-      <Filter>Application\Scene\MT4Scene</Filter>
+      <Filter>Engine\AScene\MT4Scene</Filter>
     </ClInclude>
     <ClInclude Include="ParticleEmiter.h">
       <Filter>Engine\Particle</Filter>
