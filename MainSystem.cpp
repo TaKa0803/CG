@@ -77,6 +77,8 @@ void MainSystem::MainRoop() {
 	//MT4Scene* mt4 = new MT4Scene();
 	//mt4->Initialize();
 
+
+	SRVM_->PostInitialize();
 #pragma region 更新
 	while (winApp->ProcessMessage()) {
 #pragma region 状態更新

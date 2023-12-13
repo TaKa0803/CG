@@ -72,6 +72,7 @@ private://メンバ変数
 	};
 
 	std::vector<Texturedata*>datas_;
+
 	
 	//const size_t maxTexNum_ = 256;
 };

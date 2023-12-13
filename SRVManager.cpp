@@ -15,10 +15,9 @@ int SRVManager::CreateSRV(ID3D12Resource* textureResource, ID3D12Resource* inter
 	DXF_->GetDevice()->CreateShaderResourceView(PushTextureResource(textureResource), &srvdesc, textureSrvHandleCPU);
 
 
-	if (intermediateResource!=nullptr) {
-		DXF_->KickCommand();
-		intermediateResource->Release();
-	}
+	
+	intermediaResources_.emplace_back(std::move(intermediateResource));
+	
 
 	return AddtextureNum(textureSrvHandleGPU);
 }
@@ -32,6 +31,22 @@ void SRVManager::Initialize(DirectXFunc* DXF) {
 	descriptorSizeSRV = DXF_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	//datas_.resize(maxSRVSize_);
+}
+
+void SRVManager::PostInitialize() {
+	//画像読み込み数がゼロでない場合
+	if (intermediaResources_.size() != 0) {
+		//GPUに送る
+		DXF_->KickCommand();
+
+		//開放する
+		for (auto& inter : intermediaResources_) {
+			if (inter != nullptr) {
+				inter->Release();
+				inter = nullptr;
+			}
+		}
+	}
 }
 
 void SRVManager::Finalize() {
