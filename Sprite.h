@@ -7,6 +7,9 @@
 #include<wrl.h>
 #include"Graphics.h"
 
+#include"ParticleEmiter.h"
+
+#include"WorldTransform.h"
 
 class Sprite {
 public:
@@ -21,12 +24,19 @@ public:
 	/// スプライト作成
 	/// </summary>
 	/// <param name="texture">画像の要素番号</param>
-	/// <param name="size">画像サイズ</param>
 	/// <param name="anchor">アンカー</param>
 	/// <returns>データ返却</returns>
-	static Sprite* Create(int texture, const Vector2& size, const Vector2& anchor = { 0.5f,0.5f });
+	static Sprite* Create(int texture,const Vector2 translate={640,360}, const float rotate=0, const Vector2 scale={1,1}, const Vector2 anchor = {0.5f,0.5f});
 
-	static Sprite* CreateInstancing(int texture, const Vector2& size, const int num, const Vector2& anchor = { 0.5f,0.5f });
+	/// <summary>
+	/// スプライト作成
+	/// </summary>
+	/// <param name="texture">画像の要素番号</param>
+	/// <param name="size">画像サイズ</param>
+	/// <param name="Rect">画像のどのサイズ描画するか</param>
+	/// <param name="anchor">アンカー</param>
+	/// <returns>データ返却</returns>
+	static Sprite* Create(int texture, const Vector2 size,const Vector2 Rect, const Vector2 translate = { 640,360 }, const float rotate = 0, const Vector2 scale = { 1,1 }, const Vector2 anchor = { 0.5f,0.5f });
 
 	/// <summary>
 	/// デバッグウィンドウ表示
@@ -40,23 +50,44 @@ public:
 	/// <param name="texture">画像の要素番号（無くてもいい）</param>
 	void Draw(int texture=-1);
 
-	void DrawInstancing(int texture = -1);
 public:///セッター
 
 	/// <summary>
 	/// 座標代入
 	/// </summary>
 	/// <param name="pos">代入座標</param>
-	void SetPosition(Vector3* pos) { poses_.emplace_back(pos); }
+	void SetPosition(const Vector3& pos) { world_.translate_ = pos; }
 	
-	
+	/// <summary>
+	/// 回転量代入
+	/// </summary>
+	/// <param name="rotate"></param>
+	void SetRotate(const float rotate) { world_.rotate_.z = rotate; }
+
+	/// <summary>
+	/// サイズ設定
+	/// </summary>
+	/// <param name="scale"></param>
+	void SetScale(const Vector3& scale) { world_.scale_ = scale; }
+
+	/// <summary>
+	/// サイズ設定（等倍
+	/// </summary>
+	/// <param name="scale"></param>
+	void SetScale(const float scale) { world_.scale_ = { scale,scale,1 }; }
+
 	/// <summary>
 	/// uvの平行移動代入
 	/// </summary>
 	/// <param name="uvPos">代入する</param>
 	void SetTVTranslate(const Vector2 uvPos) { uvpos.x = uvPos.x; uvpos.y = uvPos.y; }
 
-	
+
+	/// <summary>
+	/// 画像のカラーを設定
+	/// </summary>
+	/// <param name="color"></param>
+	void SetMaterialDataColor(const Vector4& color) { materialData_->color = color; }
 
 	/// <summary>
 	/// 画像を使うか否か
@@ -70,11 +101,9 @@ public:///セッター
 	/// <returns>マテリアルデータ</returns>
 	Material GetMaterialData() { return *materialData_; }
 	
-	/// <summary>
-	/// 画像のカラーを設定
-	/// </summary>
-	/// <param name="color"></param>
-	void SetMaterialDataColor(const Vector4& color) { materialData_->color = color; }
+	Vector3 GetScale()const { return world_.scale_; }
+
+
 private:
 
 	struct WorldTransformation {
@@ -82,16 +111,25 @@ private:
 		Matrix4x4 World;
 	};
 
+	
+
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(int texture, ID3D12Resource* vertexResourceSprite, ID3D12Resource* indexResourceSprite, D3D12_VERTEX_BUFFER_VIEW& vertexBufferView,
-		D3D12_INDEX_BUFFER_VIEW& indexBufferView,
-		ID3D12Resource* transformationMatrixResource,
-		WorldTransformation* transformationMatrixData,
-		Material* materialData,
-		ID3D12Resource* materialResource, int instancingHandle=-1,int instancingCount=0);
+	void Initialize(int texture,
 
+	WorldTransform world,
+
+	ID3D12Resource* vertexResource,
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+
+	ID3D12Resource* indexResourceSprite,
+
+	D3D12_INDEX_BUFFER_VIEW indexBufferViewSprite
+	);
+
+	
 private:
 
 
@@ -99,14 +137,11 @@ private:
 
 	GraphicsSystem* grarphics_=nullptr;
 
-	ParticleGraphics* particlegraphics_ = nullptr;
 
 	int texture_=-1;
 
-	int instancingHandleNum = -1;
-
-	static int isntancingCount_;
-
+	
+	
 	ID3D12Resource* vertexResource_=nullptr;
 	ID3D12Resource* indexResource_=nullptr;
 	//
@@ -118,6 +153,8 @@ private:
 	//
 	WorldTransformation* transformationMatrixData_ = nullptr;
 
+	Particle4GPU* particle4GPUData_ = nullptr;
+
 	Material* materialData_ = nullptr;;
 	//
 	ID3D12Resource* materialResource_=nullptr;
@@ -126,13 +163,9 @@ private:
 
 	Matrix4x4 viewMatrixSprite = MakeIdentity4x4();
 
-	std::vector<Vector3*>poses_;
+	
 
-
-	Vector3 pos_{};
-	Vector3 rotate_{};
-	Vector3 scale_ = {1.0f,1.0f,1.0f};
-
+	WorldTransform world_;
 
 	Vector3 uvpos{};
 	Vector3 uvscale{ 1.0f,1.0f,1.0f };

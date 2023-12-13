@@ -19,7 +19,6 @@ public:
 
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-
 	/// <summary>
 	/// 円の作成
 	/// </summary>
@@ -112,6 +111,8 @@ private:
 
 
 	std::string name;
+
+	D3D12_GPU_DESCRIPTOR_HANDLE texture_;
 
 	bool isDebug = false;
 

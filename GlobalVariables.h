@@ -1,9 +1,10 @@
 #pragma once
 #include<iostream>
 #include<variant>
+#include<map>
 #include<string>
 #include"Vector3.h"
-#include<map>
+
 struct Item {
 	std::variant<int32_t, float, Vector3> value;
 };

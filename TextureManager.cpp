@@ -19,31 +19,6 @@ DirectX::ScratchImage LoadTexture(const std::string& filePath) {
 	assert(SUCCEEDED(hr));
 	
 
-	/*
-	// 新しい画像の幅と高さを計算
-	size_t newWidth = image.GetMetadata().width + 6;  // 左右に3ピクセルずつ
-	size_t newHeight = image.GetMetadata().height + 6;  // 上下に3ピクセルずつ
-
-	// 新しい画像を作成
-	DirectX::ScratchImage newImage;
-	newImage.Initialize2D(image.GetMetadata().format, newWidth, newHeight, 1, 1);
-
-	// 新しい画像に元の画像をコピー
-	for (size_t y = 0; y < image.GetMetadata().height; ++y) {
-		for (size_t x = 0; x < image.GetMetadata().width; ++x) {
-			const DirectX::Image* srcImage = image.GetImage(0, 0, 0);
-			const DirectX::Image* destImage = newImage.GetImage(0, 0, 0);
-
-			destImage->pixels[y * newWidth + x + 3] = srcImage->pixels[y * image.GetMetadata().width + x];
-		}
-	}
-	
-	//みっぷマップ作成
-	DirectX::ScratchImage mipImages{};
-	hr = DirectX::GenerateMipMaps(newImage.GetImages(), newImage.GetImageCount(), newImage.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
-	assert(SUCCEEDED(hr));
-	*/
-
 	//みっぷマップ月のデータを返す
 	return mipImages;
 
@@ -108,6 +83,8 @@ ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::Scratc
 
 #pragma endregion
 
+int TextureManager::uvChecker_ = -1;
+
 #pragma region インスタンスと初期化
 TextureManager* TextureManager::GetInstance()
 {
@@ -115,8 +92,10 @@ TextureManager* TextureManager::GetInstance()
 	return &instance;
 }
 void TextureManager::Initialize(DirectXFunc* DXF_)
-{
+{	
 	DXF = DXF_;
+
+	uvChecker_ = TextureManager::LoadTex("Engine/TempData/uvChecker.png");
 
 	Log("Complete TextureManager Initialize\n");
 
@@ -139,16 +118,27 @@ int TextureManager::LoadTex(const std::string& filePath)
 {
 	DirectXFunc*DXF= DirectXFunc::GetInstance();
 
-	DirectX::ScratchImage mipImages = LoadTexture(filePath);
-	
-	//入れた画像の管理番号を返す
-	return TextureManager::GetInstance()->CreateData(mipImages);
-	//return 0;
+	//パスがすでに呼ばれているかチェック
+	if (!TextureManager::GetInstance()->CheckSameData(filePath)) {
+
+		DirectX::ScratchImage mipImages = LoadTexture(filePath);
+
+
+		//入れた画像の管理番号を返す
+		return TextureManager::GetInstance()->CreateData(filePath,mipImages);
+		
+	}
+	else {
+		//呼ばれている場合
+
+		return TextureManager::GetInstance()->GetDataFromPath(filePath);
+
+	}
 
 }
 
 
-int TextureManager::CreateData(const DirectX::ScratchImage& mipImages) {
+int TextureManager::CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages) {
 
 	SRVManager* SRVM = SRVManager::GetInstance();
 
@@ -163,7 +153,37 @@ int TextureManager::CreateData(const DirectX::ScratchImage& mipImages) {
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;//2Dtexture
 	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
 
-	return SRVM->CreateSRV(textureResource, intermediateResource, srvDesc);
+	int texNum= SRVM->CreateSRV(textureResource, intermediateResource, srvDesc);
+
+	Texturedata texData = { texNum,filePath };
+
+	//データをプッシュ
+	datas_.emplace_back(&texData);
+
+	return texNum;
+}
+
+bool TextureManager::CheckSameData(const std::string& filepath) {
+	//同じデータか確認
+	for (auto& data : datas_) {
+		if (data->filePath == filepath) {
+			return true;
+		}
+	}
+	//無ければ
+	return false;
+}
+
+int TextureManager::GetDataFromPath(const std::string& path) {
+	for (auto& data : datas_) {
+		if (data->filePath == path) {
+			return data->texManagementNumber;
+		}
+	}
+
+	//見つからないのはおかしいのでエラー
+	assert(false);
+	return-1;
 }
 
 

@@ -7,62 +7,108 @@
 
 #include"RandomNum.h"
 
+#include"Input.h"
 
-Particle MakeNewParticle(const Vector3& spawnPos, const Vector3& emiterSize, const Vector3& maxVelo, const Vector3& minVelo,const Vector4& colorMin, const Vector4& colorMax) {
-	Particle ans;
 
-	ans.position = spawnPos + RandomNumber::Get(-emiterSize / 2,emiterSize / 2);
-	
-
-	ans.velocity = RandomNumber::Get(minVelo, maxVelo);
-
-	ans.color = RandomNumber::Get(colorMin, colorMax);
-
-	return ans;
-}
 
 
 
 void DebugScene::Initialize() {
-	model_ = Model::CreateFromOBJ("fence/fence");
+	//model_ = Model::CreateFromOBJ("fence/fence");
 	//texture = TextureManager::LoadTex("resources/fence/fence.png");
 
-	//model_ = Model::CreateFromOBJ("ALPlayer");
-	texture = TextureManager::LoadTex("resources/uvChecker.png");
+	model_ = Model::CreateFromOBJ("ALPlayer");
+
+	model2_ = Model::CreateFromOBJ("ALPlayer");
+	texture = TextureManager::LoadTex("resources/circle.png");
+	texture = TextureManager::LoadTex("resources/circle.png");
+	texture = TextureManager::uvChecker_;
 
 	camera_.Initialize();
 	camera_.SetTarget(&world_);
 
-	sprite_ = new Sprite();
-	//sprite_ = Sprite::CreateInstancing(texture, { 128,128 },kNuminstancing);
-	sprite_ = Sprite::CreateInstancing(texture, { 256,256 },kNuminstancing+5);
-	Vector3 center={ 640, 360,0};
-
-	Vector3 velo = { 50,50,50 };
-
-	Vector4 color = { 1,1,1,1 };
-	Vector4 colormin = { 0,0,0,0 };
+	//sprite_ = new Sprite();
+	//sprite_ = Sprite::Create(texture,{512,512},{256,256});
+	//sprite_->SetPosition({ 640, 360});
+	//sprite_->SetScale({ 512,512,1 });
 
 	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index] = MakeNewParticle(center, { 0,0,0 }, -velo, velo,colormin,color);
+		insPos[index] = MakeNewParticle(center, { 0,0,0 }, velo,color,{60,180});
 	}
 
+	pE_ = new ParticleEmiter();
+	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 512,512 }, { 256,256 });
 	
 }
 
 void DebugScene::Update() {
-	world_.DrawDebug("box");
+	world_.DrawDebug("box1");
+	world2_.DrawDebug("box2");
+
 	camera_.DrawDebugWindow("camera");
 
 	model_->DebugParameter("box");
-	sprite_->DrawDebugImGui("sprite");
+	model2_->DebugParameter("box2");
+	//sprite_->DrawDebugImGui("sprite");
 
-	for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
-		insPos[index].position +=insPos[index].velocity*kDeltaTime;
-		sprite_->SetPosition(&insPos[index].position);
+	
+
+	Input* input = Input::GetInstance();
+
+	if (input->TriggerKey(DIK_SPACE)) {
+		for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
+			insPos[index] = MakeNewParticle(center, { 0,0,0 },  velo, color, { 60,180 });
+		}
+		checkUpdate_ = true;
 	}
 
+
+	ImGui::Begin("InGame", nullptr, ImGuiWindowFlags_MenuBar);
+	ImGui::BeginMenuBar();
+
+	ImGui::Checkbox("isMove", &checkUpdate_);
+
+
+	////float scale = sprite_->GetScale().x;
+	//if (ImGui::BeginMenu("aho")) {
+
+	////	ImGui::DragFloat("scale", &scale);
+	//	ImGui::EndMenu();
+	//}
+
+	//sprite_->SetScale(scale);
+
+	ImGui::EndMenuBar();
+	ImGui::End();
+
+		for (uint32_t index = 0; index < (uint32_t)kNuminstancing; ++index) {
+			if (checkUpdate_) {
+				if (insPos[index].currentTime++ <= insPos[index].lifeTime) {
+					insPos[index].world_.translate_ += insPos[index].velocity * kDeltaTime;
+					float alpha = 1.0f - (insPos[index].currentTime / insPos[index].lifeTime);
+					if (alpha <= 0) {
+						alpha = 0;
+					}
+					insPos[index].color.w = alpha;
+				}
+			}
+
+
+			//insPos[index].world_.scale_ = { scale,scale,scale };
+			//sprite_->SetParticle(&insPos[index]);
+			pE_->SetParticle(&insPos[index]);
+			
+			ImGui::Begin("R");
+			ImGui::DragFloat3("rotate", &insPos[index].world_.rotate_.x, 0.01f);
+			ImGui::End();
+		}
+
+	
+	pE_->DebugImGui("effects");
+	pE_->Update();
+
 	world_.UpdateMatrix();
+	world2_.UpdateMatrix();
 	camera_.Update();
 
 	
@@ -71,11 +117,16 @@ void DebugScene::Update() {
 void DebugScene::Draw() {
 	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 
-	sprite_->DrawInstancing();
+	model2_->Draw(world2_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
+	//sprite_->DrawInstancing();
+
+	pE_->Draw3D();
 	//sprite_->Draw();
 }
 
 void DebugScene::Finalize() {
 	delete model_;
+	delete model2_;
 	delete sprite_;
+	delete pE_;
 }

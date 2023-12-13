@@ -1,15 +1,11 @@
 #pragma once
-struct Vector4
-{
+
+struct Vector4 {
 	float x;
 	float y;
 	float z;
 	float w;
-};
 
-struct Vector4Int {
-	int x;
-	int y;
-	int z;
-	int w;
+	
+	friend Vector4 operator-(const Vector4& v) { return { -v.x,-v.y,-v.z,-v.w }; }
 };

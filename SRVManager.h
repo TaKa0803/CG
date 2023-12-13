@@ -62,5 +62,7 @@ private:
 
 	//データ群
 	std::vector<D3D12_GPU_DESCRIPTOR_HANDLE> datas_;
+
+	const size_t maxSRVSize_ = 256;
 };
 

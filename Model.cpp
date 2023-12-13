@@ -8,139 +8,20 @@
 #include"ImGuiManager.h"
 #include"SRVManager.h"
 
+#include"struct.h"
+
 #define _USE_MATH_DEFINES
 #include<math.h>
 #include<sstream>
 #include<cassert>
 #include<fstream>
 
+#include"ModelManager.h"
+#include"SRVManager.h"
 
 #pragma region 
-struct MaterialData {
-	std::string textureFilePath;
-};
-
-struct ModelData {
-	std::vector<VertexData> vertices;
-	MaterialData material;
-};
-
-MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
-	//1中で必要になる変数の宣言
-	MaterialData materialdata;
-	
-	std::string line;
-	//２ファイルを開く
-	std::ifstream file(directoryPath + "/" + filename);
-	assert(file.is_open());
-	//３実際にファイルを読みまてりあｌDataを構築
-	while (std::getline(file, line)) {
-		std::string identifier;
-		std::istringstream s(line);
-		s >> identifier;
-
-		//
-		if (identifier == "map_Kd") {
-			std::string textureFilename;
-			s >> textureFilename;
-			//連結してファイルパスにする
-			materialdata.textureFilePath = directoryPath + "/" + textureFilename;
-		}
-	}
-	//４MaterialDataを返す
-	return materialdata;
-
-}
-
-ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
-#pragma region 中で必要となる変数の宣言
-	ModelData modeldata;//構築するModelData
-	std::vector<Vector4> positions;//位置
-	std::vector<Vector3>normals;//法線
-	std::vector<Vector2>texcoords;//texture座標
-	std::string line;//ファイルからよんだ一行を格納するもの	
-#pragma endregion
-#pragma region ファイルを開く
-	
-	std::ifstream file(directoryPath + "/" + filename+".obj");
-	assert(file.is_open());//開けなかったら止める
-#pragma endregion
-#pragma region 実際にファイルを読みModelDataを構築していく
-	while (std::getline(file, line)) {
-		std::string identifier;
-		std::istringstream s(line);
-		s >> identifier;//先頭の識別子を読む
-
-		if (identifier == "v") {
-			Vector4 position;
-			s >> position.x >> position.y >> position.z;
-			position.w = 1.0f;
-			position.x *= -1.0f;
-			positions.push_back(position);
-		}
-		else if (identifier == "vt") {
-			Vector2 texcoord;
-			s >> texcoord.x >> texcoord.y;
-			texcoord.y = 1.0f - texcoord.y;
-			//texcoord.x = 1.0f - texcoord.x;
-			texcoords.push_back(texcoord);
-		}
-		else if (identifier == "vn") {
-			Vector3 normal;
-			s >> normal.x >> normal.y >> normal.z;
-			normal.x *= -1.0f;
-
-			normals.push_back(normal);
-		}
-		else if (identifier == "f") {
-			//面は三角形限定その他は未対応
-			VertexData triangle[3];
-			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
-				std::string vertexDefinition;
-				s >> vertexDefinition;
-				//頂点の要素へのIndexは位置//UV/法線で格納されているので、分解してIndexを取得する
-				std::istringstream v(vertexDefinition);
-				uint32_t elementIndices[3];
-
-				for (int32_t element = 0; element < 3; ++element) {
-					std::string index;
-					std::getline(v, index, '/');//区切りでインデクスを読んでいく
-					elementIndices[element] = std::stoi(index);
-
-
-				}
-				//要素へのIndexから、実際の要素の値を取得して頂点を構築する
-				Vector4 position = positions[elementIndices[0] - 1];
-				Vector2 texcoord = texcoords[elementIndices[1] - 1];
-				Vector3 normal = normals[elementIndices[2] - 1];
-				//VertexData vertex = { position,texcoord,normal };
-				//modeldata.vertices.push_back(vertex);
-
-				triangle[faceVertex] = { position,texcoord,normal };
-			}
-			modeldata.vertices.push_back(triangle[2]);
-			modeldata.vertices.push_back(triangle[1]);
-			modeldata.vertices.push_back(triangle[0]);
-		}
-		else if (identifier == "mtllib") {
-			//materialTemplateLibraryファイルの名前を変更する
-			std::string materialFilename;
-			materialFilename = filename + ".mtl";
-			//基本的にobjファイルと同一改装にmtlは存在させるので、ディレクトリ名とファイル名を渡す
-			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
-		}
-
-
-	}
-#pragma endregion
-#pragma region 4.ModelDataを返す
-	return modeldata;
-#pragma endregion
-}
 
 #pragma endregion
-
-
 
 void Model::Initialize(
 	std::string name_,
@@ -160,6 +41,12 @@ void Model::Initialize(
 	grarphics_->Initialize(DXF_->GetDevice());
 
 	name = name_;
+
+	int texture = TextureManager::LoadTex(name);
+
+	SRVManager* SRVM = SRVManager::GetInstance();
+	texture_ = SRVM->GetTextureDescriptorHandle(texture);
+
 	point_ = point;
 	vertexRtea_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
@@ -307,7 +194,10 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 #pragma region モデル
-	ModelData modeltea = LoadObjFile("resources", filePath);
+	ModelManager*mManager= ModelManager::GetInstance();
+	
+
+	ModelData modeltea =mManager->GetModelData(filePath); 
 
 	
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modeltea.vertices.size());
@@ -358,7 +248,7 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 #pragma endregion
 
 	Model* model =new Model();
-	model->Initialize(filePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
+	model->Initialize(modeltea.material.textureFilePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
 
 
 	

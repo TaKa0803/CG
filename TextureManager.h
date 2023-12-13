@@ -27,6 +27,12 @@ public:
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 	/// <summary>
+	/// 仮利用の画像
+	/// </summary>
+	static int uvChecker_;
+
+
+	/// <summary>
 	/// 画像の読み込み処理
 	/// </summary>
 	/// <param name="filePath"></param>
@@ -41,22 +47,31 @@ public:
 	
 	void Finalize();
 		
-private://メンバ関数
-	
-	int CreateData(const DirectX::ScratchImage& mipImages);
 
+private://メンバ関数
+	/// <summary>
+	/// データを作成
+	/// </summary>
+	/// <param name="filePath">ファイルパス</param>
+	/// <param name="mipImages"></param>
+	/// <returns></returns>
+	int CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages);
+
+	bool CheckSameData(const std::string& filepath);
+
+	int GetDataFromPath(const std::string& path);
 private://メンバ変数
 
 	//
 	DirectXFunc* DXF;
 
 	
-
-	struct Texture{
-		D3D12_CPU_DESCRIPTOR_HANDLE textureSrvHandleCPU;
-		D3D12_GPU_DESCRIPTOR_HANDLE textureSrvHandleGPU;
+	struct Texturedata{
+		int texManagementNumber;
+		std::string filePath;
 	};
 
+	std::vector<Texturedata*>datas_;
 	
-	
+	//const size_t maxTexNum_ = 256;
 };

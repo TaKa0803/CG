@@ -30,6 +30,29 @@ float GetYRotate(const Vector2& v) {
 	if (v.x < 0) {
 		angle *= -1;
 	}
+
+	
+
+	return angle;
+
+}
+
+float GetXRotate(const Vector2& v) {
+	Vector2 offset = { 0,v.x };
+
+
+	float dot = Dot(offset, v);
+
+	float leng = Length(offset) * Length(v);
+
+	float angle = std::acos(dot / leng);
+
+	if (v.x < 0) {
+		angle *= -1;
+	}
+
+	
+
 	return angle;
 
 }
@@ -325,7 +348,23 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 	return NEW;
 }
 
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
+	return{
+		scale.x, 0, 0, 0,
+		0, scale.y, 0, 0,
+		0, 0, scale.z, 0,
+		0, 0, 0, 1
+	};
+}
 
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+	return {
+		1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			translate.x, translate.y, translate.z, 1,
+	};
+}
 
 // ３次元アフィン変換行列
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {

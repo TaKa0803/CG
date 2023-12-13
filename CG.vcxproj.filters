@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{42dfa00b-bee8-4df7-bb64-c7b2d65e7a72}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{9214b52f-a14a-4ae8-96bb-1fa4d26aca69}</UniqueIdentifier>
     </Filter>
@@ -19,9 +16,6 @@
     </Filter>
     <Filter Include="Engine\math">
       <UniqueIdentifier>{ae60cc3a-8814-49bf-847a-6065ffb081be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="imgui\imguiManager">
-      <UniqueIdentifier>{1465b00c-31f5-4ebb-906a-bc5cf633f34c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\DirectX">
       <UniqueIdentifier>{d2bce76d-b3f3-4653-bab5-97711908d43d}</UniqueIdentifier>
@@ -50,9 +44,6 @@
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{f90486c6-417b-42b5-99ee-c542e7a4d130}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene">
-      <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Camera">
       <UniqueIdentifier>{53ccce7d-667a-4c91-a596-8e4a6aee45b3}</UniqueIdentifier>
     </Filter>
@@ -62,38 +53,20 @@
     <Filter Include="Engine\GlobalVariables">
       <UniqueIdentifier>{67ea9f6a-9f72-4887-9cba-cb0d8cffc083}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Player">
-      <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\shaders">
       <UniqueIdentifier>{bf93b4c9-ca46-409a-9eb2-376aa0fb46c0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\math\Vector3">
       <UniqueIdentifier>{2c85f174-d6b7-4e52-be72-3f2b1bf8228d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene\DebugScene">
-      <UniqueIdentifier>{b8bbc1d2-5510-422c-b144-06714b12681d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Enemy">
-      <UniqueIdentifier>{4f8a6f65-2629-4e06-8d88-29eab1bf79e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Collider">
       <UniqueIdentifier>{2b2e9f2b-b756-43e4-89dd-acf02edfff59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="LockOn">
-      <UniqueIdentifier>{ff0087b2-f60c-405a-ae48-3647c4cb644a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Effect">
-      <UniqueIdentifier>{fad6fc26-10a2-48cb-a91d-fcaf78b7a498}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\math\Vector2">
       <UniqueIdentifier>{3ddbc9cd-ecaa-4763-84b6-e84ce1371cce}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\shaders\Particle">
       <UniqueIdentifier>{3aaaa7a4-0de1-49e9-8fa6-ae5590aea0b3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Engine\Graphics\Particle">
-      <UniqueIdentifier>{3532b2ff-d06b-41c7-8c1a-eff0a857859a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\SRVManager">
       <UniqueIdentifier>{8148049b-14c9-41e8-94c4-dcfbb9b7fafc}</UniqueIdentifier>
@@ -104,31 +77,67 @@
     <Filter Include="Engine\math\Quaternion">
       <UniqueIdentifier>{8db43f59-6d09-46c3-a68b-79d6020c5751}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene\MT4Scene">
+    <Filter Include="Engine\Particle">
+      <UniqueIdentifier>{4cd3c152-b672-40a4-9178-0455b9bdd6b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\imguiManager">
+      <UniqueIdentifier>{1465b00c-31f5-4ebb-906a-bc5cf633f34c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Externals">
+      <UniqueIdentifier>{eb59cb44-24e1-4225-9a97-676aef1a8dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Externals\imgui">
+      <UniqueIdentifier>{42dfa00b-bee8-4df7-bb64-c7b2d65e7a72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{0eca4390-86e9-47da-b6da-dcd120626ebe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene">
+      <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\DebugScene">
+      <UniqueIdentifier>{b8bbc1d2-5510-422c-b144-06714b12681d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\MT4Scene">
       <UniqueIdentifier>{d4ed701b-5b30-4e8f-bbaa-70dcd029f871}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Player">
+      <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\LockOn">
+      <UniqueIdentifier>{ff0087b2-f60c-405a-ae48-3647c4cb644a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Enemy">
+      <UniqueIdentifier>{4f8a6f65-2629-4e06-8d88-29eab1bf79e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Effect">
+      <UniqueIdentifier>{fad6fc26-10a2-48cb-a91d-fcaf78b7a498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\ModelManager">
+      <UniqueIdentifier>{023ac756-42aa-48b1-82a3-4bfb4d58275d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_impl_dx12.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_impl_win32.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="externals\Imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="WinApp.cpp">
       <Filter>Engine\WinApp</Filter>
@@ -140,7 +149,7 @@
       <Filter>Engine\math</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiManager.cpp">
-      <Filter>imgui\imguiManager</Filter>
+      <Filter>Engine\imguiManager</Filter>
     </ClCompile>
     <ClCompile Include="DirectXFunc.cpp">
       <Filter>Engine\DirectX</Filter>
@@ -170,7 +179,7 @@
       <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="InGame.cpp">
-      <Filter>Scene</Filter>
+      <Filter>Application\Scene</Filter>
     </ClCompile>
     <ClCompile Include="MainSystem.cpp">
       <Filter>Engine\MainSystem</Filter>
@@ -182,32 +191,29 @@
       <Filter>Engine\GlobalVariables</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>Player</Filter>
+      <Filter>Application\Player</Filter>
     </ClCompile>
     <ClCompile Include="Vector3.cpp">
       <Filter>Engine\math\Vector3</Filter>
     </ClCompile>
     <ClCompile Include="DebugScene.cpp">
-      <Filter>Scene\DebugScene</Filter>
+      <Filter>Application\Scene\DebugScene</Filter>
     </ClCompile>
     <ClCompile Include="Enemy.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Application\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="BoxColider.cpp">
       <Filter>Engine\Collider</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="LockOn.cpp">
-      <Filter>LockOn</Filter>
+      <Filter>Application\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="EffectHit.cpp">
-      <Filter>Effect</Filter>
+      <Filter>Application\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Vector2.cpp">
       <Filter>Engine\math\Vector2</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleRootSignature.cpp">
-      <Filter>Engine\Graphics\Particle</Filter>
     </ClCompile>
     <ClCompile Include="SRVManager.cpp">
       <Filter>Engine\SRVManager</Filter>
@@ -219,7 +225,16 @@
       <Filter>Engine\math\Quaternion</Filter>
     </ClCompile>
     <ClCompile Include="MT4Scene.cpp">
-      <Filter>Scene\MT4Scene</Filter>
+      <Filter>Application\Scene\MT4Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEmiter.cpp">
+      <Filter>Engine\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Engine\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>Engine\ModelManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -238,28 +253,28 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\Imgui\imconfig.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imgui.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imgui_impl_dx12.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imgui_impl_win32.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="externals\Imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="WinApp.h">
       <Filter>Engine\WinApp</Filter>
@@ -271,7 +286,7 @@
       <Filter>Engine\math</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiManager.h">
-      <Filter>imgui\imguiManager</Filter>
+      <Filter>Engine\imguiManager</Filter>
     </ClInclude>
     <ClInclude Include="DirectXFunc.h">
       <Filter>Engine\DirectX</Filter>
@@ -301,7 +316,7 @@
       <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="InGame.h">
-      <Filter>Scene</Filter>
+      <Filter>Application\Scene</Filter>
     </ClInclude>
     <ClInclude Include="MainSystem.h">
       <Filter>Engine\MainSystem</Filter>
@@ -313,31 +328,28 @@
       <Filter>Engine\GlobalVariables</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Player</Filter>
+      <Filter>Application\Player</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>Engine\math\Vector3</Filter>
     </ClInclude>
     <ClInclude Include="DebugScene.h">
-      <Filter>Scene\DebugScene</Filter>
+      <Filter>Application\Scene\DebugScene</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>Enemy</Filter>
+      <Filter>Application\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="BoxColider.h">
       <Filter>Engine\Collider</Filter>
     </ClInclude>
     <ClInclude Include="LockOn.h">
-      <Filter>LockOn</Filter>
+      <Filter>Application\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="EffectHit.h">
-      <Filter>Effect</Filter>
+      <Filter>Application\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Vector2.h">
       <Filter>Engine\math\Vector2</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleRootSignature.h">
-      <Filter>Engine\Graphics\Particle</Filter>
     </ClInclude>
     <ClInclude Include="SRVManager.h">
       <Filter>Engine\SRVManager</Filter>
@@ -349,12 +361,21 @@
       <Filter>Engine\math\Quaternion</Filter>
     </ClInclude>
     <ClInclude Include="MT4Scene.h">
-      <Filter>Scene\MT4Scene</Filter>
+      <Filter>Application\Scene\MT4Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEmiter.h">
+      <Filter>Engine\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Engine\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>Engine\ModelManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
-      <Filter>imgui</Filter>
+      <Filter>Externals\imgui</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
