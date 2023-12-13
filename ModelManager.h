@@ -47,6 +47,8 @@ private:
 	//保存データ構造
 	std::vector<std::pair<NameAndPath, ModelData>> modelDatas;
 
+	//最大量設定
+	const size_t maxModelData = 256;
 
 	//GetModelDataでモデルが見つからない場合エラーをはくか否か
 	bool isError = true;

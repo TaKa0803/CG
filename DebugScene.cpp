@@ -20,7 +20,8 @@ void DebugScene::Initialize() {
 	model_ = Model::CreateFromOBJ("ALPlayer");
 
 	model2_ = Model::CreateFromOBJ("ALPlayer");
-	//texture = TextureManager::LoadTex("resources/circle.png");
+	texture = TextureManager::LoadTex("resources/circle.png");
+	texture = TextureManager::LoadTex("resources/circle.png");
 	texture = TextureManager::uvChecker_;
 
 	camera_.Initialize();

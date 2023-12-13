@@ -126,6 +126,8 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 void ModelManager::LoadAllModels() {
+	//サイズを設定
+	modelDatas.resize(maxModelData);
 
 	//読み込むjsonファイル
 	std::string filepath = modelPathFile;

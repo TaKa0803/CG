@@ -49,7 +49,12 @@ public:
 		
 
 private://メンバ関数
-	
+	/// <summary>
+	/// データを作成
+	/// </summary>
+	/// <param name="filePath">ファイルパス</param>
+	/// <param name="mipImages"></param>
+	/// <returns></returns>
 	int CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages);
 
 	bool CheckSameData(const std::string& filepath);
@@ -61,11 +66,12 @@ private://メンバ変数
 	DirectXFunc* DXF;
 
 	
-	struct Texture{
+	struct Texturedata{
 		int texManagementNumber;
 		std::string filePath;
 	};
 
-	std::vector<Texture*>datas_;
+	std::vector<Texturedata*>datas_;
 	
+	//const size_t maxTexNum_ = 256;
 };
