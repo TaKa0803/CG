@@ -161,15 +161,19 @@ void ModelManager::LoadAllModels() {
 		//アイテムの名前を取得
 		const std::string& itemName = itItem.key();
 
-		if (itItem->is_string()) {
+		if (itItem->is_array()&&itItem->size()==2) {
+			//モデル群の八田フォルダまでのパス
+			std::string foldaPath = itItem->at(0);
+
 			//パスを取得
-			std::string modelPath = itItem->get<std::string>();
+			std::string modelPath = itItem->at(1);
+
 
 			//名前とパスを合わせた構造体
 			NameAndPath nameAndPath = { itemName,modelPath };
 
 			//モデルデータを作成して設定
-			ModelData newmodelData = LoadObjFile("resources", modelPath);
+			ModelData newmodelData = LoadObjFile(foldaPath, modelPath);
 			std::pair<NameAndPath, ModelData>newData(nameAndPath, newmodelData);
 			modelDatas.emplace_back(newData);
 

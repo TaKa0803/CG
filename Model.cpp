@@ -23,42 +23,6 @@
 
 #pragma endregion
 
-void Model::Initialize(
-	std::string name_,
-	int point, 
-	ID3D12Resource* vertexRtea,
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView, 
-	ID3D12Resource* wvpResource,
-	WorldTransformation* wvpData, 
-	ID3D12Resource* materialResourceS, 
-	Material* materialData,
-	ID3D12Resource* directionalLightResource)
-{
-
-	DXF_ = DirectXFunc::GetInstance();
-	
-	grarphics_ = new GraphicsSystem();
-	grarphics_->Initialize(DXF_->GetDevice());
-
-	name = name_;
-
-	int texture = TextureManager::LoadTex(name);
-
-	SRVManager* SRVM = SRVManager::GetInstance();
-	texture_ = SRVM->GetTextureDescriptorHandle(texture);
-
-	point_ = point;
-	vertexRtea_ = vertexRtea;
-	vertexBufferView_ = vertexBufferView;
-	wvpData_ = wvpData;
-	wvpResource_ = wvpResource;
-	materialResource_ = materialResourceS;
-	materialData_ = materialData;
-	directionalLightResource_ = directionalLightResource;
-
-
-	Log("Model is Created!\n");
-}
 
 Model::~Model() {
 
@@ -70,7 +34,7 @@ Model::~Model() {
 	directionalLightResource_->Release();
 }
 
-Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
+Model* Model::CreateSphere(float kSubdivision,bool enableLighting, const std::string& filePath)
 {
 	DirectXFunc*DXF= DirectXFunc::GetInstance();
 
@@ -137,7 +101,6 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 	}
 #pragma endregion
 #pragma region wvp設定
-
 	ID3D12Resource* wvpResourceS;
 
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
@@ -152,36 +115,12 @@ Model* Model::CreateSphere(float kSubdivision,bool enableLighting)
 	wvpDataS->World = MakeIdentity4x4();
 #pragma endregion	
 #pragma endregion	
-#pragma region マテリアル
-	ID3D12Resource* materialResource;
 
-	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
-	 materialResource = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
-	//マテリアルにデータを書き込む
-	 Material* materialData = nullptr;
-	//書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialData->enableLighting = enableLighting;
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableTexture = true;
-	materialData->enableHalfLambert = true;
-	materialData->discardNum = 0;
-#pragma endregion
-#pragma region ライト
-	//ディレクションライトのマテリアルリソース
-	ID3D12Resource* directionalLightResource = CreateBufferResource(DXF->GetDevice(), sizeof(DirectionalLight));
-	DirectionalLight* directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	directionalLightData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLightData->direction = Vector3(0.0f, -1.0f, 0.0f);
-	directionalLightData->intensity = 1.0f;
-#pragma endregion
 
 
 
 	Model* model = new Model();
-	model->Initialize("Sphere", point,vertexResourceSphere, vertexBufferViewSphere, wvpResourceS, wvpDataS, materialResource, materialData, directionalLightResource);
+	model->Initialize(filePath, point,vertexResourceSphere, vertexBufferViewSphere, wvpResourceS, wvpDataS);
 	
 	
 	
@@ -221,34 +160,11 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 	wvpDataTea->WVP = MakeIdentity4x4();
 	wvpDataTea->World = MakeIdentity4x4();
 #pragma endregion
-#pragma region マテリアル
-	ID3D12Resource* materialResource;
 
-	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
-	materialResource = CreateBufferResource(DXF->GetDevice(), sizeof(Material));
-	//マテリアルにデータを書き込む
-	Material* materialData = nullptr;
-	//書き込むためのアドレスを取得
-	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialData));
-	materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	materialData->enableLighting = true;
-	materialData->uvTransform = MakeIdentity4x4();
-	materialData->enableTexture = true;
-	materialData->enableHalfLambert = true;
-	materialData->discardNum = 0.0f;
-#pragma endregion
-#pragma region ライト
-	//ディレクションライトのマテリアルリソース
-	ID3D12Resource* directionalLightResource = CreateBufferResource(DXF->GetDevice(), sizeof(DirectionalLight));
-	DirectionalLight* directionalLightData = nullptr;
-	directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData));
-	directionalLightData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLightData->direction = Vector3(0.0f, -1.0f, 0.0f);
-	directionalLightData->intensity = 1.0f;
-#pragma endregion
+
 
 	Model* model =new Model();
-	model->Initialize(modeltea.material.textureFilePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea, materialResource,materialData,directionalLightResource);
+	model->Initialize(modeltea.material.textureFilePath,UINT(modeltea.vertices.size()),vertexRtea, vertexBufferViewtea, wvpResourceTea, wvpDataTea);
 
 
 	
@@ -256,6 +172,68 @@ Model* Model::CreateFromOBJ(const std::string& filePath)
 	return model;
 }
 
+void Model::Initialize(
+	std::string name_,
+	int point,
+	ID3D12Resource* vertexRtea,
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	ID3D12Resource* wvpResource,
+	WorldTransformation* wvpData
+) {
+
+	DXF_ = DirectXFunc::GetInstance();
+
+	grarphics_ = new GraphicsSystem();
+	grarphics_->Initialize(DXF_->GetDevice());
+
+	name = name_;
+
+
+	SRVManager* SRVM = SRVManager::GetInstance();
+
+	//スプライトの指定がない場合
+	if (name_ == "") {
+		int tex = TextureManager::uvChecker_;
+		texture_ = SRVM->GetTextureDescriptorHandle(tex);
+	}
+	else {
+		//指定があった場合
+		int texture = TextureManager::LoadTex(name);	
+		texture_ = SRVM->GetTextureDescriptorHandle(texture);
+	}
+
+	point_ = point;
+	vertexRtea_ = vertexRtea;
+	vertexBufferView_ = vertexBufferView;
+	wvpData_ = wvpData;
+	wvpResource_ = wvpResource;
+	
+
+#pragma region マテリアル
+	//マテリアル用のリソースを作る。今回はcolor1つ分のサイズを用意する
+	materialResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(Material));
+	//マテリアルにデータを書き込む
+	//書き込むためのアドレスを取得
+	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+	materialData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	materialData_->enableLighting = true;
+	materialData_->uvTransform = MakeIdentity4x4();
+	materialData_->enableTexture = true;
+	materialData_->enableHalfLambert = true;
+	materialData_->discardNum = 0.0f;
+#pragma endregion
+
+#pragma region ライト
+	//ディレクションライトのマテリアルリソース
+	directionalLightResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(DirectionalLight));
+	directionalLightResource_->Map(0, nullptr, reinterpret_cast<void**>(&directionalLightData_));
+	directionalLightData_->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	directionalLightData_->direction = Vector3(0.0f, -1.0f, 0.0f);
+	directionalLightData_->intensity = 1.0f;
+#pragma endregion
+
+	Log("Model is Created!\n");
+}
 
 
 void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,int texture)
@@ -278,8 +256,14 @@ void Model::Draw(const Matrix4x4& worldMatrix,const Matrix4x4& viewProjection,in
 	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 	//
 	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
-	//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
+
+	if (texture == -1) {
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, texture_);
+	}
+	else {
+		//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	}
 	//描画！		
 	DXF_->GetCMDList()->DrawInstanced(point_, 1, 0, 0);
 }
@@ -301,7 +285,7 @@ void Model::DebugParameter(const char* name)
 	
 
 
-	ImGui::Begin("status");
+	ImGui::Begin(name);
 	ImGui::Checkbox("Texture", &useTexture);
 	ImGui::Checkbox("Shader", &useShader);
 	ImGui::Checkbox("HalfLambert", &useHalf);

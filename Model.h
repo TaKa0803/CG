@@ -25,7 +25,7 @@ public:
 	/// <param name="kSubdivision">分割量</param>
 	/// <param name="enableLighting">影をつけるか</param>
 	/// <returns>モデルデータ</returns>
-	static Model* CreateSphere(float kSubdivision, bool enableLighting);
+	static Model* CreateSphere(float kSubdivision, bool enableLighting, const std::string& filePath="");
 
 	/// <summary>
 	/// OBJ作成
@@ -42,7 +42,7 @@ public:
 	/// <param name="WVP"></param>
 	/// <param name="viewProjection"></param>
 	/// <param name="texture"></param>
-	void Draw(const Matrix4x4& WVP,const Matrix4x4& viewProjection, int texture);
+	void Draw(const Matrix4x4& WVP,const Matrix4x4& viewProjection, int texture=-1);
 
 	/// <summary>
 	/// Debug用ImGui表示
@@ -95,12 +95,13 @@ private:
 	};
 	
 	//初期化
-	void Initialize(std::string name,int point, ID3D12Resource* vertexRtea,D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	void Initialize(
+		std::string name,
+		int point, 
+		ID3D12Resource* vertexRtea,
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
 		ID3D12Resource* wvpResource,
-		WorldTransformation* wvpData, 
-		ID3D12Resource* materialResourceS,
-		Material* materialData,
-		ID3D12Resource* directionalLightResource
+		WorldTransformation* wvpData		
 	);
 
 private:
@@ -131,7 +132,7 @@ private:
 	Material* materialData_ = nullptr;
 
 	ID3D12Resource* directionalLightResource_;
-
+	DirectionalLight* directionalLightData_ = nullptr;
 
 	Vector3 uvpos{};
 	Vector3 uvscale{1.0f,1.0f,1.0f};

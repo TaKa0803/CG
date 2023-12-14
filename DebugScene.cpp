@@ -20,8 +20,8 @@ void DebugScene::Initialize() {
 	model_ = Model::CreateFromOBJ("ALPlayer");
 
 	model2_ = Model::CreateFromOBJ("ALPlayer");
-	texture = TextureManager::LoadTex("resources/circle.png");
-	texture = TextureManager::LoadTex("resources/circle.png");
+	//texture = TextureManager::LoadTex("resources/circle.png");
+	//texture = TextureManager::LoadTex("resources/circle.png");
 	texture = TextureManager::uvChecker_;
 
 	camera_.Initialize();
@@ -115,7 +115,7 @@ void DebugScene::Update() {
 }
 
 void DebugScene::Draw() {
-	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
+	model_->Draw(world_.matWorld_, camera_.GetViewProjectionMatrix());
 
 	model2_->Draw(world2_.matWorld_, camera_.GetViewProjectionMatrix(), texture);
 	//sprite_->DrawInstancing();

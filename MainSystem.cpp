@@ -71,11 +71,11 @@ void MainSystem::MainRoop() {
 	//InGame* ingame = new InGame();
 	//ingame->Initialize();
 
-	//DebugScene* dScene = new DebugScene();
-	//dScene->Initialize();
+	DebugScene* dScene = new DebugScene();
+	dScene->Initialize();
 
-	MT4Scene* mt4 = new MT4Scene();
-	mt4->Initialize();
+	//MT4Scene* mt4 = new MT4Scene();
+	//mt4->Initialize();
 
 
 	SRVM_->PostInitialize();
@@ -93,8 +93,8 @@ void MainSystem::MainRoop() {
 		GlobalVariables::GetInstance()->Update();
 
 		//ingame->Update();
-		//dScene->Update();
-		mt4->Update();
+		dScene->Update();
+		//mt4->Update();
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
 		ImGui::ShowDemoWindow();
@@ -115,8 +115,8 @@ void MainSystem::MainRoop() {
 
 
 		//ingame->Draw();
-		//dScene->Draw();
-		mt4->Draw();
+		dScene->Draw();
+		//mt4->Draw();
 
 		//==描画終わり==//
 
@@ -130,9 +130,11 @@ void MainSystem::MainRoop() {
 #pragma endregion
 
 	//ingame->Finalize();
-	//dScene->Finalize();
-	mt4->Finalize();
+	dScene->Finalize();
+	//mt4->Finalize();
+
 }
+
 
 void MainSystem::Finalize() {
 	///開放処理
