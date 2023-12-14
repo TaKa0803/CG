@@ -1,5 +1,6 @@
 #pragma once
 #include"Vector3.h"
+#include"Matrix.h"
 
 class Quaternion {
 
@@ -13,6 +14,7 @@ public:
 
 	float w=0;
 
+	inline Vector3 XYZ()const { return { x,y,z }; }
 	
 #pragma region オーバーロード
 
@@ -39,6 +41,14 @@ public:
 
 };
 
+
+//任意軸回転を表すQuaternionの生成
+Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
+
+//ベクトルをQuaternionで回転させた結果のベクトルを求める
+Vector3 RotateVector(const Vector3& vec, const Quaternion& qua);
+
+Matrix4x4 MakeRotateMatrix(const Quaternion& qua);
 
 Quaternion MakeIdentityQuaternion();
 
