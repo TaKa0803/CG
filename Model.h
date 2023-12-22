@@ -12,6 +12,8 @@
 
 class Model {
 public:
+	
+
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -30,7 +32,7 @@ public:
 	/// <summary>
 	/// OBJ作成
 	/// </summary>
-	/// <param name="filePath">名前.obj</param>
+	/// <param name="filePath">resources以降のフォルダ</param>
 	/// <returns><モデルデータ/returns>
 	static Model* CreateFromOBJ(const std::string& filePath);
 

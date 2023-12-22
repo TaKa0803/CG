@@ -111,7 +111,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="DebugScene.cpp" />
     <ClCompile Include="DirectXFunc.cpp" />
     <ClCompile Include="EffectHit.cpp" />
-    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="externals\Imgui\imgui.cpp" />
     <ClCompile Include="externals\Imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\Imgui\imgui_draw.cpp" />
@@ -124,14 +123,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="IGameObject.cpp" />
     <ClCompile Include="ImGuiManager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="IScene.cpp" />
-    <ClCompile Include="LockOn.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainSystem.cpp" />
@@ -141,13 +141,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="MT4Scene.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="ParticleEmiter.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="RandomNum.cpp" />
     <ClCompile Include="SpCommon.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SRVManager.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="WinApp.cpp" />
@@ -177,7 +177,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="DebugScene.h" />
     <ClInclude Include="DirectXFunc.h" />
     <ClInclude Include="EffectHit.h" />
-    <ClInclude Include="Enemy.h" />
     <ClInclude Include="externals\Imgui\imconfig.h" />
     <ClInclude Include="externals\Imgui\imgui.h" />
     <ClInclude Include="externals\Imgui\imgui_impl_dx12.h" />
@@ -191,14 +190,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="IGameObject.h" />
     <ClInclude Include="ImGuiManager.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Player.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IScene.h" />
-    <ClInclude Include="LockOn.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="MainSystem.h" />
     <ClInclude Include="Matrix.h" />
@@ -207,13 +207,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="MT4Scene.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleEmiter.h" />
-    <ClInclude Include="Player.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="RandomNum.h" />
+    <ClInclude Include="Scenes.h" />
     <ClInclude Include="SpCommon.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SRVManager.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TitleScene.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="WinApp.h" />

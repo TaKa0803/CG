@@ -1,27 +1,26 @@
 #include"SceneManager.h"
+#include"Scenes.h"
 
 #include<imgui.h>
 
 
 #pragma region シーンのh
+#include"TitleScene.h"
 #include"GameScene.h"
 #pragma endregion
 
-//シーン
-enum SCENE {
-	STAGE,
-	SceneCount	//使うな
-};
+
 
 void SceneManager::Initialize() {
 
 	///初期シーン設定
-	currentSceneNo_ = STAGE;
+	currentSceneNo_ = TITLE;
 
 	//シーンの数取得
 	sceneArr_.resize((size_t)SCENE::SceneCount);
 	
 	//各シーンの情報設定
+	sceneArr_[TITLE] = std::make_unique<TitleScene>();
 	sceneArr_[STAGE] = std::make_unique<GameScene>();
 	
 	/*

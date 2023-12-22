@@ -95,15 +95,6 @@
     <Filter Include="Application\Scene">
       <UniqueIdentifier>{4dbe687d-f2cc-4c13-a029-817ad96bae07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Player">
-      <UniqueIdentifier>{3de7a9a3-6768-4f70-af12-c998bac9774d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\LockOn">
-      <UniqueIdentifier>{ff0087b2-f60c-405a-ae48-3647c4cb644a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Application\Enemy">
-      <UniqueIdentifier>{4f8a6f65-2629-4e06-8d88-29eab1bf79e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Effect">
       <UniqueIdentifier>{fad6fc26-10a2-48cb-a91d-fcaf78b7a498}</UniqueIdentifier>
     </Filter>
@@ -125,11 +116,20 @@
     <Filter Include="Application\Scene\SceneManager">
       <UniqueIdentifier>{48c0c8df-c532-4d1b-9333-bfc31c4e2df1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Scene\IScene">
-      <UniqueIdentifier>{2fddbf4f-e4c8-45ed-b79f-f5a461c0ea79}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Scene\GameScene">
       <UniqueIdentifier>{d697a97c-4773-4eb1-ac77-af62b84b9581}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\IScene">
+      <UniqueIdentifier>{2fddbf4f-e4c8-45ed-b79f-f5a461c0ea79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\TitleScene">
+      <UniqueIdentifier>{8277f3dc-d43b-4e12-ae23-cd18d1e7a5ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Player">
+      <UniqueIdentifier>{5a5fe64c-818d-4e33-ad1b-8c5431132025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Scene\IGameObject">
+      <UniqueIdentifier>{79d7cd82-c99f-4c61-a4f4-f29908d6b030}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -202,25 +202,16 @@
     <ClCompile Include="GlobalVariables.cpp">
       <Filter>Engine\GlobalVariables</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Application\Player</Filter>
-    </ClCompile>
     <ClCompile Include="Vector3.cpp">
       <Filter>Engine\math\Vector3</Filter>
     </ClCompile>
     <ClCompile Include="DebugScene.cpp">
       <Filter>Engine\AScene\DebugScene</Filter>
     </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Application\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="BoxColider.cpp">
       <Filter>Engine\Collider</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="LockOn.cpp">
-      <Filter>Application\LockOn</Filter>
-    </ClCompile>
     <ClCompile Include="EffectHit.cpp">
       <Filter>Application\Effect</Filter>
     </ClCompile>
@@ -252,13 +243,22 @@
       <Filter>Engine\AssimpManager</Filter>
     </ClCompile>
     <ClCompile Include="IScene.cpp">
-      <Filter>Application\Scene\IScene</Filter>
+      <Filter>Engine\IScene</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>Application\Scene\SceneManager</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>Application\Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Application\Scene\TitleScene</Filter>
+    </ClCompile>
+    <ClCompile Include="IGameObject.cpp">
+      <Filter>Application\Scene\IGameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Application\Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -348,23 +348,14 @@
     <ClInclude Include="GlobalVariables.h">
       <Filter>Engine\GlobalVariables</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Application\Player</Filter>
-    </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>Engine\math\Vector3</Filter>
     </ClInclude>
     <ClInclude Include="DebugScene.h">
       <Filter>Engine\AScene\DebugScene</Filter>
     </ClInclude>
-    <ClInclude Include="Enemy.h">
-      <Filter>Application\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="BoxColider.h">
       <Filter>Engine\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="LockOn.h">
-      <Filter>Application\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="EffectHit.h">
       <Filter>Application\Effect</Filter>
@@ -397,13 +388,25 @@
       <Filter>Engine\AssimpManager</Filter>
     </ClInclude>
     <ClInclude Include="IScene.h">
-      <Filter>Application\Scene\IScene</Filter>
+      <Filter>Engine\IScene</Filter>
     </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>Application\Scene\SceneManager</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Application\Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleScene.h">
+      <Filter>Application\Scene\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes.h">
+      <Filter>Application\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="IGameObject.h">
+      <Filter>Application\Scene\IGameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Application\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

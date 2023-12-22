@@ -195,15 +195,12 @@ ModelData ModelManager::GetModelData(const std::string& filename) {
 			return modeldata.second;
 		}
 	}
-
 	//存在しない場合の処理
 	if (isError) {
 		//存在していないのでエラー
 		assert(false);
-
 	}
 	else {
-
 		//モデルデータを作成して設定
 		ModelData newmodelData = LoadObjFile("resources", filename);
 		std::pair<std::string, ModelData>newData(name, newmodelData);

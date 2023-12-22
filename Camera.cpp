@@ -1,6 +1,10 @@
 #include"Camera.h"
 #include"WinApp.h"
-#include"externals/Imgui/imgui.h"
+#include<imgui.h>
+
+Camera::Camera() {}
+
+Camera::~Camera() {}
 
 void Camera::Initialize() {
 

@@ -5,6 +5,9 @@ class Camera {
 
 public:
 
+	Camera();
+	~Camera();
+
 	/// <summary>
 	/// 初期化処理
 	/// </summary>

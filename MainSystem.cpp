@@ -69,7 +69,7 @@ void MainSystem::MainRoop() {
 	GlobalVariables::GetInstance()->LoadFiles();
 
 	//シーンマネージャ初期化
-	SceneManager* sceneManager = new SceneManager();
+	SceneManager* sceneManager = SceneManager::GetInstance();
 	sceneManager->Initialize();
 
 	//DebugScene* dScene = new DebugScene();

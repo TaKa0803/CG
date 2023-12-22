@@ -4,6 +4,7 @@
 #include<d3d12.h>
 #include<dxcapi.h>
 #include<wrl.h>
+#include<vector>
 
 
 enum class BlendMode {
@@ -31,6 +32,52 @@ enum class FillMode {
 	kWireFrame,
 	//使用不可
 	kCountOfFillMode
+};
+
+//ルートシグネチャマネージャー
+class RootSignatureManager {
+
+public://シングルトンパターン
+	static RootSignatureManager* GetInstance();
+
+
+private:
+	RootSignatureManager() = default;
+	~RootSignatureManager() = default;
+	RootSignatureManager(const RootSignatureManager& o) = delete;
+	const RootSignatureManager& operator=(const RootSignatureManager& o) = delete;
+
+public:
+	/// <summary>
+	/// 初期化
+	/// </summary>
+	/// <param name="device"></param>
+	void Initialize(ID3D12Device*device);
+
+	/// <summary>
+	/// ３D用のRootSignature取得
+	/// </summary>
+	/// <returns></returns>
+	std::vector<std::vector<ID3D12PipelineState*>>Get3DRootSignature() { return rootSignature3D_; }
+
+	/// <summary>
+	/// ２D用のRootSignature取得
+	/// </summary>
+	/// <returns></returns>
+	std::vector<ID3D12PipelineState*>Get2DRootSignature() { return rootSignature2D_; }
+
+private:
+
+	void Load3DRootsignature(ID3D12Device* device);
+
+	void Load2DRootsignature(ID3D12Device* device);
+
+
+	//3D用ルートシグネチャ
+	std::vector<std::vector<ID3D12PipelineState*>>rootSignature3D_;
+
+	//2D用ルートシグネチャ
+	std::vector<ID3D12PipelineState*>rootSignature2D_;
 };
 
 
