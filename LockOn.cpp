@@ -36,7 +36,7 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 				//プレイヤーの向きベクトル計算
 				Vector3 offset = { 0,0,1.0f };
-				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = TransformNormal(offset, camera->GetMainCamera().matWorld_);
 				offset = Normalize(offset);
 				//回転量計算
 				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
@@ -87,7 +87,7 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 				//プレイヤーの向きベクトル計算
 				Vector3 offset = { 0,0,1.0f };
-				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = TransformNormal(offset, camera->GetMainCamera().matWorld_);
 				offset = Normalize(offset);
 				//回転量計算
 				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
@@ -130,7 +130,7 @@ void LockOn::Update(const std::list<Enemy*>& enemies,Camera*camera) {
 
 				//プレイヤーの向きベクトル計算
 				Vector3 offset = { 0,0,1.0f };
-				offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+				offset = TransformNormal(offset, camera->GetMainCamera().matWorld_);
 				offset = Normalize(offset);
 				//回転量計算
 				float yrotate = GetYRotate(Vector2(offset.x, offset.z));
@@ -250,7 +250,7 @@ void LockOn::LockOnEnemy(const std::list<Enemy*>& enemies,Camera* camera) {
 
 			//プレイヤーの向きベクトル計算
 			Vector3 offset = { 0,0,1.0f };
-			offset = TransformNormal(offset, camera->GetCameraDirectionToFace());
+			offset = TransformNormal(offset, camera->GetMainCamera().matWorld_);
 			offset = Normalize(offset);
 			//回転量計算
 			float yrotate = GetYRotate(Vector2(offset.x,offset.z));

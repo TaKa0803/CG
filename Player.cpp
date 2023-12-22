@@ -258,7 +258,7 @@ void Player::DashInitialize() {
 			moveVelo.SetNormalize();
 			moveVelo = dashPower_ * moveVelo;
 
-			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+			Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 			moveVelo = TransformNormal(moveVelo, C_Affine);
 			moveVelo.y = 0;
 			bool ismoveActive = true;
@@ -288,7 +288,7 @@ void Player::DashInitialize() {
 			moveVelo = Normalize(moveVelo);
 			moveVelo *= dashPower_;
 		}
-		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+		Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 	}
@@ -361,7 +361,7 @@ void Player::FallUpdate() {
 			moveVelo = Normalize(moveVelo);
 			moveVelo *= spd;
 
-			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+			Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 			moveVelo = TransformNormal(moveVelo, C_Affine);
 			moveVelo.y = 0;
 		}
@@ -386,7 +386,7 @@ void Player::FallUpdate() {
 	}
 
 	if (ismoveActive) {
-		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+		Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 
@@ -451,7 +451,7 @@ void Player::StayUpdate() {
 
 	//プレイヤー傾き処理
 	if (ismoveActive) {
-		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+		Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 
@@ -656,7 +656,7 @@ void Player::JumpUpdate() {
 			moveVelo = Normalize(moveVelo);
 			moveVelo *= spd;
 
-			Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+			Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 			moveVelo = TransformNormal(moveVelo, C_Affine);
 			moveVelo.y = 0;
 		}
@@ -681,7 +681,7 @@ void Player::JumpUpdate() {
 	}
 
 	if (ismoveActive) {
-		Matrix4x4 C_Affine = camera_->GetCameraDirectionToFace();
+		Matrix4x4 C_Affine = camera_->GetMainCamera().matWorld_;
 		moveVelo = TransformNormal(moveVelo, C_Affine);
 		moveVelo.y = 0;
 

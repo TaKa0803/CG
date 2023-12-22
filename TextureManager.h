@@ -57,8 +57,18 @@ private://メンバ関数
 	/// <returns></returns>
 	int CreateData(const std::string& filePath,const DirectX::ScratchImage& mipImages);
 
+	/// <summary>
+	/// 似たようなデータがないかチェック
+	/// </summary>
+	/// <param name="filepath">パス</param>
+	/// <returns>あったか否か</returns>
 	bool CheckSameData(const std::string& filepath);
 
+	/// <summary>
+	/// パスに合ったテクスチャハンドルへのイテレータ返却
+	/// </summary>
+	/// <param name="path">パス</param>
+	/// <returns>イテレータ番号</returns>
 	int GetDataFromPath(const std::string& path);
 private://メンバ変数
 
@@ -67,10 +77,13 @@ private://メンバ変数
 
 	
 	struct Texturedata{
+		//パスに対応したイテレータ番号
 		int texManagementNumber;
+		//パス
 		std::string filePath;
 	};
 
+	//データ群
 	std::vector<Texturedata*>datas_;
 
 	

@@ -1,5 +1,5 @@
 #include "MainSystem.h"
-#include"InGame.h"
+#include"SceneManager.h"
 #include"DebugScene.h"
 #include"MT4Scene.h"
 #include"GlobalVariables.h"
@@ -65,11 +65,12 @@ void MainSystem::Initializes() {
 }
 
 void MainSystem::MainRoop() {
-
+	//保存データ取得
 	GlobalVariables::GetInstance()->LoadFiles();
 
-	InGame* ingame = new InGame();
-	ingame->Initialize();
+	//シーンマネージャ初期化
+	SceneManager* sceneManager = new SceneManager();
+	sceneManager->Initialize();
 
 	//DebugScene* dScene = new DebugScene();
 	//dScene->Initialize();
@@ -77,9 +78,9 @@ void MainSystem::MainRoop() {
 	//MT4Scene* mt4 = new MT4Scene();
 	//mt4->Initialize();
 
-
+	//読み込んだ画像をGPUに送信
 	SRVM_->PostInitialize();
-#pragma region 更新
+
 	while (winApp->ProcessMessage()) {
 #pragma region 状態更新
 		///更新前処理
@@ -92,7 +93,7 @@ void MainSystem::MainRoop() {
 
 		GlobalVariables::GetInstance()->Update();
 
-		ingame->Update();
+		sceneManager->Update();
 		//dScene->Update();
 		//mt4->Update();
 
@@ -114,7 +115,7 @@ void MainSystem::MainRoop() {
 		//==以下描画==//
 
 
-		ingame->Draw();
+		sceneManager->Draw();
 		//dScene->Draw();
 		//mt4->Draw();
 
@@ -126,10 +127,12 @@ void MainSystem::MainRoop() {
 		//DirectX
 		DXF->PostDraw();
 #pragma endregion
+		///フレーム終了時処理
+		sceneManager->EndFrame();
 	}
-#pragma endregion
 
-	ingame->Finalize();
+
+	sceneManager->Finalize();
 	//dScene->Finalize();
 	//mt4->Finalize();
 
