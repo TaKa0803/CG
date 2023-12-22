@@ -51,6 +51,14 @@ void SRVManager::PostInitialize() {
 
 void SRVManager::Finalize() {
 	
+	//yomikomigai開放する
+	for (auto& inter : intermediaResources_) {
+		if (inter != nullptr) {
+			inter->Release();
+			inter = nullptr;
+		}
+	}
+
 	for (ID3D12Resource* texRsource : textureResources_) {
 		texRsource->Release();
 		texRsource = nullptr;

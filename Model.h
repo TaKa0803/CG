@@ -123,7 +123,7 @@ private:
 	int point_;
 
 
-	ID3D12Resource* vertexRtea_;
+	ID3D12Resource* vertexData_;
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 

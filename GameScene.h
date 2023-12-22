@@ -29,7 +29,7 @@ private:
 	//キー入力
 	Input* input_ = nullptr;
 	//カメラクラス
-	std::unique_ptr<Camera> camera_;
+	Camera* camera_;
 
 
 	///以下ゲーム実装

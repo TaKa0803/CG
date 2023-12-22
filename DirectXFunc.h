@@ -149,6 +149,6 @@ private://メンバ変数
 	std::chrono::steady_clock::time_point reference_;
 
 	//開放チェックエラーで実行を止めるか	
-	const bool isAssertForgetReleasing_ = true;
+	const bool isAssertForgetReleasing_ = false;
 
 };

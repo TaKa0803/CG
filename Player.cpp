@@ -9,7 +9,7 @@ Player::Player() {
 }
 
 Player::~Player() {
-	IGameObject::~IGameObject();
+	
 }
 
 void Player::Initialize() {

@@ -28,10 +28,11 @@ Model::~Model() {
 
 	delete grarphics_;
 
-	vertexRtea_->Release();
+	vertexData_->Release();
 	wvpResource_->Release();
 	materialResource_->Release();
 	directionalLightResource_->Release();
+
 }
 
 Model* Model::CreateSphere(float kSubdivision,bool enableLighting, const std::string& filePath)
@@ -203,7 +204,7 @@ void Model::Initialize(
 	}
 
 	point_ = point;
-	vertexRtea_ = vertexRtea;
+	vertexData_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
 	wvpData_ = wvpData;
 	wvpResource_ = wvpResource;

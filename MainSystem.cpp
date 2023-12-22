@@ -38,8 +38,7 @@ void MainSystem::Initializes() {
 	DXF->Initialize(winApp);
 
 	//Graphics
-	RootSignatureManager::GetInstance()->Initialize(DXF->GetDevice());
-
+	
 	//SRV
 	SRVM_ = SRVManager::GetInstance();
 	SRVM_->Initialize(DXF);
@@ -145,6 +144,7 @@ void MainSystem::MainRoop() {
 
 void MainSystem::Finalize() {
 	///開放処理
+	
 	SRVM_->Finalize();
 	textureManager->Finalize();
 	imguiManager->Finalize();

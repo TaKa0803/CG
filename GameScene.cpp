@@ -2,13 +2,14 @@
 #include<imgui.h>
 
 GameScene::GameScene() {
-	camera_ = std::make_unique<Camera>();
+	camera_ = new Camera();
 
 	player_ = new Player();
 }
 
 GameScene::~GameScene() {
 	delete player_;
+	delete camera_;
 }
 
 
