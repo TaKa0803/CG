@@ -5,6 +5,7 @@
 #include"GlobalVariables.h"
 #include"RandomNum.h"
 #include"ModelManager.h"
+#include"Graphics.h"
 
 MainSystem* MainSystem::GetInstance() {
 	static MainSystem instance;
@@ -35,6 +36,9 @@ void MainSystem::Initializes() {
 	//DirectX
 	DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
+
+	//Graphics
+	RootSignatureManager::GetInstance()->Initialize(DXF->GetDevice());
 
 	//SRV
 	SRVM_ = SRVManager::GetInstance();
