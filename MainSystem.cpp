@@ -68,11 +68,11 @@ void MainSystem::MainRoop() {
 
 	GlobalVariables::GetInstance()->LoadFiles();
 
-	//InGame* ingame = new InGame();
-	//ingame->Initialize();
+	InGame* ingame = new InGame();
+	ingame->Initialize();
 
-	DebugScene* dScene = new DebugScene();
-	dScene->Initialize();
+	//DebugScene* dScene = new DebugScene();
+	//dScene->Initialize();
 
 	//MT4Scene* mt4 = new MT4Scene();
 	//mt4->Initialize();
@@ -92,8 +92,8 @@ void MainSystem::MainRoop() {
 
 		GlobalVariables::GetInstance()->Update();
 
-		//ingame->Update();
-		dScene->Update();
+		ingame->Update();
+		//dScene->Update();
 		//mt4->Update();
 
 		//開発用UIの処理。実際に開発用のUIを出す場合はここをゲーム固有の処理に書き換える
@@ -114,8 +114,8 @@ void MainSystem::MainRoop() {
 		//==以下描画==//
 
 
-		//ingame->Draw();
-		dScene->Draw();
+		ingame->Draw();
+		//dScene->Draw();
 		//mt4->Draw();
 
 		//==描画終わり==//
@@ -129,8 +129,8 @@ void MainSystem::MainRoop() {
 	}
 #pragma endregion
 
-	//ingame->Finalize();
-	dScene->Finalize();
+	ingame->Finalize();
+	//dScene->Finalize();
 	//mt4->Finalize();
 
 }

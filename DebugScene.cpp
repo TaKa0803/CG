@@ -12,7 +12,6 @@
 
 
 
-
 void DebugScene::Initialize() {
 	//model_ = Model::CreateFromOBJ("fence/fence");
 	//texture = TextureManager::LoadTex("resources/fence/fence.png");
@@ -38,7 +37,15 @@ void DebugScene::Initialize() {
 
 	pE_ = new ParticleEmiter();
 	pE_ = ParticleEmiter::Create3D(&camera_,texture, kNuminstancing, { 512,512 }, { 256,256 });
+
+
+
+#pragma region FBXの処理
 	
+#pragma endregion
+
+	
+
 }
 
 void DebugScene::Update() {

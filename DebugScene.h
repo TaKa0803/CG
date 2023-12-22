@@ -9,6 +9,10 @@
 
 #include<memory>
 
+#include"AssimpManager.h"
+
+
+
 class DebugScene {
 public:
 	void Initialize();
@@ -66,5 +70,8 @@ private:
 	
 
 	bool checkUpdate_ = false;
+
+
+
 };
 

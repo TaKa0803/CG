@@ -119,6 +119,9 @@
     <Filter Include="Engine\AScene\DebugScene">
       <UniqueIdentifier>{b8bbc1d2-5510-422c-b144-06714b12681d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\AssimpManager">
+      <UniqueIdentifier>{4b6b0cc9-8f21-4f9f-93a3-711914dacf1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -238,6 +241,9 @@
     </ClCompile>
     <ClCompile Include="ModelManager.cpp">
       <Filter>Engine\ModelManager</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpManager.cpp">
+      <Filter>Engine\AssimpManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -374,6 +380,9 @@
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>Engine\ModelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpManager.h">
+      <Filter>Engine\AssimpManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

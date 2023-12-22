@@ -12,9 +12,9 @@
 #pragma region 構造体
 
 struct VertexData {
-	Vector4 position;
-	Vector2 texcoord;
-	Vector3 normal;
+	Vector4 position = { 0,0,0,0 };
+	Vector2 texcoord = { 0,0 };
+	Vector3 normal = { 0,0,0 };
 };
 
 struct MaterialData {
