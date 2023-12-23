@@ -1,7 +1,7 @@
 #include "IScene.h"
 
-
-int IScene::sceneNo = 0;
+//初期シーンの設定
+int IScene::sceneNo = STAGE;
 
 IScene::~IScene() {}
 

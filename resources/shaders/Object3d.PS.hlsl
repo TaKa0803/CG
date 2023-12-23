@@ -66,8 +66,8 @@ PixelShaderOutput main(VertexShaderOutput input){
         //計算
         //output.color = gMaterial.color * textureColor * gDirectionalLight.color * cos * gDirectionalLight.intensity;
     
-        output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-        output.color.a = gMaterial.color.a * textureColor.a;
+       output.color.rgb = gMaterial.color.rgb * textureColor.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
+       output.color.a = gMaterial.color.a * textureColor.a;
     }
     else
     {
@@ -77,7 +77,7 @@ PixelShaderOutput main(VertexShaderOutput input){
     
     //textureのα値が0の時Pixelを棄却
     if (output.color.a <= gMaterial.discardNum) {
-        discard;
+       discard;
     }
     
 	return output;

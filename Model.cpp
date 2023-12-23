@@ -300,6 +300,11 @@ void Model::DebugParameter(const char* name)
 	ImGui::DragFloat2("uv pos", &uvpos.x, 0.1f);
 	ImGui::DragFloat("uv rotate", &uvrotate.z, 0.1f);
 	ImGui::DragFloat2("uv scale", &uvscale.x, 0.1f);
+
+	ImGui::Text("color");
+	ImGui::DragFloat3("light direction", &directionalLightData_->direction.x,0.01f);
+	ImGui::DragFloat("light intensity", &directionalLightData_->intensity,0.01f);
+	ImGui::ColorEdit4("light color", &directionalLightData_->color.x);
 	ImGui::End();
 
 	

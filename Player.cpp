@@ -13,7 +13,8 @@ Player::~Player() {
 }
 
 void Player::Initialize() {
-	IGameObject::Initialize("ALPlayer");
+	//IGameObject::Initialize("ALPlayer");
+	model_ = Model::CreateSphere(128, true);
 }
 
 void Player::Update() {
