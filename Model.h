@@ -71,6 +71,10 @@ public:
 	/// <param name="uv">uvMatrix</param>
 	void SetUV(Matrix4x4 uv) { materialData_->uvTransform = uv; }
 
+	void SetUVTranslate(Vector2 pos) { uvpos.x = pos.x; uvpos.y = pos.y; }
+
+	void SetUVScale(Vector3 scale) { uvscale = scale; }
+
 	/// <summary>
 	/// 色の変更
 	/// </summary>
@@ -79,7 +83,10 @@ public:
 
 	void SetAlpha(float alpha) { materialData_->color.w = alpha; }
 
+	void SetBlendMode(BlendMode blend) { grarphics_->SetBlendMode(blend); }
+
 	void SetFillMode(FillMode fillmode) { grarphics_->SetFillMode(fillmode); }
+
 
 #pragma endregion
 
@@ -87,9 +94,11 @@ public:
 	/// 色の取得
 	/// </summary>
 	/// <returns>色</returns>
-	Vector4 GetColor() { return materialData_->color; }
+	const Vector4 GetColor() { return materialData_->color; }
 
-	
+	const Material* GetMaterialData() { return materialData_; }
+
+	const Vector3 GetUVScale()const { return uvscale; }
 private:
 	struct WorldTransformation {
 		Matrix4x4 WVP;

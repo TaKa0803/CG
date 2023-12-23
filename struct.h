@@ -41,12 +41,12 @@ struct AABB {
 
 struct Material {
 	Vector4 color;
-	
-	int32_t enableLighting;
-	float padding[3];	
-
+		
 	Matrix4x4 uvTransform;	   
 	
+	int32_t enableLighting;
+	//float padding[3];
+
 	int32_t enableTexture;
 	//float padding2[3];
 	

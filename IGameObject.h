@@ -11,7 +11,9 @@ protected:
 
 	WorldTransform world_;
 
+	
 public:
+	const WorldTransform& GetWorld() { return world_; }
 
 	virtual ~IGameObject();
 

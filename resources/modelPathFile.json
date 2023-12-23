@@ -1,6 +1,8 @@
 
 {	
    "modelPathFile": {
-		"ALPlayer":[ "resources","ALPlayer"]
+		"ALPlayer":[ "resources","ALPlayer"],
+		"plane"   :[ "resources","plane"],
+		"player"  :[ "resources","player"]
 	}
 }

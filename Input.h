@@ -6,6 +6,7 @@
 #include<dinput.h>
 #include <XInput.h>
 #include"Vector2.h"
+#include"Vector3.h"
 #include"WinApp.h"
 
 enum kPadButton {
@@ -45,6 +46,8 @@ public:
 
 	bool TriggerKey(BYTE keyNum);
 
+	//WASD(XZ面
+	Vector3 GetWASD();
 
 
 	bool IsControllerActive();

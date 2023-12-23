@@ -2,10 +2,14 @@
 #include "IScene.h"
 
 #include<iostream>
+#include<list>
 
 #include"Input.h"
 #include"Camera.h"
 #include"Player.h"
+#include"Plane.h"
+#include"Enemy.h"
+#include"EnemyPopManager.h"
 
 
 class GameScene : public IScene {
@@ -29,10 +33,14 @@ private:
 	//キー入力
 	Input* input_ = nullptr;
 	//カメラクラス
-	Camera* camera_;
-
+	std::unique_ptr<Camera> camera_;
 
 	///以下ゲーム実装
-	Player*player_=nullptr;
+	std::unique_ptr<Player>player_;
 
+	std::unique_ptr<Plane>plane_;
+
+	std::list<std::unique_ptr<Enemy>>enemies_;
+
+	std::unique_ptr<EnemyPopManager>enemyPopManager_;
 };

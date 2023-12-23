@@ -5,7 +5,7 @@ IGameObject::~IGameObject() {
 }
 
 void IGameObject::Initialize(const std::string& filepath) {
-	model_ = Model::CreateFromOBJ("ALPlayer");
+	model_ = Model::CreateFromOBJ(filepath);
 }
 
 void IGameObject::Update() {

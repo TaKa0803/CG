@@ -131,6 +131,15 @@
     <Filter Include="Application\Scene\IGameObject">
       <UniqueIdentifier>{79d7cd82-c99f-4c61-a4f4-f29908d6b030}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Plane">
+      <UniqueIdentifier>{6cb4f97a-db19-41d1-999e-3a85885931df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Enemy">
+      <UniqueIdentifier>{dc5f7b28-5c5c-4018-9e4b-08760e3fe20c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\EnemySpawnManager">
+      <UniqueIdentifier>{f0ceefbf-bdfa-4d7f-88d2-0d803ee7e4e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -259,6 +268,15 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Application\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane.cpp">
+      <Filter>Application\Plane</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Application\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyPopManager.cpp">
+      <Filter>Application\EnemySpawnManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -408,6 +426,15 @@
     <ClInclude Include="Player.h">
       <Filter>Application\Player</Filter>
     </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>Application\Plane</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Application\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyPopManager.h">
+      <Filter>Application\EnemySpawnManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
@@ -420,6 +447,12 @@
     </None>
     <None Include="resources\shaders\Particle.hlsli">
       <Filter>Engine\shaders\Particle</Filter>
+    </None>
+    <None Include="resources\modelPathFile.json">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="resources\enemyPopData.json">
+      <Filter>リソース ファイル</Filter>
     </None>
   </ItemGroup>
 </Project>

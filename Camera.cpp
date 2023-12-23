@@ -23,7 +23,7 @@ void Camera::Initialize() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, FarZ);
 	viewProjection_ = view_ * projection_;
 }
 
@@ -50,7 +50,7 @@ void Camera::Update() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, FarZ);
 	viewProjection_ = view_* projection_;
 }
 
@@ -59,8 +59,7 @@ void Camera::DrawDebugWindow(const char* name) {
 
 	if (ImGui::BeginMenu(name)) {
 		ImGui::Text("mainCamera");
-		ImGui::DragFloat2("mainC pos", &mainCamera_.translate_.x, 0.01f);
-		ImGui::DragFloat("mainC farZ", &mainCamera_.translate_.z);
+		ImGui::DragFloat3("mainC pos", &mainCamera_.translate_.x, 0.01f);		
 		ImGui::DragFloat3("mainC rotate", &mainCamera_.rotate_.x, 0.01f);
 		ImGui::DragFloat3("mainC scale", &mainCamera_.scale_.x, 0.01f);
 
@@ -98,7 +97,7 @@ void Camera::UpdateMatrixes() {
 
 	//各種更新に必要な処理
 	view_ = Inverse(mainCamera_.matWorld_);
-	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, 100.0f);
+	projection_ = MakePerspectiveFovMatrix(0.45f, (float)WindowApp::kClientWidth / (float)WindowApp::kClientHeight, 0.1f, FarZ);
 	viewProjection_ = view_* projection_;
 }
 
@@ -106,6 +105,6 @@ void Camera::SetTarget(const WorldTransform* parent) {
 	FeaturedWorldTransform_ = parent;
 }
 
-void Camera::SetCameraFar(const float farZ) {
+void Camera::SetCameraDirection(const float farZ) {
 	mainCamera_.translate_.z = farZ;
 }

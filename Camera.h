@@ -56,7 +56,7 @@ public:
 public:
 	void SetTarget(const WorldTransform* parent);
 
-	void SetCameraFar(const float far);
+	void SetCameraDirection(const float far);
 
 	void SetCameraFeaturedPos(const Vector3& pos) { CameraMotionSupport_.translate_ = pos; }
 
@@ -76,6 +76,9 @@ private:
 
 	//完全追従するか座標のみ取得するか
 	bool isOnlyGetPosition = true;
+
+	//
+	float FarZ = 1000.0f;
 
 	//ビュー
 	Matrix4x4 view_ = MakeIdentity4x4();

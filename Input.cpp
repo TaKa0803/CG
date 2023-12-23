@@ -72,6 +72,25 @@ bool Input::TriggerKey(BYTE keyNum) {
 	return false;
 }
 
+Vector3 Input::GetWASD() {
+	Vector3 ans{};
+
+	if (key[DIK_W]) {
+		ans.z += 1;
+	}
+	if (key[DIK_S]) {
+		ans.z -= 1;
+	}
+	if (key[DIK_D]) {
+		ans.x += 1;
+	}
+	if (key[DIK_A]) {
+		ans.x -= 1;
+	}
+
+	return ans;
+}
+
 bool Input::IsControllerActive() {
 
 	if (XInputGetState(0, &joyState)==ERROR_SUCCESS) {

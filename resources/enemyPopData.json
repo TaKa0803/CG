@@ -1,0 +1,9 @@
+{
+	"PopArea1" : {
+		"position": [ 0, 0, 0 ],
+		"PopAreaSize": 10,
+		"RangeWithPopStarting":20,
+		"PopInterval": 60,
+		"maxAreaPopCount": 10
+	}
+}
