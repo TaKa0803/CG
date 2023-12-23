@@ -48,13 +48,13 @@ struct Material {
 	Matrix4x4 uvTransform;	   
 	
 	int32_t enableTexture;
-	float padding2[3];
+	//float padding2[3];
 	
 	int32_t enableHalfLambert;
-	float padding3[3];
+	//float padding3[3];
 	
 	float discardNum;
-	float padding4[3];
+	//float padding4[3];
 
 	
 };
@@ -62,9 +62,8 @@ struct Material {
 struct DirectionalLight {
 	Vector4 color;
 	Vector3 direction;
-	float padding;
 	float intensity;
-	float padding2[3];
+	//float padding2[3];
 };
 
 
