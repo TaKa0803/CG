@@ -16,14 +16,12 @@
 #include<cassert>
 #include<fstream>
 
-#include"ModelManager/ModelManager.h"
-#include"SRVManager/SRVManager.h"
 
 #pragma region 
 
 #pragma endregion
 
-
+#pragma region モデル
 Model::~Model() {
 
 	delete grarphics_;
@@ -318,11 +316,39 @@ void Model::DebugParameter(const char* name)
 #endif // _DEBUG
 	
 }
+#pragma endregion
 
 
+#pragma region InstancingModel
+InstancingModel* InstancingModel::Coreate(const std::string& tag) {
+	if (InstancingModelManager::GetInstance()->SerchTag(tag)) {
+
+		InstancingModel* model = new InstancingModel();
+		model->Initialize(tag);
+		return model;
+	}
+
+	//タグが間違ってるお！
+	assert(false);
+	return nullptr;
+}
+
+void InstancingModel::Initialize(const std::string& tag) {
+
+	//インスタンス取得
+	InstancingMM_= InstancingModelManager::GetInstance();
+
+	//タグの保存
+	tag_ = tag;
+}
+
+void InstancingModel::Draw(const WorldTransform& world) {
+
+	//ワールドを送信
+	InstancingMM_->GivenWorldData(tag_,world.matWorld_);
+
+}
 
 
-
-
-
+#pragma endregion
 

@@ -1,6 +1,9 @@
 #include "GameScene.h"
 #include<imgui.h>
 
+#include"ModelManager/ModelManager.h"
+
+
 GameScene::GameScene() {
 	input_ = Input::GetInstance();
 
@@ -58,11 +61,12 @@ void GameScene::Draw() {
 	plane_->Draw(camera_->GetViewProjectionMatrix());
 	
 	for (auto& enemy : enemies_) {
-		enemy->Draw(camera_->GetViewProjectionMatrix());
+		enemy->Draw();
 	}
 
 	player_->Draw(camera_->GetViewProjectionMatrix());
 
+	InstancingModelManager::GetInstance()->DrawAllModels(camera_->GetViewProjectionMatrix());
 }
 
 void GameScene::DebugWindows() {

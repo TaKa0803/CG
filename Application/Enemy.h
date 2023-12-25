@@ -1,7 +1,7 @@
 #pragma once
-#include"IGameObject/IGameObject.h"
+#include"Instancing/InstancingGameObject.h"
 
-class Enemy : public GameObject {
+class Enemy : public InstancingGameObject {
 
 public:
 	/// <summary>
@@ -17,7 +17,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void Draw(const Matrix4x4& viewP);
+	void Draw();
 
 
 };

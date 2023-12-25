@@ -1,4 +1,4 @@
-#include "IGameObject.h"
+#include "GameObject.h"
 
 GameObject::~GameObject() {
 	delete model_;

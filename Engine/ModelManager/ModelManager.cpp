@@ -124,6 +124,8 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 #pragma endregion
 }
 
+#pragma region ModelManager
+
 ModelManager* ModelManager::GetInstance() {
 	static ModelManager instance;
 	return &instance;
@@ -165,7 +167,7 @@ void ModelManager::LoadAllModels() {
 		//アイテムの名前を取得
 		const std::string& itemName = itItem.key();
 
-		if (itItem->is_array()&&itItem->size()==2) {
+		if (itItem->is_array() && itItem->size() == 2) {
 			//モデル群の八田フォルダまでのパス
 			std::string foldaPath = itItem->at(0);
 
@@ -215,6 +217,8 @@ ModelData ModelManager::GetModelData(const std::string& filename) {
 
 	return ModelData();
 }
+#pragma endregion
+
 
 
 InstancingModelManager* InstancingModelManager::GetInstance() {
@@ -224,11 +228,38 @@ InstancingModelManager* InstancingModelManager::GetInstance() {
 
 }
 
+bool InstancingModelManager::SerchTag(const std::string& tag) {
+	for (auto& modelDatas : modelDatas_) {
+		if (tag == modelDatas.first) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void InstancingModelManager::GivenWorldData(const std::string& tag, const Matrix4x4& matworld) {
+
+	for (auto& model : modelDatas_) {
+		//タグの場所を見つけたら
+		if (model.first == tag) {
+
+			Matrix4x4 data = matworld;
+
+			//送って終了
+			model.second->worlds.push_back(data);
+			return;
+		}
+	}
+
+}
+
 void InstancingModelManager::Initialize() {
 	//DirectXFuncのインスタンス取得
 	DXF_ = DirectXFunc::GetInstance();
 
 	//Grapgics設定
+	instancingPSO_ = std::make_unique<InstancingGraphicsSystem>();
 	instancingPSO_->Initialize(DXF_->GetDevice());
 
 
@@ -302,13 +333,13 @@ void InstancingModelManager::LoadAllModels() {
 			std::string modelPath = itItem->at(1);
 
 			//数を取得
-			int modelNum = itItem->at(0);
+			int modelNum = itItem->at(2);
 
 			//名前とパスを合わせた構造体
-			DataGroup nameAndPath = { itemName,modelPath };
+			DataGroup nameAndPath = { foldaPath,modelPath };
 
 			//モデルデータを作成して設定
-			CreateModelData(nameAndPath, modelNum);
+			CreateModelData(itemName,nameAndPath, modelNum);
 
 			
 
@@ -317,13 +348,13 @@ void InstancingModelManager::LoadAllModels() {
 
 }
 
-void InstancingModelManager::CreateModelData(const DataGroup& filepass, int instancingNum) {
+void InstancingModelManager::CreateModelData(const std::string& tag, const DataGroup& filepass, int instancingNum) {
 
 	//モデルデータ読み込み
 	ModelData modeldata = LoadObjFile(filepass.path, filepass.name);
 
 	//モデルの処理に必要なデータを用意
-	std::unique_ptr<ModelVariable> modelVariable = std::make_unique<ModelVariable>();
+	ModelVariable modelVariable{};
 
 	//読み込んだデータから各種作成
 
@@ -341,50 +372,50 @@ void InstancingModelManager::CreateModelData(const DataGroup& filepass, int inst
 		tex = TextureManager::LoadTex(modeldata.material.textureFilePath);
 	}
 	//配列位置から画像を取得
-	modelVariable->texture = SRVM->GetTextureDescriptorHandle(tex);
+	modelVariable.texture = SRVM->GetTextureDescriptorHandle(tex);
 
 #pragma endregion
 #pragma region vertex関係
 	//頂点数設定
-	modelVariable->point = (int32_t)modeldata.vertices.size();
+	modelVariable.point = (int32_t)modeldata.vertices.size();
 	//vertex関係
-	modelVariable->vertexData = CreateBufferResource(DXF_->GetDevice(), sizeof(VertexData) * modeldata.vertices.size());
+	modelVariable.vertexData = CreateBufferResource(DXF_->GetDevice(), sizeof(VertexData) * modeldata.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
-	vertexBufferViewtea.BufferLocation = modelVariable->vertexData->GetGPUVirtualAddress();
+	vertexBufferViewtea.BufferLocation = modelVariable.vertexData->GetGPUVirtualAddress();
 	vertexBufferViewtea.SizeInBytes = UINT(sizeof(VertexData) * modeldata.vertices.size());
 	vertexBufferViewtea.StrideInBytes = sizeof(VertexData);
 
 	VertexData* vertexDatatea = nullptr;
-	modelVariable->vertexData->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
+	modelVariable.vertexData->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
 	std::memcpy(vertexDatatea, modeldata.vertices.data(), sizeof(VertexData) * modeldata.vertices.size());
 #pragma endregion
 #pragma region WVP関連
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
-	modelVariable->wvpResource = CreateBufferResource(DXF_->GetDevice(), sizeof(WorldTransformation) * instancingNum);
+	modelVariable.wvpResource = CreateBufferResource(DXF_->GetDevice(), sizeof(WorldTransformation) * instancingNum);
 	//データを書き込む
 	//書き込むためのアドレスを取得
-	modelVariable->wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&modelVariable->wvpData));
+	modelVariable.wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&modelVariable.wvpData));
 	//単位行列を書き込んでおくtextureResource
 	for (uint32_t index = 0; index < (uint32_t)instancingNum; ++index) {
-		modelVariable->wvpData[index].WVP = MakeIdentity4x4();
-		modelVariable->wvpData[index].World = MakeIdentity4x4();
+		modelVariable.wvpData[index].WVP = MakeIdentity4x4();
+		modelVariable.wvpData[index].World = MakeIdentity4x4();
 	}
 #pragma endregion
 #pragma region マテリアル
 	//マテリアル用のリソース
-	modelVariable->materialResource = CreateBufferResource(DXF_->GetDevice(), sizeof(Material));
-	modelVariable->materialResource->Map(0, nullptr, reinterpret_cast<void**>(&modelVariable->materialData));
+	modelVariable.materialResource = CreateBufferResource(DXF_->GetDevice(), sizeof(Material));
+	modelVariable.materialResource->Map(0, nullptr, reinterpret_cast<void**>(&modelVariable.materialData));
 	//各データ初期設定
-	modelVariable->materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	modelVariable->materialData->enableLighting = true;
-	modelVariable->materialData->uvTransform = MakeIdentity4x4();
-	modelVariable->materialData->enableTexture = true;
-	modelVariable->materialData->enableHalfLambert = true;
-	modelVariable->materialData->discardNum = 0.0f;
+	modelVariable.materialData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	modelVariable.materialData->enableLighting = true;
+	modelVariable.materialData->uvTransform = MakeIdentity4x4();
+	modelVariable.materialData->enableTexture = true;
+	modelVariable.materialData->enableHalfLambert = true;
+	modelVariable.materialData->discardNum = 0.0f;
 #pragma endregion
 
 	//ライトデータをコピー
-	modelVariable->lightData = *lightData_.get();
+	modelVariable.lightData = *lightData_.get();
 
 #pragma region instancing関係のデータ
 	D3D12_SHADER_RESOURCE_VIEW_DESC instancingDesc{};
@@ -397,64 +428,62 @@ void InstancingModelManager::CreateModelData(const DataGroup& filepass, int inst
 	instancingDesc.Buffer.StructureByteStride = sizeof(WorldTransformation);
 
 	
-	int instancingHandleNum = SRVM->CreateSRV(modelVariable->wvpResource, nullptr, instancingDesc);
+	int instancingHandleNum = SRVM->CreateSRV(modelVariable.wvpResource, nullptr, instancingDesc);
 
 	//配列位置から画像を取得
-	modelVariable->instancingHandle = SRVM->GetTextureDescriptorHandle(instancingHandleNum);
+	modelVariable.instancingHandle = SRVM->GetTextureDescriptorHandle(instancingHandleNum);
 
 #pragma endregion
-
-	//タグ名保存
-	std::string tag = filepass.name;
-
-	std::vector<std::unique_ptr<Matrix4x4>>worlds;
-
-	std::unique_ptr<WorldData>worldata;
-	worldata->modelData = std::move(modelVariable);
+	
+	modelVariable.worlds.clear();
 
 	//データをまとめて保存
-	std::pair<std::string, std::unique_ptr<WorldData>>newData(tag, std::move(worldata));
+	std::pair<std::string, ModelVariable*>newData(tag, &modelVariable);
 
-	modelDatas_.insert(std::move(newData));
+	modelDatas_.insert(newData);
 }
 
 void InstancingModelManager::DrawAllModels(const Matrix4x4& viewProjection) {
+
+	instancingPSO_->PreDraw(DXF_->GetCMDList());
+
 	//全モデルの描画
-	for (auto& model : modelDatas_) {
+	for (auto model : modelDatas_) {
 		
 		//world群を送信
 		int index = 0;
 		for (auto& world : model.second->worlds) {
 			//WVP作成
-			Matrix4x4 WVP = *world.get() * viewProjection;
+			Matrix4x4 WVP = world * viewProjection;
 
 			//world,WVPを代入
-			model.second->modelData->wvpData[index].World = *world.get();
-			model.second->modelData->wvpData[index].WVP = WVP;	
+			model.second->wvpData[index].World = world;
+			model.second->wvpData[index].WVP = WVP;	
 			index++;
 		}
 
 		//ワールド数が1つでもあるとき
 		if (index != 0) {
+			//Matrix4x4 uvUpdate = model.second->modelData->uvWorld->UpdateMatrix();
 
 			//UVWorldの更新と行列の代入
-			model.second->modelData->materialData->uvTransform = model.second->modelData->uvWorld.UpdateMatrix();
+			//model.second->modelData->materialData->uvTransform = uvUpdate;
 
-			DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &model.second->modelData->vBv);
+			DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &model.second->vBv);
 			//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 			DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 			//マテリアルCBufferの場所を設定
-			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, model.second->modelData->materialResource->GetGPUVirtualAddress());
+			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, model.second->materialResource->GetGPUVirtualAddress());
 			//ライト用の
-			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, model.second->modelData->lightData.directionalLightResource->GetGPUVirtualAddress());
+			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, model.second->lightData.directionalLightResource->GetGPUVirtualAddress());
 			//インスタンシングの座標設定
-			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->modelData->instancingHandle);
+			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->instancingHandle);
 			//画像設定
-			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->modelData->texture);
+			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->texture);
 			//描画！		
-			DXF_->GetCMDList()->DrawInstanced(model.second->modelData->point, index, 0, 0);
+			DXF_->GetCMDList()->DrawInstanced(model.second->point, index, 0, 0);
 
 		}
 	}

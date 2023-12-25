@@ -11,6 +11,11 @@
 
 #pragma region 構造体
 
+struct WorldTransformation {
+	Matrix4x4 WVP;
+	Matrix4x4 World;
+};
+
 struct VertexData {
 	Vector4 position = { 0,0,0,0 };
 	Vector2 texcoord = { 0,0 };

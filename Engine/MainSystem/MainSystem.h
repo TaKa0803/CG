@@ -4,10 +4,13 @@
 #include"DirectXFunc/DirectXFunc.h"
 #include"Graphics/Graphics.h"
 #include"TextureManager/TextureManager.h"
+#include"ModelManager/ModelManager.h"
 #include"ImGuiManager/ImGuiManager.h"
 #include"Input/Input.h"
 #include"SRVManager/SRVManager.h"
 #include"RandomNum/RandomNum.h"
+
+
 
 class MainSystem {
 public://シングルトンパターン
@@ -44,6 +47,9 @@ private:
 
 	//texture
 	TextureManager* textureManager;
+
+	//モデル
+	InstancingModelManager* instancingModel_;
 
 	//入力
 	Input* input;

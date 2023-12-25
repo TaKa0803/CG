@@ -8,11 +8,9 @@
 #include"Math/Matrix.h"
 #include"struct.h"
 
+#include"ModelManager/ModelManager.h"
+#include"WorldTransform/WorldTransform.h"
 
-struct WorldTransformation {
-	Matrix4x4 WVP;
-	Matrix4x4 World;
-};
 
 class Model {
 public:
@@ -153,68 +151,21 @@ private:
 
 
 
-/*
+
 class InstancingModel {
 
 public:
 
-	InstancingModel();
-	~InstancingModel();
+	//タグを探して見つけたら作成
+	static InstancingModel* Coreate(const std::string& tag);
 
-	//インスタンシングでモデル生成
-	static InstancingModel* CreateInstancingModel(const std::string& filePath, int instancingNum);
+	void Initialize(const std::string& tag);
 
-
-	void Initialize(const std::string filepath, int instancingNum, ID3D12Resource* vertexData, D3D12_VERTEX_BUFFER_VIEW vertexBufferView);
-
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="WVP"></param>
-	/// <param name="viewProjection"></param>
-	/// <param name="texture"></param>
-	void Draw(const Matrix4x4& WVP, const Matrix4x4& viewProjection, int texture = -1);
-
-	/// <summary>
-	/// Debug用ImGui表示
-	/// </summary>
-	/// <param name="name"></param>
-	void DebugParameter(const char* name);
+	//描画
+	void Draw(const WorldTransform&world);
 
 private:
-
-
-	DirectXFunc* DXF_;
-
-	GraphicsSystem* grarphics_;
-
-
-	//インスタンシング数
-	int instancingNum_ = 0;
-
+	InstancingModelManager* InstancingMM_; 
 	std::string tag_;
 
-	D3D12_GPU_DESCRIPTOR_HANDLE texture_;
-
-	bool isDebug = false;
-
-
-	//頂点数
-	int point_;
-
-
-	ID3D12Resource* vertexData_;
-	//頂点バッファビューを作成する
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-
-	ID3D12Resource* wvpResource_;
-	WorldTransformation* wvpData_ = nullptr;
-
-	ID3D12Resource* materialResource_;
-	Material* materialData_ = nullptr;
-
-	ID3D12Resource* directionalLightResource_;
-	DirectionalLight* directionalLightData_ = nullptr;
-
 };
-*/

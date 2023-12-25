@@ -47,9 +47,6 @@
     <Filter Include="Engine\Graphics">
       <UniqueIdentifier>{27659dd4-f21a-4566-bcf0-1f33bcf0f727}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\IGameObject">
-      <UniqueIdentifier>{fbdbd28c-a40f-4fd6-92d0-94fca2defce6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\ImGuiManager">
       <UniqueIdentifier>{6ab900e7-aef5-49f0-afb8-2def601b9b94}</UniqueIdentifier>
     </Filter>
@@ -152,6 +149,12 @@
     <Filter Include="Engine\Math\Vector3">
       <UniqueIdentifier>{64074c6b-79fd-4616-8143-cda99edd3856}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GameObject">
+      <UniqueIdentifier>{fbdbd28c-a40f-4fd6-92d0-94fca2defce6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GameObjectInstancing">
+      <UniqueIdentifier>{74688762-b41c-4fef-b3c1-a624a0b3c10a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -197,8 +200,8 @@
     <ClCompile Include="Engine\Graphics\Graphics.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\IGameObject\IGameObject.cpp">
-      <Filter>Engine\IGameObject</Filter>
+    <ClCompile Include="Engine\IGameObject\GameObject.cpp">
+      <Filter>Engine\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ImGuiManager\ImGuiManager.cpp">
       <Filter>Engine\ImGuiManager</Filter>
@@ -299,6 +302,9 @@
     <ClCompile Include="Engine\Math\Vector3.cpp">
       <Filter>Engine\Math\Vector3</Filter>
     </ClCompile>
+    <ClCompile Include="InstancingGameObject.cpp">
+      <Filter>Engine\GameObjectInstancing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Object3d.PS.hlsl">
@@ -313,10 +319,10 @@
     <FxCompile Include="resources\shaders\Particle.VS.hlsl">
       <Filter>リソース ファイル\shaders\Particle</Filter>
     </FxCompile>
-    <FxCompile Include="InstancingObject.VS.hlsl">
+    <FxCompile Include="resources\shaders\InstancingObject.PS.hlsl">
       <Filter>リソース ファイル\shaders\InstancingObject</Filter>
     </FxCompile>
-    <FxCompile Include="InstancingObject.PS.hlsl">
+    <FxCompile Include="resources\shaders\InstancingObject.VS.hlsl">
       <Filter>リソース ファイル\shaders\InstancingObject</Filter>
     </FxCompile>
   </ItemGroup>
@@ -366,8 +372,8 @@
     <ClInclude Include="Engine\Graphics\Graphics.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\IGameObject\IGameObject.h">
-      <Filter>Engine\IGameObject</Filter>
+    <ClInclude Include="Engine\IGameObject\GameObject.h">
+      <Filter>Engine\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Engine\ImGuiManager\ImGuiManager.h">
       <Filter>Engine\ImGuiManager</Filter>
@@ -471,6 +477,9 @@
     <ClInclude Include="Engine\Math\Vector3.h">
       <Filter>Engine\Math\Vector3</Filter>
     </ClInclude>
+    <ClInclude Include="InstancingGameObject.h">
+      <Filter>Engine\GameObjectInstancing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt">
@@ -490,7 +499,7 @@
     <None Include="resources\enemyPopData.json">
       <Filter>リソース ファイル</Filter>
     </None>
-    <None Include="InstancingObject.hlsli">
+    <None Include="resources\shaders\InstancingObject.hlsli">
       <Filter>リソース ファイル\shaders\InstancingObject</Filter>
     </None>
   </ItemGroup>

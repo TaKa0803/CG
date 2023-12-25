@@ -1,4 +1,5 @@
 #include"SceneManager/SceneManager.h"
+
 #include"Scenes.h"
 
 #include<imgui.h>
@@ -53,6 +54,7 @@ void SceneManager::Update() {
 void SceneManager::Draw() {
 	//描画処理
 	sceneArr_[currentSceneNo_]->Draw();
+
 }
 
 void SceneManager::EndFrame() {

@@ -1,5 +1,5 @@
 #pragma once
-#include "IGameObject/IGameObject.h"
+#include "IGameObject/GameObject.h"
 class Plane :public GameObject {
 
 public:

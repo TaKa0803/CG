@@ -4,7 +4,7 @@
 #include"MT4Scene.h"
 #include"GlobalVariables/GlobalVariables.h"
 #include"RandomNum/RandomNum.h"
-#include"ModelManager/ModelManager.h"
+
 #include"Graphics/Graphics.h"
 
 MainSystem* MainSystem::GetInstance() {
@@ -46,6 +46,10 @@ void MainSystem::Initializes() {
 	//画像関係
 	textureManager= TextureManager::GetInstance();
 	textureManager->Initialize(DXF);
+
+	//インスタンシングモデル
+	instancingModel_ = InstancingModelManager::GetInstance();
+	instancingModel_->Initialize();
 	
 	//imgui
 	imguiManager = ImGuiManager::GetInstance();
@@ -60,6 +64,8 @@ void MainSystem::Initializes() {
 	ModelManager* mManager = ModelManager::GetInstance();
 	mManager->LoadAllModels();
 
+	//パスにあるデータを読み込んで作成
+	instancingModel_->LoadAllModels();
 
 	//乱数クラス
 	randomNumClass_ = RandomNumber::GetInstance();
@@ -89,6 +95,9 @@ void MainSystem::MainRoop() {
 		///更新前処理
 		//ImGui
 		imguiManager->PreUpdate();
+
+		//更新前処理
+		instancingModel_->PreUpdate();
 
 		//キー入力
 		input->Update();
@@ -122,6 +131,7 @@ void MainSystem::MainRoop() {
 		//dScene->Draw();
 		//mt4->Draw();
 
+		
 		//==描画終わり==//
 
 		///描画あと処理
