@@ -1,4 +1,4 @@
-#include"MainSystem.h"
+#include"MainSystem/MainSystem.h"
 
 #include<dxgidebug.h>
 struct D3DResourceLeakChecker {

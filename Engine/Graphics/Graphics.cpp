@@ -1,9 +1,9 @@
 #include "Graphics.h"
-#include "ParticleRootSignature.h"
+#include "ParticlePSO/ParticleRootSignature.h"
 
 
-#include"Log.h"
-#include"function.h"
+#include"Log/Log.h"
+#include"functions/function.h"
 
 #include<cassert>
 #pragma comment(lib,"dxguid.lib")

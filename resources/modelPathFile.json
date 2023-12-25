@@ -1,8 +1,13 @@
+{
+	"modelPathFile": {
+		"ALPlayer": [ "resources", "ALPlayer" ],
+		"plane": [ "resources", "plane" ],
+		"player": [ "resources", "player" ]
+	},
 
-{	
-   "modelPathFile": {
-		"ALPlayer":[ "resources","ALPlayer"],
-		"plane"   :[ "resources","plane"],
-		"player"  :[ "resources","player"]
+	"InstancingmodelPathFile": {
+		"ALPlayer": [ "resources", "ALPlayer",1 ],
+		"plane": [ "resources", "plane",1 ],
+		"player": [ "resources", "player",100 ]
 	}
 }
