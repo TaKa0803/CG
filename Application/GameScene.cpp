@@ -66,7 +66,8 @@ void GameScene::Draw() {
 
 	player_->Draw(camera_->GetViewProjectionMatrix());
 
-	InstancingModelManager::GetInstance()->DrawAllModels(camera_->GetViewProjectionMatrix());
+	InstancingModelManager* insMM= InstancingModelManager::GetInstance();
+	insMM->DrawAllModels(camera_->GetViewProjectionMatrix());
 }
 
 void GameScene::DebugWindows() {

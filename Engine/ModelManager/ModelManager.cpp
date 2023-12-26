@@ -229,8 +229,8 @@ InstancingModelManager* InstancingModelManager::GetInstance() {
 }
 
 bool InstancingModelManager::SerchTag(const std::string& tag) {
-	for (auto& modelDatas : modelDatas_) {
-		if (tag == modelDatas.first) {
+	for (auto& modelDatas : modeldatas_) {
+		if (tag == modelDatas->first) {
 			return true;
 		}
 	}
@@ -240,14 +240,14 @@ bool InstancingModelManager::SerchTag(const std::string& tag) {
 
 void InstancingModelManager::GivenWorldData(const std::string& tag, const Matrix4x4& matworld) {
 
-	for (auto& model : modelDatas_) {
+	for (auto& model : worldData_) {
 		//タグの場所を見つけたら
 		if (model.first == tag) {
 
 			Matrix4x4 data = matworld;
 
 			//送って終了
-			model.second->worlds.push_back(data);
+			model.second.push_back(data);
 			return;
 		}
 	}
@@ -263,16 +263,18 @@ void InstancingModelManager::Initialize() {
 	instancingPSO_->Initialize(DXF_->GetDevice());
 
 
+	worldData_.resize(maxModelData);
+	modeldatas_.resize(maxModelData);
 	//ライト情報の初期化
 #pragma region ライト
-	lightData_ = std::make_shared<LightVariables>();
+	
 	//ディレクションライトのマテリアルリソース
-	lightData_->directionalLightResource = CreateBufferResource(DXF_->GetDevice(), sizeof(DirectionalLight));
-	lightData_->directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&lightData_->dLData));
+	lightData_.directionalLightResource = CreateBufferResource(DXF_->GetDevice(), sizeof(DirectionalLight));
+	lightData_.directionalLightResource->Map(0, nullptr, reinterpret_cast<void**>(&lightData_.dLData));
 	//各データ初期設定
-	lightData_->dLData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	lightData_->dLData->direction = Vector3(0.0f, -1.0f, 0.0f);
-	lightData_->dLData->intensity = 1.0f;
+	lightData_.dLData->color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	lightData_.dLData->direction = Vector3(0.0f, -1.0f, 0.0f);
+	lightData_.dLData->intensity = 1.0f;
 #pragma endregion
 
 
@@ -281,8 +283,8 @@ void InstancingModelManager::Initialize() {
 
 void InstancingModelManager::PreUpdate() {
 	//すべてのワールドデータを初期化
-	for (auto& modeldata : modelDatas_) {
-		modeldata.second->worlds.clear();
+	for (auto& modeldata : worldData_) {
+		modeldata.second.clear();
 	}
 }
 
@@ -342,7 +344,7 @@ void InstancingModelManager::LoadAllModels() {
 			CreateModelData(itemName,nameAndPath, modelNum);
 
 			
-
+			modelDataNum_++;
 		}
 	}
 
@@ -415,7 +417,7 @@ void InstancingModelManager::CreateModelData(const std::string& tag, const DataG
 #pragma endregion
 
 	//ライトデータをコピー
-	modelVariable.lightData = *lightData_.get();
+	modelVariable.lightData = lightData_;
 
 #pragma region instancing関係のデータ
 	D3D12_SHADER_RESOURCE_VIEW_DESC instancingDesc{};
@@ -435,55 +437,83 @@ void InstancingModelManager::CreateModelData(const std::string& tag, const DataG
 
 #pragma endregion
 	
-	modelVariable.worlds.clear();
+	std::vector<Matrix4x4>worlds;
+
+	std::string tagg = tag;
 
 	//データをまとめて保存
-	std::pair<std::string, ModelVariable*>newData(tag, &modelVariable);
+	std::pair<std::string, ModelVariable>* newData(tagg,modelVariable);
+	newData->first = tag;
+	newData->second = modelVariable;
 
-	modelDatas_.insert(newData);
+
+	//追加
+	modeldatas_[modelDataNum_] = newData;
+
+	std::pair<std::string, std::vector<Matrix4x4>>newWorld(tag, worlds);
+
+	worldData_[modelDataNum_] = newWorld;
 }
 
 void InstancingModelManager::DrawAllModels(const Matrix4x4& viewProjection) {
 
-	instancingPSO_->PreDraw(DXF_->GetCMDList());
-
+	
 	//全モデルの描画
-	for (auto model : modelDatas_) {
+	for (auto model : modeldatas_) {
 		
+
+		
+
 		//world群を送信
 		int index = 0;
-		for (auto& world : model.second->worlds) {
-			//WVP作成
-			Matrix4x4 WVP = world * viewProjection;
+		//ワールドを代入
+		for (auto& world : worldData_) {
+			//タグの一致するワールドを調べる
+			if (world.first == model->first) {
+				//見つけたタグのワールド群を代入
+				for (auto& wo : world.second) {
+					//WVP作成
+					Matrix4x4 WVP = wo * viewProjection;
 
-			//world,WVPを代入
-			model.second->wvpData[index].World = world;
-			model.second->wvpData[index].WVP = WVP;	
-			index++;
+					//world,WVPを代入
+					model->second.wvpData[index].World = wo;
+					model->second.wvpData[index].WVP = WVP;
+
+					//indexを増加
+					index++;
+				}
+
+				//見つからない、股は処理が終わったので抜ける
+				break;
+			}
 		}
 
 		//ワールド数が1つでもあるとき
 		if (index != 0) {
-			//Matrix4x4 uvUpdate = model.second->modelData->uvWorld->UpdateMatrix();
+
+			instancingPSO_->PreDraw(DXF_->GetCMDList());
+
+
+			Matrix4x4 uvUpdate = model->second.uvWorld.UpdateMatrix();
 
 			//UVWorldの更新と行列の代入
-			//model.second->modelData->materialData->uvTransform = uvUpdate;
+			model->second.materialData->uvTransform = uvUpdate;
 
-			DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &model.second->vBv);
+			DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &model->second.vBv);
 			//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
 			DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 
 			//マテリアルCBufferの場所を設定
-			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, model.second->materialResource->GetGPUVirtualAddress());
+			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, model->second.materialResource->GetGPUVirtualAddress());
 			//ライト用の
-			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, model.second->lightData.directionalLightResource->GetGPUVirtualAddress());
+			DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(1, model->second.lightData.directionalLightResource->GetGPUVirtualAddress());
 			//インスタンシングの座標設定
-			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->instancingHandle);
+			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model->second.instancingHandle);
 			//画像設定
-			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model.second->texture);
+			DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, model->second.texture);
 			//描画！		
-			DXF_->GetCMDList()->DrawInstanced(model.second->point, index, 0, 0);
+			DXF_->GetCMDList()->DrawInstanced(model->second.point, index, 0, 0);
 
 		}
 	}

@@ -3,7 +3,6 @@
 #include<vector>
 #include<string>
 #include<iostream>
-#include<unordered_map>
 
 #include"WorldTransform/WorldTransform.h"
 #include"Graphics/Graphics.h"
@@ -131,7 +130,7 @@ private:
 	//モデル描画に必要なデータ群
 	struct ModelVariable {
 		D3D12_GPU_DESCRIPTOR_HANDLE texture;	//画像データ
-		WorldTransform* uvWorld;					//uvの行列
+		WorldTransform uvWorld;					//uvの行列
 		int32_t point;							//頂点
 		ID3D12Resource* vertexData;				//頂点データ
 		D3D12_VERTEX_BUFFER_VIEW vBv{};			//vertexBufferView
@@ -142,7 +141,7 @@ private:
 		Material* materialData;					//マテリアルのデータ
 		LightVariables lightData;				//ライトのデータ
 		D3D12_GPU_DESCRIPTOR_HANDLE instancingHandle;//インスタンシングのハンドル
-		std::vector<Matrix4x4>worlds;//ワールドデータ保存位置
+		
 	};
 
 	void CreateModelData(const std::string&tag,const DataGroup&filepass,int instancingNum);
@@ -163,14 +162,21 @@ private:
 	const std::string& groupName = "InstancingmodelPathFile";
 
 	//ライトのデータはほぼ一緒なのでコピーして渡す
-	std::shared_ptr<LightVariables> lightData_;
+	LightVariables lightData_;
 
 	//データタグとそのモデルデータ
 
-	std::unordered_map<std::string, ModelVariable*>modelDatas_;
+	//std::vector<std::pair<std::vector<Matrix4x4*>, ModelVariable*>>modelDatas_;
+
+	//タグとワールド軍
+	std::vector<std::pair<std::string, std::vector<Matrix4x4>>>worldData_;
+	//タグとモデルデータ
+	std::vector<std::pair<std::string, ModelVariable>*>modeldatas_;
 
 	//最大量設定
 	const size_t maxModelData = 256;
+
+	int modelDataNum_ = 0;
 
 	//GetModelDataでモデルが見つからない場合エラーをはくか否か
 	bool isError = true;
