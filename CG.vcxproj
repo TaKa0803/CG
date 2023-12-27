@@ -127,6 +127,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\IGameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ImGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
+    <ClCompile Include="Engine\InstancingModelManager\InstancingModelManager.cpp" />
+    <ClCompile Include="Engine\InstancingModel\InstancingModel.cpp" />
+    <ClCompile Include="Engine\InstancingPSO\InstancingPSO.cpp" />
     <ClCompile Include="Engine\IScene\IScene.cpp" />
     <ClCompile Include="Engine\Log\Log.cpp" />
     <ClCompile Include="Engine\MainSystem\MainSystem.cpp" />
@@ -206,6 +209,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\IGameObject\GameObject.h" />
     <ClInclude Include="Engine\ImGuiManager\ImGuiManager.h" />
     <ClInclude Include="Engine\Input\Input.h" />
+    <ClInclude Include="Engine\InstancingModelManager\InstancingModelManager.h" />
+    <ClInclude Include="Engine\InstancingModel\InstancingModel.h" />
+    <ClInclude Include="Engine\InstancingPSO\InstancingPSO.h" />
+    <ClInclude Include="Engine\Instancing\InstancingGameObject.h" />
     <ClInclude Include="Engine\IScene\IScene.h" />
     <ClInclude Include="Engine\Log\Log.h" />
     <ClInclude Include="Engine\MainSystem\MainSystem.h" />
@@ -234,7 +241,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\Imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\Imgui\imstb_textedit.h" />
     <ClInclude Include="externals\Imgui\imstb_truetype.h" />
-    <ClInclude Include="InstancingGameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\Imgui\LICENSE.txt" />

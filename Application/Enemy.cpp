@@ -11,6 +11,5 @@ void Enemy::Update() {
 	InstancingGameObject::Update();
 }
 
-void Enemy::Draw() {
-	InstancingGameObject::Draw();
+void Enemy::Draw(const Matrix4x4& view) {
 }

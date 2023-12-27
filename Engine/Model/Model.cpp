@@ -1,6 +1,5 @@
 #include "Model.h"
 
-#include"DirectXFunc/DirectXFunc.h"
 #include"functions/function.h"
 #include"TextureManager/TextureManager.h"
 #include"Log/Log.h"
@@ -16,10 +15,6 @@
 #include<cassert>
 #include<fstream>
 
-
-#pragma region 
-
-#pragma endregion
 
 #pragma region モデル
 Model::~Model() {
@@ -318,37 +313,4 @@ void Model::DebugParameter(const char* name)
 }
 #pragma endregion
 
-
-#pragma region InstancingModel
-InstancingModel* InstancingModel::Coreate(const std::string& tag) {
-	if (InstancingModelManager::GetInstance()->SerchTag(tag)) {
-
-		InstancingModel* model = new InstancingModel();
-		model->Initialize(tag);
-		return model;
-	}
-
-	//タグが間違ってるお！
-	assert(false);
-	return nullptr;
-}
-
-void InstancingModel::Initialize(const std::string& tag) {
-
-	//インスタンス取得
-	InstancingMM_= InstancingModelManager::GetInstance();
-
-	//タグの保存
-	tag_ = tag;
-}
-
-void InstancingModel::Draw(const WorldTransform& world) {
-
-	//ワールドを送信
-	InstancingMM_->GivenWorldData(tag_,world.matWorld_);
-
-}
-
-
-#pragma endregion
 

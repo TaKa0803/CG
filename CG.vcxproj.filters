@@ -152,8 +152,20 @@
     <Filter Include="Engine\GameObject">
       <UniqueIdentifier>{fbdbd28c-a40f-4fd6-92d0-94fca2defce6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\GameObjectInstancing">
+    <Filter Include="Engine\Instancing">
+      <UniqueIdentifier>{86e3345c-01af-455a-b4b1-e940f02cc09d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Instancing\InstancingModel">
+      <UniqueIdentifier>{29874223-963b-436e-8a73-6ce30dba9adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Instancing\InstancingPSO">
+      <UniqueIdentifier>{e271f2d9-8ff8-4507-b95a-ef2dd4606f65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Instancing\InstancingGameObject">
       <UniqueIdentifier>{74688762-b41c-4fef-b3c1-a624a0b3c10a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Instancing\InstancingModelManager">
+      <UniqueIdentifier>{5a2b32d6-3602-4ee4-82cd-5e993174b817}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -303,7 +315,16 @@
       <Filter>Engine\Math\Vector3</Filter>
     </ClCompile>
     <ClCompile Include="InstancingGameObject.cpp">
-      <Filter>Engine\GameObjectInstancing</Filter>
+      <Filter>Engine\Instancing\InstancingGameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\InstancingModel\InstancingModel.cpp">
+      <Filter>Engine\Instancing\InstancingModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\InstancingPSO\InstancingPSO.cpp">
+      <Filter>Engine\Instancing\InstancingPSO</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\InstancingModelManager\InstancingModelManager.cpp">
+      <Filter>Engine\Instancing\InstancingModelManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -477,8 +498,17 @@
     <ClInclude Include="Engine\Math\Vector3.h">
       <Filter>Engine\Math\Vector3</Filter>
     </ClInclude>
-    <ClInclude Include="InstancingGameObject.h">
-      <Filter>Engine\GameObjectInstancing</Filter>
+    <ClInclude Include="Engine\InstancingModel\InstancingModel.h">
+      <Filter>Engine\Instancing\InstancingModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Instancing\InstancingGameObject.h">
+      <Filter>Engine\Instancing\InstancingGameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\InstancingPSO\InstancingPSO.h">
+      <Filter>Engine\Instancing\InstancingPSO</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\InstancingModelManager\InstancingModelManager.h">
+      <Filter>Engine\Instancing\InstancingModelManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

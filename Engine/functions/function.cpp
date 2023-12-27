@@ -1,5 +1,195 @@
 #include"function.h"
+
+#include"Log/Log.h"
+
 #include<cassert>
+#include<sstream>
+#include<fstream>
+#pragma comment(lib,"dxguid.lib")
+#pragma comment(lib,"dxcompiler.lib")
+
+
+MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename) {
+	//1中で必要になる変数の宣言
+	MaterialData materialdata;
+
+	std::string line;
+	//２ファイルを開く
+	std::ifstream file(directoryPath + "/" + filename + "/" + filename + ".mtl");
+	assert(file.is_open());
+	//３実際にファイルを読みまてりあｌDataを構築
+	while (std::getline(file, line)) {
+		std::string identifier;
+		std::istringstream s(line);
+		s >> identifier;
+
+		//
+		if (identifier == "map_Kd") {
+			std::string textureFilename;
+			s >> textureFilename;
+			//連結してファイルパスにする
+			materialdata.textureFilePath = directoryPath + "/" + filename + "/" + textureFilename;
+		}
+	}
+	//４MaterialDataを返す
+	return materialdata;
+
+}
+
+ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename) {
+#pragma region 中で必要となる変数の宣言
+	ModelData modeldata;//構築するModelData
+	std::vector<Vector4> positions;//位置
+	std::vector<Vector3>normals;//法線
+	std::vector<Vector2>texcoords;//texture座標
+	std::string line;//ファイルからよんだ一行を格納するもの	
+#pragma endregion
+#pragma region ファイルを開く
+
+	std::ifstream file(directoryPath + "/" + filename + "/" + filename + ".obj");
+	assert(file.is_open());//開けなかったら止める
+#pragma endregion
+#pragma region 実際にファイルを読みModelDataを構築していく
+	while (std::getline(file, line)) {
+		std::string identifier;
+		std::istringstream s(line);
+		s >> identifier;//先頭の識別子を読む
+
+		if (identifier == "v") {
+			Vector4 position;
+			s >> position.x >> position.y >> position.z;
+			position.w = 1.0f;
+			position.x *= -1.0f;
+			positions.push_back(position);
+		}
+		else if (identifier == "vt") {
+			Vector2 texcoord;
+			s >> texcoord.x >> texcoord.y;
+			texcoord.y = 1.0f - texcoord.y;
+			//texcoord.x = 1.0f - texcoord.x;
+			texcoords.push_back(texcoord);
+		}
+		else if (identifier == "vn") {
+			Vector3 normal;
+			s >> normal.x >> normal.y >> normal.z;
+			normal.x *= -1.0f;
+
+			normals.push_back(normal);
+		}
+		else if (identifier == "f") {
+			//面は三角形限定その他は未対応
+			VertexData triangle[3];
+			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
+				std::string vertexDefinition;
+				s >> vertexDefinition;
+				//頂点の要素へのIndexは位置//UV/法線で格納されているので、分解してIndexを取得する
+				std::istringstream v(vertexDefinition);
+				uint32_t elementIndices[3];
+
+				for (int32_t element = 0; element < 3; ++element) {
+					std::string index;
+					std::getline(v, index, '/');//区切りでインデクスを読んでいく
+					elementIndices[element] = std::stoi(index);
+
+
+				}
+				//要素へのIndexから、実際の要素の値を取得して頂点を構築する
+				Vector4 position = positions[elementIndices[0] - 1];
+				Vector2 texcoord = texcoords[elementIndices[1] - 1];
+				Vector3 normal = normals[elementIndices[2] - 1];
+				//VertexData vertex = { position,texcoord,normal };
+				//modeldata.vertices.push_back(vertex);
+
+				triangle[faceVertex] = { position,texcoord,normal };
+			}
+			modeldata.vertices.push_back(triangle[2]);
+			modeldata.vertices.push_back(triangle[1]);
+			modeldata.vertices.push_back(triangle[0]);
+		}
+		else if (identifier == "mtllib") {
+			//materialTemplateLibraryファイルの名前を変更する
+			std::string materialFilename;
+			materialFilename = filename;
+			//基本的にobjファイルと同一改装にmtlは存在させるので、ディレクトリ名とファイル名を渡す
+			modeldata.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
+		}
+
+
+	}
+#pragma endregion
+#pragma region 4.ModelDataを返す
+	return modeldata;
+#pragma endregion
+}
+
+
+IDxcBlob* CompileShader(
+	//CompilerするShaderファイルへのパス
+	const std::wstring& filePath,
+	//Compilerに使用するProfire
+	const wchar_t* profile,
+	//初期化で生成したものを3つ
+	IDxcUtils* dxcUtils,
+	IDxcCompiler3* dxcCompiler,
+	IDxcIncludeHandler* includeHandler) {
+#pragma region //1.hlslファイルを読む
+	//これからシェーダーをコンパイルするとログに出す
+	Log(ConvertString(std::format(L"Begin CompileShader , path:{}, profile:{}\n", filePath, profile)));
+	//hlslファイルを読む
+	IDxcBlobEncoding* shaderSource = nullptr;
+	HRESULT hr = dxcUtils->LoadFile(filePath.c_str(), nullptr, &shaderSource);
+	//読めなかったら止める
+	assert(SUCCEEDED(hr));
+	//読み込んだファイルの内容を設定する
+	DxcBuffer shaderSourceBuffer;
+	shaderSourceBuffer.Ptr = shaderSource->GetBufferPointer();
+	shaderSourceBuffer.Size = shaderSource->GetBufferSize();
+	shaderSourceBuffer.Encoding = DXC_CP_UTF8;//UTF8の文字コードであることを感知
+#pragma endregion
+#pragma region //2.Compileする
+	LPCWSTR arguments[] = {
+		filePath.c_str(),			//コンパイル対象のhlslのファイル名
+		L"-E",L"main",				//エントリーパイントの指定。個本的にmain以外にしない
+		L"-T",profile,				//ShaderProfileの設定
+		L"-Zi",L"-Qembed_debug",	//デバッグ用の情報を埋め込む
+		L"-Od",						//最適化を外しておく
+		L"-Zpr",					//メモリアウトは行優先
+	};
+	//実際にShaderをコンパイルする
+	IDxcResult* shaderResult = nullptr;
+	hr = dxcCompiler->Compile(
+		&shaderSourceBuffer,		//読み込んだファイル
+		arguments,					//コンパイルオプション
+		_countof(arguments),		//コンパイルオプションの数
+		includeHandler,				//includeが含まれた諸々
+		IID_PPV_ARGS(&shaderResult)	//コンパイル結果
+	);
+	//致命的な状況02_00
+	assert(SUCCEEDED(hr));
+#pragma endregion
+#pragma region //3.警告・エラーが出ていないか確認する
+	IDxcBlobUtf8* shaderError = nullptr;
+	shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+	if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
+		Log(shaderError->GetStringPointer());
+		//警告・エラーダメ絶対
+		assert(false);
+	}
+#pragma endregion
+#pragma region //4.Compile結果を受け取って返す
+	//コンパイル結果から実行用のバイナリ部分を取得
+	IDxcBlob* shaderBlob = nullptr;
+	hr = shaderResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shaderBlob), nullptr);
+	assert(SUCCEEDED(hr));
+	//成功したログを出す
+	Log(ConvertString(std::format(L"Complete Succeeded path:{}, profile:{}\n", filePath, profile)));
+	//もう使わないリソースを開放
+	shaderSource->Release();
+	shaderResult->Release();
+	//実行用のバイナリを返却
+	return shaderBlob;
+#pragma endregion
+}
 
 
 ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {

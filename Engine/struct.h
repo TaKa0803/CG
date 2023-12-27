@@ -11,6 +11,33 @@
 
 #pragma region 構造体
 
+enum class BlendMode {
+	//!<ブレンドなし
+	kNone,
+	//!<通常αブレンド
+	kNormal,
+	//!<加算
+	kAdd,
+	//!<減算
+	kSubtract,
+	//!<乗算
+	kMultily,
+	//!<スクリーン
+	kScreen,
+	//利用してはいけない
+	kCountOfBlendMode
+};
+
+//塗りつぶし設定
+enum class FillMode {
+	//埋める
+	kSolid,
+	//ワイヤー
+	kWireFrame,
+	//使用不可
+	kCountOfFillMode
+};
+
 struct WorldTransformation {
 	Matrix4x4 WVP;
 	Matrix4x4 World;

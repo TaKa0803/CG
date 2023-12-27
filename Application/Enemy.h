@@ -17,7 +17,7 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	void Draw();
+	void Draw(const Matrix4x4& view);
 
 
 };

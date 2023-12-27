@@ -37,7 +37,6 @@ void MainSystem::Initializes() {
 	DXF = DirectXFunc::GetInstance();
 	DXF->Initialize(winApp);
 
-	//Graphics
 	
 	//SRV
 	SRVM_ = SRVManager::GetInstance();
@@ -47,9 +46,6 @@ void MainSystem::Initializes() {
 	textureManager= TextureManager::GetInstance();
 	textureManager->Initialize(DXF);
 
-	//インスタンシングモデル
-	instancingModel_ = InstancingModelManager::GetInstance();
-	instancingModel_->Initialize();
 	
 	//imgui
 	imguiManager = ImGuiManager::GetInstance();
@@ -61,11 +57,12 @@ void MainSystem::Initializes() {
 
 
 	//モデルデータ関係
-	ModelManager* mManager = ModelManager::GetInstance();
-	mManager->LoadAllModels();
+	//ModelManager* mManager = ModelManager::GetInstance();
+	//mManager->LoadAllModels();
 
-	//パスにあるデータを読み込んで作成
-	instancingModel_->LoadAllModels();
+	//
+	instancingMM_ = InstancingModelManager::GetInstance();
+	instancingMM_->LoadAllModel();
 
 	//乱数クラス
 	randomNumClass_ = RandomNumber::GetInstance();
@@ -96,8 +93,8 @@ void MainSystem::MainRoop() {
 		//ImGui
 		imguiManager->PreUpdate();
 
-		//更新前処理
-		instancingModel_->PreUpdate();
+		//インスタンシングの更新前処理
+		instancingMM_->PreUpdate();
 
 		//キー入力
 		input->Update();

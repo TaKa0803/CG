@@ -13,27 +13,25 @@ Player::~Player() {
 }
 
 void Player::Initialize() {
-	GameObject::Initialize("player");
-	model_->SetBlendMode(BlendMode::kNone);
-	//model_ = Model::CreateSphere(128, true);
+	InstancingGameObject::Initialize("player");
 }
 
 void Player::Update() {
 	//移動処理
 	Move();
 	//行列更新
-	GameObject::Update();
+	InstancingGameObject::Update();
 }
 
 void Player::Draw(const Matrix4x4& viewprojection) {
 	//IGameObject::Draw(viewprojection);
-	model_->Draw(world_.matWorld_, viewprojection, TextureManager::uvChecker_);
+	//model_->Draw(world_.matWorld_, viewprojection, TextureManager::uvChecker_);
 }
 
 void Player::DebugWindow(const char* name) {
 	ImGui::Begin(name);
 	world_.DrawDebug(name);
-	model_->DebugParameter(name);
+	//model_->DebugParameter(name);
 	ImGui::End();
 }
 

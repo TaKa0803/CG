@@ -2,9 +2,9 @@
 
 #include"WinApp/WinApp.h"
 #include"DirectXFunc/DirectXFunc.h"
-#include"Graphics/Graphics.h"
+#include"InstancingModelManager/InstancingModelManager.h"
 #include"TextureManager/TextureManager.h"
-#include"ModelManager/ModelManager.h"
+//#include"ModelManager/ModelManager.h"
 #include"ImGuiManager/ImGuiManager.h"
 #include"Input/Input.h"
 #include"SRVManager/SRVManager.h"
@@ -48,14 +48,14 @@ private:
 	//texture
 	TextureManager* textureManager;
 
-	//モデル
-	InstancingModelManager* instancingModel_;
-
 	//入力
 	Input* input;
 
 	//SRV
 	SRVManager* SRVM_;
+
+	//インスタンシングモデル
+	InstancingModelManager* instancingMM_;
 
 	RandomNumber* randomNumClass_;
 #pragma endregion

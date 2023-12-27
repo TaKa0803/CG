@@ -1,9 +1,9 @@
 #pragma once
-#include"IGameObject/GameObject.h"
+#include"Instancing/InstancingGameObject.h"
 #include"Input/Input.h"
 #include"Camera/Camera.h"
 
-class Player :public GameObject {
+class Player :public InstancingGameObject {
 
 public:
 	Player();
@@ -26,5 +26,5 @@ private:
 private:
 	Input* input_ = nullptr;
 
-	const Camera* camera_;
+	const Camera* camera_=nullptr;
 };
