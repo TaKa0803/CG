@@ -10,6 +10,8 @@
 #include"struct.h"
 #include"ModelManager/ModelManager.h"
 
+
+
 class InstancingModel {
 public:
 
@@ -28,6 +30,7 @@ public:
 	/// <returns><モデルデータ/returns>
 	static InstancingModel* CreateFromOBJ(const std::string& directory, const std::string& filePath,int instancingNum);
 
+	static InstancingModel* CreateFromGLTF(const std::string& directory, const std::string& filePath, int instancingNum);
 
 public:
 

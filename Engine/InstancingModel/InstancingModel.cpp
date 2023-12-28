@@ -21,6 +21,24 @@ InstancingModel::~InstancingModel() {
 	directionalLightResource_->Release();
 }
 
+//ノードを自作構造体に変換
+Node ReadNode(aiNode* node) {
+
+	Node result;
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation;	//nodeのlocalMatrixを取得
+	aiLocalMatrix.Transpose();							//列ベクトルを行ベクトルに転置
+	result.localMatrix.m[0][0]=aiLocalMatrix[0][0];		//ほかの要素も同様に
+
+	result.name = node->mName.C_Str();					//Node名を格納
+	result.children.resize(node->mNumChildren);			//子供の数だけ確保
+	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
+		//再起的に読んで確保する
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+
+	return result;
+}
+
 InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,const std::string& filePath, int instancingNum) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
@@ -29,21 +47,130 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 
 	//もでるよみこみ
 	Assimp::Importer importer;
-	std::string filePath = directory + "/" + filePath+"/"+filePath+".obj";
+	std::string filepath = directory + "/" + filePath;
+	const aiScene* scene = importer.ReadFile(filepath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	//メッシュがないのは対応しない
+	assert(scene->HasMeshes());
+
+	ModelData modelData;
+
+	//各メッシュ解析
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		aiMesh* mesh = scene->mMeshes[meshIndex];
+		assert(mesh->HasNormals());			//法線のないメッシュ比対応
+		assert(mesh->HasTextureCoords(0));	//TexCoordがないMeshは比対応
+
+		//メッシュの中井の解析
+		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+			aiFace& face = mesh->mFaces[faceIndex];
+			assert(face.mNumIndices == 3);//三角形のみサポート
+
+			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+				uint32_t vertexIndex = face.mIndices[element];
+				aiVector3D& position = mesh->mVertices[vertexIndex];
+				aiVector3D& normal = mesh->mNormals[vertexIndex];
+				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+
+				
+
+				VertexData vertex;
+				vertex.position = { position.x,position.y,position.z,1.0f };
+				vertex.normal = { normal.x,normal.y,normal.z };
+				vertex.texcoord = { texcoord.x,texcoord.y };
+				
+				vertex.position.x *= -1.0f;
+				vertex.normal.x *= -1.0f;
+				
+				//頂点データ送信
+				modelData.vertices.push_back(vertex);
+			}
+		}
+
+
+		//メッシュのボーン解析
+		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
+			//各ボーンに対するウェイト取得
+			auto& bone = mesh->mBones[boneIndex];
+
+			//データ作成
+			BoneData boneda;
+			
+			//データ量とサイズ設定
+			std::vector<BoneVertexData>boneVertexData;
+			boneVertexData.resize(bone->mNumWeights);
+
+			//ボーンの影響の与える頂点
+			for (uint32_t boneVertexIndex = 0; boneVertexIndex < bone->mNumWeights; ++boneVertexIndex) {
+				
+				//データ読み込み
+				auto&boneData =	bone->mWeights[boneVertexIndex];
+
+				//データ格納
+				 BoneVertexData bvd= {
+					.IndexID{boneData.mVertexId},
+					.Weight{boneData.mWeight}
+				};
+
+				 //データ設定
+				 boneVertexData[boneVertexIndex] = bvd;
+			}
+			
+		}
+	}
+
+	//マテリアル解析
+	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		aiMaterial* material = scene->mMaterials[materialIndex];
+		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			aiString textureFilepath;
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilepath);
+			modelData.material.textureFilePath = directory + "/" + textureFilepath.C_Str();
+		}
+	}
+
+	//ノード
+	modelData.rootNode = ReadNode(scene->mRootNode);
+
+	std::vector<VertexData>animation;
+
+	animation.resize(scene->mNumAnimations);
+
 	
+	//各アニメーション解析
+	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
+		//あるアニメーションについて
+		
+		//アクセス
+		aiAnimation* animation = scene->mAnimations[animationIndex];
+
+
+
+		//各ボーンのアニメーション伍との情報取得
+		for (uint32_t animeChannelIndex = 0; animeChannelIndex < animation->mNumChannels; ++animeChannelIndex) {
+			//ノードデータ取得
+			aiNodeAnim* aiNode = animation->mChannels[animeChannelIndex];
+
+			auto* pos= aiNode->mPositionKeys;
+			auto* quaternion = aiNode->mRotationKeys;
+			auto* scale = aiNode->mScalingKeys;
+			
+			aiNode->mNumPositionKeys;
+		}
+
+	}
 
 	//ModelData modeltea = LoadObjFile(directory,filePath);
 
 	//頂点データ
-	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modeltea.vertices.size());
+	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
 	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();
-	vertexBufferViewtea.SizeInBytes = UINT(sizeof(VertexData) * modeltea.vertices.size());
+	vertexBufferViewtea.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
 	vertexBufferViewtea.StrideInBytes = sizeof(VertexData);
 
 	VertexData* vertexDatatea = nullptr;
 	vertexRtea->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
-	std::memcpy(vertexDatatea, modeltea.vertices.data(), sizeof(VertexData) * modeltea.vertices.size());
+	std::memcpy(vertexDatatea, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 
 
 	
@@ -52,7 +179,93 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 
 
 	InstancingModel* model = new InstancingModel();
-	model->Initialize(modeltea.material.textureFilePath, UINT(modeltea.vertices.size()),instancingNum, vertexRtea, vertexBufferViewtea);
+	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()),instancingNum, vertexRtea, vertexBufferViewtea);
+
+
+
+
+	return model;
+}
+
+
+
+InstancingModel* InstancingModel::CreateFromGLTF(const std::string& directory, const std::string& filePath, int instancingNum) {
+	DirectXFunc* DXF = DirectXFunc::GetInstance();
+
+#pragma region モデル
+	ModelManager* mManager = ModelManager::GetInstance();
+
+	//もでるよみこみ
+	Assimp::Importer importer;
+	std::string filepath = directory + "/" + filePath;
+	const aiScene* scene = importer.ReadFile(filepath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+	//メッシュがないのは対応しない
+	assert(scene->HasMeshes());
+
+	ModelData modelData;
+
+	//メッシュ解析
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		aiMesh* mesh = scene->mMeshes[meshIndex];
+		assert(mesh->HasNormals());			//法線のないメッシュ比対応
+		assert(mesh->HasTextureCoords(0));	//TexCoordがないMeshは比対応
+
+		//メッシュの中井の解析
+		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+			aiFace& face = mesh->mFaces[faceIndex];
+			assert(face.mNumIndices == 3);//三角形のみサポート
+
+			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+				uint32_t vertexIndex = face.mIndices[element];
+				aiVector3D& position = mesh->mVertices[vertexIndex];
+				aiVector3D& normal = mesh->mNormals[vertexIndex];
+				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+				VertexData vertex;
+				vertex.position = { position.x,position.y,position.z,1.0f };
+				vertex.normal = { normal.x,normal.y,normal.z };
+				vertex.texcoord = { texcoord.x,texcoord.y };
+
+				vertex.position.x *= -1.0f;
+				vertex.normal.x *= -1.0f;
+
+				//頂点データ送信
+				modelData.vertices.push_back(vertex);
+			}
+		}
+	}
+
+	//マテリアル解析
+	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		aiMaterial* material = scene->mMaterials[materialIndex];
+		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			aiString textureFilepath;
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilepath);
+			modelData.material.textureFilePath = directory + "/" + textureFilepath.C_Str();
+		}
+	}
+
+	//ノード
+	modelData.rootNode = ReadNode(scene->mRootNode);
+	
+	//頂点データ
+	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
+	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();
+	vertexBufferViewtea.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());
+	vertexBufferViewtea.StrideInBytes = sizeof(VertexData);
+
+	VertexData* vertexDatatea = nullptr;
+	vertexRtea->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
+	std::memcpy(vertexDatatea, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+
+
+#pragma endregion
+
+
+
+	InstancingModel* model = new InstancingModel();
+	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea);
 
 
 

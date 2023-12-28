@@ -15,7 +15,7 @@ GameScene::GameScene() {
 	enemyPopManager_ = std::make_unique<EnemyPopManager>();
 	enemyPopManager_->LoadPopdata();
 
-	alicia_ = std::make_unique<Allice>();
+	
 }
 
 GameScene::~GameScene() {
@@ -33,7 +33,7 @@ void GameScene::Initialize() {
 	player_->SetCamera(camera_.get());
 	enemyPopManager_->SetPlayerWorld(&player_->GetWorld());
 
-	alicia_->Initialize();
+	
 }
 
 void GameScene::Update() {
@@ -59,7 +59,6 @@ void GameScene::Update() {
 		enemy->Update();
 	}
 
-	alicia_->Update();
 }
 
 void GameScene::Draw() {

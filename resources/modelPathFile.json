@@ -6,8 +6,10 @@
 	},
 
 	"InstancingmodelPathFile": {
-		"ALPlayer": [ "resources", "ALPlayer",1 ],
-		"plane": [ "resources", "plane",1 ],
-		"player": [ "resources", "player",100 ]
+		"ALPlayer": [ "resources/ALPlayer", "ALPlayer.obj", 1 ],
+		"plane": [ "resources/plane", "plane.obj", 1 ],
+		"player": [ "resources/player", "player.obj", 100 ],
+		"dance": [ "resources", "moveHuman.gltf", 100 ],
+		"box": [ "resources", "boxBone.gltf", 50 ]
 	}
 }

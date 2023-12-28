@@ -43,19 +43,37 @@ struct WorldTransformation {
 	Matrix4x4 World;
 };
 
+struct BoneVertexData {
+	int IndexID;	//影響を与えるインデックスの番号
+	float Weight;	//影響度
+};
+
+struct BoneData {
+	std::vector<BoneVertexData>data;//影響する頂点の影響データ
+};
+
 struct VertexData {
 	Vector4 position = { 0,0,0,0 };
 	Vector2 texcoord = { 0,0 };
 	Vector3 normal = { 0,0,0 };
+	std::vector<float> boneWeights;
 };
 
 struct MaterialData {
 	std::string textureFilePath;
 };
 
+struct Node {
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<Node>children;
+};
+
 struct ModelData {
 	std::vector<VertexData> vertices;
 	MaterialData material;
+
+	Node rootNode;
 };
 
 

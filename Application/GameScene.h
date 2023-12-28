@@ -11,8 +11,6 @@
 #include"Enemy.h"
 #include"EnemyPopManager.h"
 
-#include"Alice.h"
-
 
 class GameScene : public IScene {
 
@@ -46,5 +44,5 @@ private:
 
 	std::unique_ptr<EnemyPopManager>enemyPopManager_;
 
-	std::unique_ptr<Allice>alicia_;
+	
 };
