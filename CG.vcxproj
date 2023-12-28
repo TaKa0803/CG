@@ -106,6 +106,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application\Alice.cpp" />
     <ClCompile Include="Application\DebugScene.cpp" />
     <ClCompile Include="Application\EffectHit.cpp" />
     <ClCompile Include="Application\Enemy.cpp" />
@@ -130,6 +131,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\InstancingModelManager\InstancingModelManager.cpp" />
     <ClCompile Include="Engine\InstancingModel\InstancingModel.cpp" />
     <ClCompile Include="Engine\InstancingPSO\InstancingPSO.cpp" />
+    <ClCompile Include="Engine\Instancing\InstancingGameObject.cpp" />
     <ClCompile Include="Engine\IScene\IScene.cpp" />
     <ClCompile Include="Engine\Log\Log.cpp" />
     <ClCompile Include="Engine\MainSystem\MainSystem.cpp" />
@@ -157,7 +159,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="externals\Imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="externals\Imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\Imgui\imgui_widgets.cpp" />
-    <ClCompile Include="InstancingGameObject.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +200,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Application\SceneManager\SceneManager.h" />
     <ClInclude Include="Application\Scenes.h" />
     <ClInclude Include="Application\TitleScene.h" />
+    <ClInclude Include="Application\Alice.h" />
     <ClInclude Include="Engine\AssimpManager\AssimpManager.h" />
     <ClInclude Include="Engine\BoxCollider\BoxColider.h" />
     <ClInclude Include="Engine\Camera\Camera.h" />

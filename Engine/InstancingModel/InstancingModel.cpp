@@ -7,6 +7,10 @@
 
 #include"functions/function.h"
 
+#include<assimp/Importer.hpp>
+#include<assimp/scene.h>
+#include<assimp/postprocess.h>
+
 
 InstancingModel::~InstancingModel() {
 	delete pso_;
@@ -24,7 +28,11 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 	ModelManager* mManager = ModelManager::GetInstance();
 
 	//もでるよみこみ
-	ModelData modeltea = LoadObjFile(directory,filePath);
+	Assimp::Importer importer;
+	std::string filePath = directory + "/" + filePath+"/"+filePath+".obj";
+	
+
+	//ModelData modeltea = LoadObjFile(directory,filePath);
 
 	//頂点データ
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modeltea.vertices.size());

@@ -167,6 +167,9 @@
     <Filter Include="Engine\Instancing\InstancingModelManager">
       <UniqueIdentifier>{5a2b32d6-3602-4ee4-82cd-5e993174b817}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Application\Allice">
+      <UniqueIdentifier>{b643cc51-66e2-4567-acf3-08f03da3af75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -314,9 +317,6 @@
     <ClCompile Include="Engine\Math\Vector3.cpp">
       <Filter>Engine\Math\Vector3</Filter>
     </ClCompile>
-    <ClCompile Include="InstancingGameObject.cpp">
-      <Filter>Engine\Instancing\InstancingGameObject</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\InstancingModel\InstancingModel.cpp">
       <Filter>Engine\Instancing\InstancingModel</Filter>
     </ClCompile>
@@ -325,6 +325,12 @@
     </ClCompile>
     <ClCompile Include="Engine\InstancingModelManager\InstancingModelManager.cpp">
       <Filter>Engine\Instancing\InstancingModelManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Instancing\InstancingGameObject.cpp">
+      <Filter>Engine\Instancing\InstancingGameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Alice.cpp">
+      <Filter>Application\Allice</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -509,6 +515,9 @@
     </ClInclude>
     <ClInclude Include="Engine\InstancingModelManager\InstancingModelManager.h">
       <Filter>Engine\Instancing\InstancingModelManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Alice.h">
+      <Filter>Application\Allice</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
