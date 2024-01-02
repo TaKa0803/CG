@@ -113,14 +113,18 @@ private:
 
 	//初期化
 	void Initialize(
-		std::string name,
+		ModelData modelData,
 		int point,
 		int instancingNum,
 		ID3D12Resource* vertexRtea,
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+		bool isOBJ
+
 	);
 
 private:
+
+
 
 	DirectXFunc* DXF_;
 
@@ -137,13 +141,19 @@ private:
 
 	bool isDebug = false;
 
+	bool isOBJ_ = true;
+
 	//頂点数
 	int point_;
 
+	//モデルデータ
+	ModelData modelData_;
 
 	ID3D12Resource* vertexData_;
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
+
+	
 
 	ID3D12Resource* wvpResource_;
 	WorldTransformation* wvpData_ = nullptr;
@@ -159,4 +169,5 @@ private:
 
 	//ワールド軍
 	std::vector<std::unique_ptr<WorldTransform>>worlds_;
+
 };

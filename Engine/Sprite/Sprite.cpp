@@ -108,6 +108,7 @@ Sprite* Sprite::Create(int texture, const Vector2 size, const Vector2 Rect, cons
 	vertexDataSprite[3].texcoord = { maxUV.x,0.0f };
 	vertexDataSprite[3].normal = { 0.0f,0.0f,-1.0f };
 
+	//頂点データ作成
 	indexResourceSprite = CreateBufferResource(DXF->GetDevice(), sizeof(uint32_t) * 6);
 
 	//リソースの先頭アドレスから使う

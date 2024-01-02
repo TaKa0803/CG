@@ -8,6 +8,7 @@
 #include"Math/Vector4.h"
 #include"Math/Matrix.h"
 
+#include"Quaternion/Quaternion.h"
 
 #pragma region 構造体
 
@@ -44,13 +45,31 @@ struct WorldTransformation {
 };
 
 struct BoneVertexData {
-	int IndexID;	//影響を与えるインデックスの番号
+	uint32_t IndexID;	//影響を与えるインデックスの番号
 	float Weight;	//影響度
 };
 
+//ボーン一つのデータ
 struct BoneData {
+	std::string name;				//名前
+	Matrix4x4 offset;				//オフセット
 	std::vector<BoneVertexData>data;//影響する頂点の影響データ
 };
+
+struct Transformation {
+	Vector3 translate;
+	Quaternion rotate;
+	Vector3 scale;
+};
+
+
+struct AnimationData {
+	std::string name;			//名前
+	float duration;				//継続時間
+	uint32_t boneNum;				//ボーン数
+	std::vector<Transformation>bones_;//アニメーション後のボーンデータ
+};
+
 
 struct VertexData {
 	Vector4 position = { 0,0,0,0 };
@@ -70,10 +89,11 @@ struct Node {
 };
 
 struct ModelData {
-	std::vector<VertexData> vertices;
-	MaterialData material;
-
-	Node rootNode;
+	std::vector<VertexData> vertices;		//頂点メッシュデータ
+	MaterialData material;					//マテリリアルデータ
+	std::vector<BoneData> boneDatas;		//ボーンデータ
+	Node rootNode;							//ノードデータ
+	std::vector<AnimationData>animations;	//アニメーションデータ
 };
 
 

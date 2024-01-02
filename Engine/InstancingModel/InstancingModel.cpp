@@ -11,6 +11,7 @@
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
 
+#include"Quaternion/Quaternion.h"
 
 InstancingModel::~InstancingModel() {
 	delete pso_;
@@ -27,7 +28,22 @@ Node ReadNode(aiNode* node) {
 	Node result;
 	aiMatrix4x4 aiLocalMatrix = node->mTransformation;	//nodeのlocalMatrixを取得
 	aiLocalMatrix.Transpose();							//列ベクトルを行ベクトルに転置
-	result.localMatrix.m[0][0]=aiLocalMatrix[0][0];		//ほかの要素も同様に
+	
+	//切り捨てる数字
+	float roundDownNumber = 0.00001f;
+
+	for (int Y = 0; Y < 4; ++Y) {
+		for (int X = 0; X < 4; ++X) {
+
+			float matrixNum = aiLocalMatrix[Y][X];		//ほかの要素も同様に
+
+			if (matrixNum < -roundDownNumber && matrixNum>roundDownNumber) {
+				matrixNum = 0.0f;
+			}
+
+			result.localMatrix.m[Y][X] = matrixNum;
+		}
+	}
 
 	result.name = node->mName.C_Str();					//Node名を格納
 	result.children.resize(node->mNumChildren);			//子供の数だけ確保
@@ -39,7 +55,7 @@ Node ReadNode(aiNode* node) {
 	return result;
 }
 
-InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,const std::string& filePath, int instancingNum) {
+InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, const std::string& filePath, int instancingNum) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 #pragma region モデル
@@ -54,6 +70,11 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 
 	ModelData modelData;
 
+	bool isOBJ = true;
+
+
+
+#pragma region メッシュデータ
 	//各メッシュ解析
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -71,53 +92,105 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 				aiVector3D& normal = mesh->mNormals[vertexIndex];
 				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 
-				
+
 
 				VertexData vertex;
 				vertex.position = { position.x,position.y,position.z,1.0f };
 				vertex.normal = { normal.x,normal.y,normal.z };
 				vertex.texcoord = { texcoord.x,texcoord.y };
-				
+
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
-				
+
 				//頂点データ送信
 				modelData.vertices.push_back(vertex);
 			}
 		}
 
 
-		//メッシュのボーン解析
+
+
+#pragma region ボーンデータ
+
+		//データ作成とサイズ
+		std::vector<BoneData> boneDatas;
+		boneDatas.resize(mesh->mNumBones);
+
+		//各ボーン解析
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
-			//各ボーンに対するウェイト取得
+
+			//ボーンデータ
+			BoneData bonedata;
+
+			//ボーンデータ取得
 			auto& bone = mesh->mBones[boneIndex];
 
-			//データ作成
-			BoneData boneda;
+
+			//名前取得
+			bonedata.name = bone->mName.C_Str();
+
+			//ボーンのオフセット
+			auto& boneMatrix = bone->mOffsetMatrix;
+			boneMatrix.Transpose();
+			Matrix4x4 offsetM = MakeIdentity4x4();
+
 			
+			for (int Y = 0; Y < 4; ++Y) {
+				for (int X = 0; X < 4; ++X) {
+
+					double matrixNum = boneMatrix[Y][X];		//ほかの要素も同様に
+
+					const double threshold = 1.0e-04;  // ある閾値以下の値をゼロと見なす
+
+					// ゼロに近似する処理
+					if (std::abs(matrixNum) < threshold) {
+						matrixNum = 0.0;
+					}
+
+					offsetM.m[Y][X] = (float)matrixNum;
+				}
+			}
+
+			//オフセット代入
+			bonedata.offset = offsetM;
+
 			//データ量とサイズ設定
 			std::vector<BoneVertexData>boneVertexData;
 			boneVertexData.resize(bone->mNumWeights);
 
-			//ボーンの影響の与える頂点
+
+			//ボーンの影響の与えるすべて頂点情報
 			for (uint32_t boneVertexIndex = 0; boneVertexIndex < bone->mNumWeights; ++boneVertexIndex) {
-				
-				//データ読み込み
-				auto&boneData =	bone->mWeights[boneVertexIndex];
+
+				//頂点データ読み込み
+				auto& boneda = bone->mWeights[boneVertexIndex];
+
 
 				//データ格納
-				 BoneVertexData bvd= {
-					.IndexID{boneData.mVertexId},
-					.Weight{boneData.mWeight}
+				BoneVertexData bvd = {
+				   .IndexID{boneda.mVertexId},
+				   .Weight{boneda.mWeight}
 				};
 
-				 //データ設定
-				 boneVertexData[boneVertexIndex] = bvd;
+				//データ設定
+				boneVertexData[boneVertexIndex] = bvd;
 			}
-			
+			//ボーンの詳細なデータ設定
+			bonedata.data = boneVertexData;
+
+			//ボーンまとめに設定
+			boneDatas[boneIndex] = bonedata;
 		}
+
+		modelData.boneDatas = boneDatas;
+#pragma endregion
+
+
 	}
 
+#pragma endregion
+
+#pragma region マテリアル
 	//マテリアル解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
@@ -128,40 +201,71 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 		}
 	}
 
+#pragma endregion
+
+
+
+
 	//ノード
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
-	std::vector<VertexData>animation;
+#pragma region アニメーション
+	std::vector<AnimationData>animations;
+	animations.resize(scene->mNumAnimations);
 
-	animation.resize(scene->mNumAnimations);
-
-	
 	//各アニメーション解析
 	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
 		//あるアニメーションについて
-		
+		AnimationData animeData;
+
 		//アクセス
 		aiAnimation* animation = scene->mAnimations[animationIndex];
 
+		//名前保存
+		animeData.name = animation->mName.C_Str();
+		//継続時間
+		animeData.duration = (float)animation->mDuration;
+		//ボーン数保存
+		animeData.boneNum = animation->mNumChannels;
+		//数に合わせてサイズ取得
+		animeData.bones_.resize(animation->mNumChannels);
 
 
-		//各ボーンのアニメーション伍との情報取得
+		isOBJ = false;
+		//各ボーンのアニメーションごとの情報取得
 		for (uint32_t animeChannelIndex = 0; animeChannelIndex < animation->mNumChannels; ++animeChannelIndex) {
 			//ノードデータ取得
 			aiNodeAnim* aiNode = animation->mChannels[animeChannelIndex];
 
-			auto* pos= aiNode->mPositionKeys;
-			auto* quaternion = aiNode->mRotationKeys;
-			auto* scale = aiNode->mScalingKeys;
-			
-			aiNode->mNumPositionKeys;
+			//座標、回転、サイズ取得
+			auto pos = aiNode->mPositionKeys->mValue;
+			auto rotation = aiNode->mRotationKeys->mValue;
+			auto scale = aiNode->mScalingKeys->mValue;
+
+			//自作の構造体に合わせる
+			Vector3 translateV = { pos.x,pos.y,pos.z };
+			Quaternion rotateV = { rotation.x,rotation.y,rotation.z,rotation.w };
+			Vector3 scaleV = { scale.x,scale.y,scale.z };
+
+			//情報を作る
+			Transformation transformation = {
+				.translate{translateV},
+				.rotate{rotateV},
+				.scale{scaleV}
+			};
+
+			//データ入れる
+			animeData.bones_[animeChannelIndex] = transformation;
 		}
 
+		//データ設定
+		animations[animationIndex] = animeData;
+
 	}
+#pragma endregion
 
-	//ModelData modeltea = LoadObjFile(directory,filePath);
 
-	//頂点データ
+#pragma region 頂点データ
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
 	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();
@@ -171,15 +275,15 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,con
 	VertexData* vertexDatatea = nullptr;
 	vertexRtea->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
 	std::memcpy(vertexDatatea, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
-
-
-	
 #pragma endregion
 
+#pragma endregion
 
+	//アニメーションデータ設定
+	modelData.animations = animations;
 
 	InstancingModel* model = new InstancingModel();
-	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()),instancingNum, vertexRtea, vertexBufferViewtea);
+	model->Initialize(modelData, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea, isOBJ);
 
 
 
@@ -246,7 +350,7 @@ InstancingModel* InstancingModel::CreateFromGLTF(const std::string& directory, c
 
 	//ノード
 	modelData.rootNode = ReadNode(scene->mRootNode);
-	
+
 	//頂点データ
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
@@ -265,7 +369,7 @@ InstancingModel* InstancingModel::CreateFromGLTF(const std::string& directory, c
 
 
 	InstancingModel* model = new InstancingModel();
-	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea);
+	model->Initialize(modelData, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea, false);
 
 
 
@@ -284,58 +388,18 @@ void InstancingModel::AddWorld(const WorldTransform& world) {
 	std::unique_ptr<WorldTransform>newWorld = std::make_unique<WorldTransform>(worl);
 	//追加
 	worlds_.push_back(std::move(newWorld));
-	
-}
-
-void InstancingModel::Draw(const Matrix4x4& viewProjection, int texture) {
-
-	pso_->PreDraw(DXF_->GetCMDList());
-
-	uvWorld_.UpdateMatrix();
-	materialData_->uvTransform = uvWorld_.matWorld_;
-
-	int index = 0;
-	for (auto& world : worlds_) {
-		Matrix4x4 worldM = world.get()->matWorld_;
-
-		Matrix4x4 WVP = worldM * viewProjection;
-
-		wvpData_[index].WVP = WVP;
-		wvpData_[index].World = worldM;
-
-		index++;
-	}
-
-	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
-	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
-	
-	//マテリアルCBufferの場所を設定
-	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
-	//
-	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
-
-	if (texture == -1) {
-		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, texture_);
-	}
-	else {
-		//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
-		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
-	}
-	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(1, instancingHandle_);
-
-	//描画！		
-	DXF_->GetCMDList()->DrawInstanced(point_,index , 0, 0);
 
 }
+
 
 void InstancingModel::Initialize(
-	std::string name,
+	ModelData modeldata,
 	int point,
 	int instancingNum,
 	ID3D12Resource* vertexRtea,
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView) {
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
+	bool isOBJ
+) {
 
 	DXF_ = DirectXFunc::GetInstance();
 
@@ -343,11 +407,16 @@ void InstancingModel::Initialize(
 	pso_->Initialize(DXF_->GetDevice());
 
 	//各データ受け渡し
+	modelData_ = modeldata;
+
 	point_ = point;
 	instancingNum_ = instancingNum;
+
 	vertexData_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
-	
+
+	isOBJ_ = isOBJ;
+
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
 	wvpResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(WorldTransformation) * instancingNum);
 	//データを書き込む
@@ -386,13 +455,13 @@ void InstancingModel::Initialize(
 
 #pragma region テクスチャ関係
 	//スプライトの指定がない場合
-	if (name == "") {
+	if (modeldata.material.textureFilePath == "") {
 		int tex = TextureManager::uvChecker_;
 		texture_ = SRVM->GetTextureDescriptorHandle(tex);
 	}
 	else {
 		//指定があった場合
-		int texture = TextureManager::LoadTex(name);
+		int texture = TextureManager::LoadTex(modeldata.material.textureFilePath);
 		texture_ = SRVM->GetTextureDescriptorHandle(texture);
 	}
 #pragma endregion
@@ -413,5 +482,55 @@ void InstancingModel::Initialize(
 	}
 #pragma endregion
 
+
 	Log("Model is Created!\n");
+}
+
+
+void InstancingModel::Draw(const Matrix4x4& viewProjection, int texture) {
+
+	pso_->PreDraw(DXF_->GetCMDList());
+
+	uvWorld_.UpdateMatrix();
+	materialData_->uvTransform = uvWorld_.matWorld_;
+
+	int index = 0;
+	for (auto& world : worlds_) {
+		Matrix4x4 worldM = world.get()->matWorld_;
+
+		Matrix4x4 WVP = worldM * viewProjection;
+
+		if (isOBJ_) {
+			wvpData_[index].WVP = WVP;
+			wvpData_[index].World = worldM;
+		}
+		else {
+			wvpData_[index].WVP = modelData_.rootNode.localMatrix * WVP;
+			wvpData_[index].World = modelData_.rootNode.localMatrix * worldM;
+		}
+		index++;
+	}
+
+	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+	//マテリアルCBufferの場所を設定
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	//
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+
+	if (texture == -1) {
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, texture_);
+	}
+	else {
+		//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	}
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(1, instancingHandle_);
+
+	//描画！		
+	DXF_->GetCMDList()->DrawInstanced(point_, index, 0, 0);
+
 }
