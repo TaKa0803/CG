@@ -170,6 +170,12 @@
     <Filter Include="Application\Allice">
       <UniqueIdentifier>{b643cc51-66e2-4567-acf3-08f03da3af75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\GLTFModel">
+      <UniqueIdentifier>{ab760cfa-4515-4cb0-87c5-ea1ecdc471db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\GLTFModel\GLTFModela">
+      <UniqueIdentifier>{f7359104-d287-4dc7-a462-598a8224b6ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="externals\Imgui\imgui.cpp">
@@ -331,6 +337,9 @@
     </ClCompile>
     <ClCompile Include="Application\Alice.cpp">
       <Filter>Application\Allice</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\GLTFModel\GLTFModel.cpp">
+      <Filter>Engine\GLTFModel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -518,6 +527,9 @@
     </ClInclude>
     <ClInclude Include="Application\Alice.h">
       <Filter>Application\Allice</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\GLTFModel\GLTFModel.h">
+      <Filter>Engine\GLTFModel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

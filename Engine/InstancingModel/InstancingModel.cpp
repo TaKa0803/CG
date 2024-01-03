@@ -4,14 +4,15 @@
 #include"functions/function.h"
 #include"SRVManager/SRVManager.h"
 #include"TextureManager/TextureManager.h"
-
+#include"ImGuiManager/ImGuiManager.h"
 #include"functions/function.h"
+#include"Quaternion/Quaternion.h"
 
 #include<assimp/Importer.hpp>
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
 
-#include"Quaternion/Quaternion.h"
+
 
 InstancingModel::~InstancingModel() {
 	delete pso_;
@@ -95,6 +96,7 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 
 
 				VertexData vertex;
+				vertex.indexID = vertexIndex;
 				vertex.position = { position.x,position.y,position.z,1.0f };
 				vertex.normal = { normal.x,normal.y,normal.z };
 				vertex.texcoord = { texcoord.x,texcoord.y };
@@ -225,11 +227,11 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 		animeData.name = animation->mName.C_Str();
 		//継続時間
 		animeData.duration = (float)animation->mDuration;
-		//ボーン数保存
+		//超点数
 		animeData.boneNum = animation->mNumChannels;
+		
 		//数に合わせてサイズ取得
 		animeData.bones_.resize(animation->mNumChannels);
-
 
 		isOBJ = false;
 		//各ボーンのアニメーションごとの情報取得
@@ -237,18 +239,22 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 			//ノードデータ取得
 			aiNodeAnim* aiNode = animation->mChannels[animeChannelIndex];
 
-			//座標、回転、サイズ取得
-			auto pos = aiNode->mPositionKeys->mValue;
-			auto rotation = aiNode->mRotationKeys->mValue;
-			auto scale = aiNode->mScalingKeys->mValue;
+		
+			int ite =aiNode->mNumPositionKeys-1;
 
-			//自作の構造体に合わせる
+			auto& name = aiNode->mNodeName;
+			auto pos = aiNode->mPositionKeys[ite].mValue;
+			auto rotation = aiNode->mRotationKeys[ite].mValue;
+			auto scale = aiNode->mScalingKeys[ite].mValue;
+
+			std::string stName = name.C_Str();
 			Vector3 translateV = { pos.x,pos.y,pos.z };
 			Quaternion rotateV = { rotation.x,rotation.y,rotation.z,rotation.w };
 			Vector3 scaleV = { scale.x,scale.y,scale.z };
 
 			//情報を作る
-			Transformation transformation = {
+			NodeTransformation transformation = {
+				.name{stName},
 				.translate{translateV},
 				.rotate{rotateV},
 				.scale{scaleV}
@@ -256,6 +262,8 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 
 			//データ入れる
 			animeData.bones_[animeChannelIndex] = transformation;
+
+
 		}
 
 		//データ設定
@@ -482,6 +490,142 @@ void InstancingModel::Initialize(
 	}
 #pragma endregion
 
+#pragma region アニメーションデータ生成
+
+	struct PointData {
+		uint32_t indexID;	//インデックス値
+		Vector3 position;	//ボーンに対する頂点位置
+		float Weight;		//影響度
+	};
+
+	struct DataOfBoneAndPoint {
+		std::string name;	//名前
+		std::vector<PointData>datas;	//影響する頂点データ
+	};
+
+	//ボーンの親子関係系データ
+	std::vector<DataOfBoneAndPoint> B_PDatas;
+	B_PDatas.resize(modelData_.boneDatas.size());
+
+#pragma region まずボーンとの親子関係座標取得
+	//ボーンに対する頂点情報を設定
+	for (uint32_t boneIndex = 0; boneIndex < modelData_.boneDatas.size(); ++boneIndex) {
+
+		//ボーンデータ取得
+		BoneData boneData = modelData_.boneDatas[boneIndex];
+
+		//保存構造体
+		DataOfBoneAndPoint BAndPData;
+		BAndPData.name = boneData.name;
+
+
+
+		//ボーンの行列取得
+		Matrix4x4 boneMatrix = boneData.offset;
+
+		
+		//ボーンに影響する頂点取得
+		for (uint32_t Index = 0; Index < boneData.data.size(); ++Index) {
+			//影響する頂点情報取得
+			BoneVertexData bv = boneData.data[Index];
+
+
+			//対応する頂点情報取得
+			for (uint32_t vertexIndex = 0; vertexIndex < modelData_.vertices.size(); ++vertexIndex) {
+				//IDが一緒の場合
+				if (bv.IndexID == modelData_.vertices[vertexIndex].indexID) {
+					//ボーンを基準点とした位置を取得
+					Vector4 pos = modelData_.vertices[vertexIndex].position;
+					
+					//構造体宣言&データ挿入
+					PointData pointData;
+					pointData.indexID = bv.IndexID;
+					pointData.position = { pos.x,pos.y,pos.z };
+					pointData.Weight = bv.Weight;
+
+					BAndPData.datas.push_back(pointData);
+
+					break;
+				}
+			}
+
+		}
+
+		//データ保存
+		B_PDatas[boneIndex] = BAndPData;
+	}
+#pragma endregion
+	//アニメーション数取得
+	animationVertexes_.resize(modelData_.animations.size());
+
+	//アニメーション分作成
+	for (uint32_t animationsIndex = 0; animationsIndex < animationVertexes_.size(); ++animationsIndex) {
+		
+		//アニメーションの各頂点の始点終点保存構造体
+		AnimationVertex animeVertex;
+
+		//始点終点数設定
+		animeVertex.startPositions.resize(modelData_.vertices.size());
+		animeVertex.endPositions.resize(modelData_.vertices.size());
+
+
+		///アニメーション時のボーンの行列作成
+		//アニメーションデータ取得
+		AnimationData animeData =modelData_.animations[animationsIndex];
+
+		//ボーンの数
+		for (uint32_t boneIndex = 0; boneIndex < animeData.bones_.size();++boneIndex) {
+			//ボーンの形取得
+			auto& data = animeData.bones_[boneIndex];
+			//各行列
+			Matrix4x4 translateM = MakeTranslateMatrix(data.translate);
+			Matrix4x4 rotateM = data.rotate.MakeRotateMatrix();
+			Matrix4x4 scaleM = MakeScaleMatrix(data.scale);
+
+			//ワールド行列作成
+			Matrix4x4 boneM = scaleM * (rotateM * translateM);
+
+			//名前取得
+			std::string name = data.name;
+			
+			//ボーンの各頂点処理
+			for (auto& bData : B_PDatas) {
+				//ボーンの名前が同じとき
+				if (bData.name == name) {
+
+					//すべての頂点を親子関係で移動させてその点を取得
+					for (auto&pd : bData.datas ) {
+
+						Vector3 pos = pd.position;
+						Vector3 rotate{};
+						Vector3 scale{1,1,1};
+						//頂点の行列
+						Matrix4x4 pointM = MakeAffineMatrix(scale, rotate, pos);
+
+						//親（ボーン）行列をかける
+						pointM *= boneM;
+
+						//かけた行列から座標を取得
+						Vector3 position = { pointM.m[3][0],pointM.m[3][1],pointM.m[3][2] };
+
+						
+					}
+
+
+						break;
+				}
+			}
+
+		}
+
+		//データ送信
+		animationVertexes_[animationsIndex] = animeVertex;
+
+	}
+
+
+#pragma endregion
+
 
 	Log("Model is Created!\n");
 }
@@ -532,5 +676,20 @@ void InstancingModel::Draw(const Matrix4x4& viewProjection, int texture) {
 
 	//描画！		
 	DXF_->GetCMDList()->DrawInstanced(point_, index, 0, 0);
+
+}
+
+void InstancingModel::DebugParameter(const char* name) {
+
+#ifdef _DEBUG
+
+	ImGui::Begin(name);
+	ImGui::Text("Bone");
+	Matrix4x4Debug(modelData_.boneDatas[0].offset, name);
+	Matrix4x4Debug(modelData_.boneDatas[1].offset, name);
+	ImGui::End();
+#endif // _DEBUG
+
+
 
 }

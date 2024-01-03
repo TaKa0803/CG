@@ -2,20 +2,35 @@
 #include"Math/Vector3.h"
 #include"Math/Matrix.h"
 
+
+
 class Quaternion {
 
 public:
 
-	float x=0;
+	float x = 0;
 
-	float y=0;
+	float y = 0;
 
-	float z=0;
+	float z = 0;
 
-	float w=0;
+	float w = 0;
 
 	inline Vector3 XYZ()const { return { x,y,z }; }
-	
+
+	Matrix4x4 MakeRotateMatrix() {
+		return {
+
+		w * w + x * x - y * y - z * z,2 * (x * y + w * z),2 * (x * z - w * y),0,
+
+		2 * (x * y - w * z),w * w - x * x + y * y - z * z,2 * (y * z + w * x),0,
+
+		2 * (x * z + w * y),2 * (y * z - w * x),w * w - x * x - y * y + z * z,0,
+		0,0,0,1
+
+		};
+	}
+
 #pragma region オーバーロード
 
 	friend Quaternion operator*(const Quaternion& q, const float f) { return { q.x * f,q.y * f,q.z * f,q.w * f }; }
@@ -48,7 +63,6 @@ Quaternion MakeRotateAxisAngleQuaternion(const Vector3& axis, float angle);
 //ベクトルをQuaternionで回転させた結果のベクトルを求める
 Vector3 RotateVector(const Vector3& vec, const Quaternion& qua);
 
-Matrix4x4 MakeRotateMatrix(const Quaternion& qua);
 
 Quaternion MakeIdentityQuaternion();
 

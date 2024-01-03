@@ -17,12 +17,10 @@ private:
 
 	Vector3 pointY = { 2.1f,-0.9f,1.3f };
 
-	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotation);
-
+	
 	Vector3 rotateByQuaternion = RotateVector(pointY, rotation);
 
-	Vector3 rotateByMatrix = Transform(pointY, rotateMatrix);
-
+	
 
 };
 

@@ -39,6 +39,12 @@ enum class FillMode {
 	kCountOfFillMode
 };
 
+
+struct AnimationVertex {
+	std::vector<Vector3>startPositions;//開始時の頂点
+	std::vector<Vector3>endPositions;//終了時の頂点
+};
+
 struct WorldTransformation {
 	Matrix4x4 WVP;
 	Matrix4x4 World;
@@ -56,7 +62,8 @@ struct BoneData {
 	std::vector<BoneVertexData>data;//影響する頂点の影響データ
 };
 
-struct Transformation {
+struct NodeTransformation {
+	std::string name;
 	Vector3 translate;
 	Quaternion rotate;
 	Vector3 scale;
@@ -67,15 +74,16 @@ struct AnimationData {
 	std::string name;			//名前
 	float duration;				//継続時間
 	uint32_t boneNum;				//ボーン数
-	std::vector<Transformation>bones_;//アニメーション後のボーンデータ
+	std::vector<NodeTransformation>bones_;//アニメーション後のボーンデータ
 };
 
 
 struct VertexData {
+	uint32_t indexID;
 	Vector4 position = { 0,0,0,0 };
 	Vector2 texcoord = { 0,0 };
 	Vector3 normal = { 0,0,0 };
-	std::vector<float> boneWeights;
+	
 };
 
 struct MaterialData {

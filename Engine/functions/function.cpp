@@ -100,7 +100,7 @@ ModelData LoadObjFile(const std::string& directoryPath, const std::string& filen
 				//VertexData vertex = { position,texcoord,normal };
 				//modeldata.vertices.push_back(vertex);
 
-				triangle[faceVertex] = { position,texcoord,normal };
+				triangle[faceVertex] = {0, position,texcoord,normal };
 			}
 			modeldata.vertices.push_back(triangle[2]);
 			modeldata.vertices.push_back(triangle[1]);

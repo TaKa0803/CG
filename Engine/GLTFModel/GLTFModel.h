@@ -1,25 +1,20 @@
 #pragma once
-
 #include<wrl.h>
 #include<string>
 
+#include"WorldTransform/WorldTransform.h"
 #include"DirectXFunc/DirectXFunc.h"
 #include"InstancingPSO/InstancingPSO.h"
-#include"Math/Vector2.h"
-#include"Math/Matrix.h"
-#include"struct.h"
-#include"ModelManager/ModelManager.h"
 
 
-
-class InstancingModel {
+class GLTFModel {
 public:
 
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~InstancingModel();
+	~GLTFModel();
 
 	template<class T>using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -28,9 +23,9 @@ public:
 	/// </summary>
 	/// <param name="filePath">resources以降のフォルダ</param>
 	/// <returns><モデルデータ/returns>
-	static InstancingModel* CreateFromOBJ(const std::string& directory, const std::string& filePath,int instancingNum);
+	static GLTFModel* CreateFromOBJ(const std::string& directory, const std::string& filePath, int instancingNum);
 
-	static InstancingModel* CreateFromGLTF(const std::string& directory, const std::string& filePath, int instancingNum);
+	static GLTFModel* CreateFromGLTF(const std::string& directory, const std::string& filePath, int instancingNum);
 
 public:
 
@@ -124,7 +119,8 @@ private:
 
 private:
 
-	//
+
+
 	DirectXFunc* DXF_;
 
 	InstancingPSO* pso_;
@@ -148,13 +144,11 @@ private:
 	//モデルデータ
 	ModelData modelData_;
 
-	std::vector<AnimationVertex>animationVertexes_;
-
 	ID3D12Resource* vertexData_;
 	//頂点バッファビューを作成する
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
-	
+
 
 	ID3D12Resource* wvpResource_;
 	WorldTransformation* wvpData_ = nullptr;

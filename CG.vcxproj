@@ -124,6 +124,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\DirectXFunc\DirectXFunc.cpp" />
     <ClCompile Include="Engine\functions\function.cpp" />
     <ClCompile Include="Engine\GlobalVariables\GlobalVariables.cpp" />
+    <ClCompile Include="Engine\GLTFModel\GLTFModel.cpp" />
     <ClCompile Include="Engine\Graphics\Graphics.cpp" />
     <ClCompile Include="Engine\IGameObject\GameObject.cpp" />
     <ClCompile Include="Engine\ImGuiManager\ImGuiManager.cpp" />
@@ -207,6 +208,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\DirectXFunc\DirectXFunc.h" />
     <ClInclude Include="Engine\functions\function.h" />
     <ClInclude Include="Engine\GlobalVariables\GlobalVariables.h" />
+    <ClInclude Include="Engine\GLTFModel\GLTFModel.h" />
     <ClInclude Include="Engine\Graphics\Graphics.h" />
     <ClInclude Include="Engine\IGameObject\GameObject.h" />
     <ClInclude Include="Engine\ImGuiManager\ImGuiManager.h" />
