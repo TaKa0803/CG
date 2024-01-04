@@ -323,6 +323,9 @@
     <ClCompile Include="Engine\Math\Vector3.cpp">
       <Filter>Engine\Math\Vector3</Filter>
     </ClCompile>
+    <ClCompile Include="InstancingGameObject.cpp">
+      <Filter>Engine\Instancing\InstancingGameObject</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\InstancingModel\InstancingModel.cpp">
       <Filter>Engine\Instancing\InstancingModel</Filter>
     </ClCompile>

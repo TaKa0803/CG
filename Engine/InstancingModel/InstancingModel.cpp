@@ -8,9 +8,6 @@
 #include"functions/function.h"
 #include"Quaternion/Quaternion.h"
 
-#include<assimp/Importer.hpp>
-#include<assimp/scene.h>
-#include<assimp/postprocess.h>
 
 
 
