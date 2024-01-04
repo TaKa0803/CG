@@ -1,22 +1,17 @@
-#include "Instancing/InstancingGameObject.h"
+#include "InstancingGameObject.h"
 
 InstancingGameObject::~InstancingGameObject() {
+	delete model_;
 }
 
-void InstancingGameObject::Initialize(const std::string& tag) {
-	IMM_ = InstancingModelManager::GetInstance();
-
-	//タグが存在しているかチェック
-	if (IMM_->SerchTag(tag)) {
-		tag_ = tag;
-	}
+void InstancingGameObject::Initialize(const std::string& filepath) {
+	model_ = InstancingModel::Coreate(filepath);
 }
 
 void InstancingGameObject::Update() {
-	//行列更新
 	world_.UpdateMatrix();
-	//タグに対応したモデルにワールド追加
-	IMM_->SetWorld(tag_, world_);
 }
 
-
+void InstancingGameObject::Draw() {
+	model_->Draw(world_);
+}
