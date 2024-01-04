@@ -29,22 +29,7 @@ Node ReadNode(aiNode* node) {
 	Node result;
 	aiMatrix4x4 aiLocalMatrix = node->mTransformation;	//nodeのlocalMatrixを取得
 	aiLocalMatrix.Transpose();							//列ベクトルを行ベクトルに転置
-	
-	//切り捨てる数字
-	float roundDownNumber = 0.00001f;
-
-	for (int Y = 0; Y < 4; ++Y) {
-		for (int X = 0; X < 4; ++X) {
-
-			float matrixNum = aiLocalMatrix[Y][X];		//ほかの要素も同様に
-
-			if (matrixNum < -roundDownNumber && matrixNum>roundDownNumber) {
-				matrixNum = 0.0f;
-			}
-
-			result.localMatrix.m[Y][X] = matrixNum;
-		}
-	}
+	result.localMatrix.m[0][0]=aiLocalMatrix[0][0];		//ほかの要素も同様に
 
 	result.name = node->mName.C_Str();					//Node名を格納
 	result.children.resize(node->mNumChildren);			//子供の数だけ確保
@@ -56,7 +41,7 @@ Node ReadNode(aiNode* node) {
 	return result;
 }
 
-InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, const std::string& filePath, int instancingNum) {
+InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory,const std::string& filePath, int instancingNum) {
 	DirectXFunc* DXF = DirectXFunc::GetInstance();
 
 #pragma region モデル
@@ -71,11 +56,6 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 
 	ModelData modelData;
 
-	bool isOBJ = true;
-
-
-
-#pragma region メッシュデータ
 	//各メッシュ解析
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -93,106 +73,54 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 				aiVector3D& normal = mesh->mNormals[vertexIndex];
 				aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
 
-
+				
 
 				VertexData vertex;
 				vertex.indexID = vertexIndex;
 				vertex.position = { position.x,position.y,position.z,1.0f };
 				vertex.normal = { normal.x,normal.y,normal.z };
 				vertex.texcoord = { texcoord.x,texcoord.y };
-
+				
 				vertex.position.x *= -1.0f;
 				vertex.normal.x *= -1.0f;
-
+				
 				//頂点データ送信
 				modelData.vertices.push_back(vertex);
 			}
 		}
 
 
-
-
-#pragma region ボーンデータ
-
-		//データ作成とサイズ
-		std::vector<BoneData> boneDatas;
-		boneDatas.resize(mesh->mNumBones);
-
-		//各ボーン解析
+		//メッシュのボーン解析
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
-
-			//ボーンデータ
-			BoneData bonedata;
-
-			//ボーンデータ取得
+			//各ボーンに対するウェイト取得
 			auto& bone = mesh->mBones[boneIndex];
 
-
-			//名前取得
-			bonedata.name = bone->mName.C_Str();
-
-			//ボーンのオフセット
-			auto& boneMatrix = bone->mOffsetMatrix;
-			boneMatrix.Transpose();
-			Matrix4x4 offsetM = MakeIdentity4x4();
-
+			//データ作成
+			BoneData boneda;
 			
-			for (int Y = 0; Y < 4; ++Y) {
-				for (int X = 0; X < 4; ++X) {
-
-					double matrixNum = boneMatrix[Y][X];		//ほかの要素も同様に
-
-					const double threshold = 1.0e-04;  // ある閾値以下の値をゼロと見なす
-
-					// ゼロに近似する処理
-					if (std::abs(matrixNum) < threshold) {
-						matrixNum = 0.0;
-					}
-
-					offsetM.m[Y][X] = (float)matrixNum;
-				}
-			}
-
-			//オフセット代入
-			bonedata.offset = offsetM;
-
 			//データ量とサイズ設定
 			std::vector<BoneVertexData>boneVertexData;
 			boneVertexData.resize(bone->mNumWeights);
 
-
-			//ボーンの影響の与えるすべて頂点情報
+			//ボーンの影響の与える頂点
 			for (uint32_t boneVertexIndex = 0; boneVertexIndex < bone->mNumWeights; ++boneVertexIndex) {
-
-				//頂点データ読み込み
-				auto& boneda = bone->mWeights[boneVertexIndex];
-
+				
+				//データ読み込み
+				auto&boneData =	bone->mWeights[boneVertexIndex];
 
 				//データ格納
-				BoneVertexData bvd = {
-				   .IndexID{boneda.mVertexId},
-				   .Weight{boneda.mWeight}
+				 BoneVertexData bvd= {
+					.IndexID{boneData.mVertexId},
+					.Weight{boneData.mWeight}
 				};
 
-				//データ設定
-				boneVertexData[boneVertexIndex] = bvd;
+				 //データ設定
+				 boneVertexData[boneVertexIndex] = bvd;
 			}
-			//ボーンの詳細なデータ設定
-			bonedata.data = boneVertexData;
-
-			//ボーンまとめに設定
-			boneDatas[boneIndex] = bonedata;
+			
 		}
-
-		modelData.boneDatas = boneDatas;
-#pragma endregion
-
-
 	}
 
-#pragma endregion
-
-#pragma region マテリアル
 	//マテリアル解析
 	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
 		aiMaterial* material = scene->mMaterials[materialIndex];
@@ -203,23 +131,18 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 		}
 	}
 
-#pragma endregion
-
-
-
-
 	//ノード
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
-#pragma region アニメーション
-	std::vector<AnimationData>animations;
-	animations.resize(scene->mNumAnimations);
+	std::vector<VertexData>animation;
 
+	animation.resize(scene->mNumAnimations);
+
+	
 	//各アニメーション解析
 	for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
 		//あるアニメーションについて
-		AnimationData animeData;
-
+		
 		//アクセス
 		aiAnimation* animation = scene->mAnimations[animationIndex];
 
@@ -266,14 +189,11 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 
 		}
 
-		//データ設定
-		animations[animationIndex] = animeData;
-
 	}
-#pragma endregion
 
+	//ModelData modeltea = LoadObjFile(directory,filePath);
 
-#pragma region 頂点データ
+	//頂点データ
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
 	vertexBufferViewtea.BufferLocation = vertexRtea->GetGPUVirtualAddress();
@@ -283,15 +203,15 @@ InstancingModel* InstancingModel::CreateFromOBJ(const std::string& directory, co
 	VertexData* vertexDatatea = nullptr;
 	vertexRtea->Map(0, nullptr, reinterpret_cast<void**>(&vertexDatatea));
 	std::memcpy(vertexDatatea, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+
+
+	
 #pragma endregion
 
-#pragma endregion
 
-	//アニメーションデータ設定
-	modelData.animations = animations;
 
 	InstancingModel* model = new InstancingModel();
-	model->Initialize(modelData, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea, isOBJ);
+	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()),instancingNum, vertexRtea, vertexBufferViewtea);
 
 
 
@@ -358,7 +278,7 @@ InstancingModel* InstancingModel::CreateFromGLTF(const std::string& directory, c
 
 	//ノード
 	modelData.rootNode = ReadNode(scene->mRootNode);
-
+	
 	//頂点データ
 	ID3D12Resource* vertexRtea = CreateBufferResource(DXF->GetDevice(), sizeof(VertexData) * modelData.vertices.size());
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViewtea{};
@@ -377,7 +297,7 @@ InstancingModel* InstancingModel::CreateFromGLTF(const std::string& directory, c
 
 
 	InstancingModel* model = new InstancingModel();
-	model->Initialize(modelData, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea, false);
+	model->Initialize(modelData.material.textureFilePath, UINT(modelData.vertices.size()), instancingNum, vertexRtea, vertexBufferViewtea);
 
 
 
@@ -396,18 +316,58 @@ void InstancingModel::AddWorld(const WorldTransform& world) {
 	std::unique_ptr<WorldTransform>newWorld = std::make_unique<WorldTransform>(worl);
 	//追加
 	worlds_.push_back(std::move(newWorld));
+	
+}
+
+void InstancingModel::Draw(const Matrix4x4& viewProjection, int texture) {
+
+	pso_->PreDraw(DXF_->GetCMDList());
+
+	uvWorld_.UpdateMatrix();
+	materialData_->uvTransform = uvWorld_.matWorld_;
+
+	int index = 0;
+	for (auto& world : worlds_) {
+		Matrix4x4 worldM = world.get()->matWorld_;
+
+		Matrix4x4 WVP = worldM * viewProjection;
+
+		wvpData_[index].WVP = WVP;
+		wvpData_[index].World = worldM;
+
+		index++;
+	}
+
+	DXF_->GetCMDList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	//形状を設定、PSOに設定しているものとはまた別、同じものを設定すると考えておけばいい
+	DXF_->GetCMDList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	
+	//マテリアルCBufferの場所を設定
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	//
+	DXF_->GetCMDList()->SetGraphicsRootConstantBufferView(3, directionalLightResource_->GetGPUVirtualAddress());
+
+	if (texture == -1) {
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, texture_);
+	}
+	else {
+		//SRVのDescriptorTableの先頭を設定。２はParameter[2]である。
+		DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(2, SRVManager::GetInstance()->GetTextureDescriptorHandle(texture));
+	}
+	DXF_->GetCMDList()->SetGraphicsRootDescriptorTable(1, instancingHandle_);
+
+	//描画！		
+	DXF_->GetCMDList()->DrawInstanced(point_,index , 0, 0);
 
 }
 
-
 void InstancingModel::Initialize(
-	ModelData modeldata,
+	std::string name,
 	int point,
 	int instancingNum,
 	ID3D12Resource* vertexRtea,
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView,
-	bool isOBJ
-) {
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView) {
 
 	DXF_ = DirectXFunc::GetInstance();
 
@@ -415,16 +375,11 @@ void InstancingModel::Initialize(
 	pso_->Initialize(DXF_->GetDevice());
 
 	//各データ受け渡し
-	modelData_ = modeldata;
-
 	point_ = point;
 	instancingNum_ = instancingNum;
-
 	vertexData_ = vertexRtea;
 	vertexBufferView_ = vertexBufferView;
-
-	isOBJ_ = isOBJ;
-
+	
 	//WVP用のリソースを作る。Matrix４ｘ４1つ分のサイズを用意する
 	wvpResource_ = CreateBufferResource(DXF_->GetDevice(), sizeof(WorldTransformation) * instancingNum);
 	//データを書き込む
@@ -463,13 +418,13 @@ void InstancingModel::Initialize(
 
 #pragma region テクスチャ関係
 	//スプライトの指定がない場合
-	if (modeldata.material.textureFilePath == "") {
+	if (name == "") {
 		int tex = TextureManager::uvChecker_;
 		texture_ = SRVM->GetTextureDescriptorHandle(tex);
 	}
 	else {
 		//指定があった場合
-		int texture = TextureManager::LoadTex(modeldata.material.textureFilePath);
+		int texture = TextureManager::LoadTex(name);
 		texture_ = SRVM->GetTextureDescriptorHandle(texture);
 	}
 #pragma endregion
@@ -489,143 +444,6 @@ void InstancingModel::Initialize(
 		instancingHandle_ = SRVM->GetTextureDescriptorHandle(instancingHandleNum);
 	}
 #pragma endregion
-
-#pragma region アニメーションデータ生成
-
-	struct PointData {
-		uint32_t indexID;	//インデックス値
-		Vector3 position;	//ボーンに対する頂点位置
-		float Weight;		//影響度
-	};
-
-	struct DataOfBoneAndPoint {
-		std::string name;	//名前
-		std::vector<PointData>datas;	//影響する頂点データ
-	};
-
-	//ボーンの親子関係系データ
-	std::vector<DataOfBoneAndPoint> B_PDatas;
-	B_PDatas.resize(modelData_.boneDatas.size());
-
-#pragma region まずボーンとの親子関係座標取得
-	//ボーンに対する頂点情報を設定
-	for (uint32_t boneIndex = 0; boneIndex < modelData_.boneDatas.size(); ++boneIndex) {
-
-		//ボーンデータ取得
-		BoneData boneData = modelData_.boneDatas[boneIndex];
-
-		//保存構造体
-		DataOfBoneAndPoint BAndPData;
-		BAndPData.name = boneData.name;
-
-
-
-		//ボーンの行列取得
-		Matrix4x4 boneMatrix = boneData.offset;
-
-		
-		//ボーンに影響する頂点取得
-		for (uint32_t Index = 0; Index < boneData.data.size(); ++Index) {
-			//影響する頂点情報取得
-			BoneVertexData bv = boneData.data[Index];
-
-
-			//対応する頂点情報取得
-			for (uint32_t vertexIndex = 0; vertexIndex < modelData_.vertices.size(); ++vertexIndex) {
-				//IDが一緒の場合
-				if (bv.IndexID == modelData_.vertices[vertexIndex].indexID) {
-					//ボーンを基準点とした位置を取得
-					Vector4 pos = modelData_.vertices[vertexIndex].position;
-					
-					//構造体宣言&データ挿入
-					PointData pointData;
-					pointData.indexID = bv.IndexID;
-					pointData.position = { pos.x,pos.y,pos.z };
-					pointData.Weight = bv.Weight;
-
-					BAndPData.datas.push_back(pointData);
-
-					break;
-				}
-			}
-
-		}
-
-		//データ保存
-		B_PDatas[boneIndex] = BAndPData;
-	}
-#pragma endregion
-	//アニメーション数取得
-	animationVertexes_.resize(modelData_.animations.size());
-
-	//アニメーション分作成
-	for (uint32_t animationsIndex = 0; animationsIndex < animationVertexes_.size(); ++animationsIndex) {
-		
-		//アニメーションの各頂点の始点終点保存構造体
-		AnimationVertex animeVertex;
-
-		//始点終点数設定
-		animeVertex.startPositions.resize(modelData_.vertices.size());
-		animeVertex.endPositions.resize(modelData_.vertices.size());
-
-
-		///アニメーション時のボーンの行列作成
-		//アニメーションデータ取得
-		AnimationData animeData =modelData_.animations[animationsIndex];
-
-		//ボーンの数
-		for (uint32_t boneIndex = 0; boneIndex < animeData.bones_.size();++boneIndex) {
-			//ボーンの形取得
-			auto& data = animeData.bones_[boneIndex];
-			//各行列
-			Matrix4x4 translateM = MakeTranslateMatrix(data.translate);
-			Matrix4x4 rotateM = data.rotate.MakeRotateMatrix();
-			Matrix4x4 scaleM = MakeScaleMatrix(data.scale);
-
-			//ワールド行列作成
-			Matrix4x4 boneM = scaleM * (rotateM * translateM);
-
-			//名前取得
-			std::string name = data.name;
-			
-			//ボーンの各頂点処理
-			for (auto& bData : B_PDatas) {
-				//ボーンの名前が同じとき
-				if (bData.name == name) {
-
-					//すべての頂点を親子関係で移動させてその点を取得
-					for (auto&pd : bData.datas ) {
-
-						Vector3 pos = pd.position;
-						Vector3 rotate{};
-						Vector3 scale{1,1,1};
-						//頂点の行列
-						Matrix4x4 pointM = MakeAffineMatrix(scale, rotate, pos);
-
-						//親（ボーン）行列をかける
-						pointM *= boneM;
-
-						//かけた行列から座標を取得
-						Vector3 position = { pointM.m[3][0],pointM.m[3][1],pointM.m[3][2] };
-
-						
-					}
-
-
-						break;
-				}
-			}
-
-		}
-
-		//データ送信
-		animationVertexes_[animationsIndex] = animeVertex;
-
-	}
-
-
-#pragma endregion
-
 
 	Log("Model is Created!\n");
 }
